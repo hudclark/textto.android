@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "447535604738",
+    "firebase_url": "https://textto-eba63.firebaseio.com",
+    "project_id": "textto-eba63",
+    "storage_bucket": "textto-eba63.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:447535604738:android:db984bb779a3ed4a",
+        "android_client_info": {
+          "package_name": "com.octopusbeach.textto"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "447535604738-iir571g7ep57v0fo3ea9c6df0fehg4n3.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBX22k_unFVd-efZM3VL1MPYu1uIEtKb18"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
