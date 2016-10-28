@@ -1,8 +1,11 @@
 package com.octopusbeach.textto.api
 
+import android.util.Log
+import com.google.gson.JsonObject
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.Response
+import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
@@ -13,7 +16,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 object ApiClient {
     val TAG = "Api Client"
 
-    private val BASE_URL = "http://35.2.229.24:8000"
+    private val BASE_URL = "http://192.168.0.16:8000/"
     private var client: Retrofit? = null
 
     private fun init() {
@@ -21,13 +24,31 @@ object ApiClient {
         builder.addInterceptor(object: Interceptor {
             override fun intercept(chain: Interceptor.Chain): Response {
                 val org = chain.request()
+                val token = SessionManager.getToken() ?: ""
                 val req = org.newBuilder()
-                        .header("Authorization", "Bearer ${SessionManager.getToken()}")
+                        .header("x-access-token", token)
                         .method(org.method(), org.body())
                         .build()
-                return chain.proceed(req)
+                val origResponse = chain.proceed(req)
+
+                // handle token refresh
+                if (origResponse.code() == 403) {
+                    SessionManager.reAuth()
+                    val newToken = SessionManager.getToken() ?: ""
+                    val newReq = org.newBuilder()
+                            .header("x-access-token", newToken)
+                            .method(org.method(), org.body())
+                            .build()
+                    val newResponse = chain.proceed(newReq)
+                    return newResponse
+                } else
+                    return origResponse
             }
         })
+
+        val interceptor = HttpLoggingInterceptor()
+        interceptor.level = HttpLoggingInterceptor.Level.BODY
+        builder.addInterceptor(interceptor)
 
         client = Retrofit.Builder()
                 .baseUrl(BASE_URL)

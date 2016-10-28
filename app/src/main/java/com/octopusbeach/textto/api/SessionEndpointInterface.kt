@@ -1,24 +1,23 @@
 package com.octopusbeach.textto.api
 
-import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import com.octopusbeach.textto.model.User
-import okhttp3.RequestBody
 import retrofit2.Call
-import retrofit2.http.*
+import retrofit2.http.Body
+import retrofit2.http.POST
 
 /**
  * Created by hudson on 9/5/16.
  */
 interface SessionEndpointInterface {
 
-    @GET("user")
-    fun getUser(): Call<JsonElement>
+    @POST("googleAuth")
+    fun googleAuth(@Body token: JsonObject): Call<JsonObject>
 
-    @PUT("users/:id")
-    fun updateUser(@Path("id") id: String, @Body data: RequestBody): Call<User>
+    @POST("refreshToken")
+    fun refreshToken(@Body token: JsonObject): Call<JsonObject>
 
     @POST("user/firebase-id")
-    fun updateFirebaseId(@Body token: JsonObject): Call<User>
+    fun updateFirebaseId(@Body token: JsonObject): Call<Map<String, User>>
 
 }

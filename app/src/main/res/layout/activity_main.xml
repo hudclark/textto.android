@@ -10,11 +10,9 @@
     android:background="@color/colorPrimary"
     tools:context="com.octopusbeach.textto.MainActivity">
 
-    <com.google.android.gms.common.SignInButton
-        android:id="@+id/login_btn"
-        android:visibility="gone"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
-    </com.google.android.gms.common.SignInButton>
+    <FrameLayout
+        android:id="@+id/fragment_content"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
 
 </RelativeLayout>

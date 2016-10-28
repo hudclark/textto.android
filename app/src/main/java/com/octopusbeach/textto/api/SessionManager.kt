@@ -3,11 +3,10 @@ package com.octopusbeach.textto.api
 import android.content.Context
 import android.preference.PreferenceManager
 import android.util.Log
-import com.google.android.gms.common.api.Api
 import com.google.gson.Gson
-import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import com.octopusbeach.textto.model.User
+import com.octopusbeach.textto.utils.MessageUtils
 import okhttp3.RequestBody
 import retrofit2.Call
 import retrofit2.Callback
@@ -19,6 +18,7 @@ import retrofit2.Response
 object SessionManager {
 
     private val AUTH_TOKEN = "AUTH_TOKEN"
+    private val REFRESH_TOKEN = "REFRESH_TOKEN"
     private val TAG = "Session Manager"
 
     private var token: String? = null
@@ -29,9 +29,25 @@ object SessionManager {
         this.context = context
     }
 
-    fun getToken() = token
+    fun getToken(): String? {
+        if (token != null)
+            return token
+        if (context != null) {
+            val prefs = PreferenceManager.getDefaultSharedPreferences(context)
+            return prefs.getString(AUTH_TOKEN, null)
+        }
+        return null
+    }
 
-    fun setToken(token: String?) {
+    private fun getRefreshToken(): String? {
+        if (context != null) {
+            val prefs = PreferenceManager.getDefaultSharedPreferences(context)
+            return prefs.getString(REFRESH_TOKEN, null)
+        }
+        return null
+    }
+
+    fun setAccessToken(token: String?) {
         this.token = token
         if (context == null) {
             Log.e(TAG, "No context")
@@ -43,32 +59,52 @@ object SessionManager {
         }
     }
 
+    fun setRefreshToken(token: String?) {
+        this.token = token
+        if (context == null) {
+            Log.e(TAG, "No context")
+        } else {
+            val editor = PreferenceManager.getDefaultSharedPreferences(context).edit()
+            editor.putString(REFRESH_TOKEN, token)
+            editor.apply()
+        }
+    }
+
+    fun reAuth() {
+        val refreshToken = getRefreshToken()
+        if (refreshToken != null) {
+
+            try {
+
+                val data = JsonObject()
+                data.addProperty("token", refreshToken)
+                val call = ApiClient.getInstance().create(SessionEndpointInterface::class.java).refreshToken(data)
+                val response = call.execute()
+                val token = response?.body()?.get("token")?.asString
+                Log.e("TEST", response.toString())
+                if (token != null) {
+                    setAccessToken(token)
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "Error refreshing token")
+            }
+        }
+    }
+
     fun setFirebaseToken(token: String?) {
         if (token != null) {
             val data = JsonObject()
             data.addProperty("firebaseId", token)
             val req = ApiClient.getInstance().create(SessionEndpointInterface::class.java).updateFirebaseId(data)
-            req.enqueue(object: Callback<User> {
-                override fun onResponse(call: Call<User>?, response: Response<User>?) {
-                    Log.d(TAG, "Set firebase id: ${response?.body()?.firebaseId ?: "null"}")
+            req.enqueue(object: Callback<Map<String, User>> {
+                override fun onResponse(call: Call<Map<String, User>>?, response: Response<Map<String, User>>) {
+                    Log.d(TAG, "Set firebase id: ${response.body()?.get("user")?.firebaseId ?: "null"}")
                 }
 
-                override fun onFailure(call: Call<User>?, t: Throwable?) {
+                override fun onFailure(call: Call<Map<String, User>>?, t: Throwable?) {
                     Log.e(TAG, t?.message.toString())
                 }
             })
         }
-    }
-
-    fun updateUser(user: User) {
-        val client = ApiClient.getInstance().create(SessionEndpointInterface::class.java)
-        val body = RequestBody.create(okhttp3.MediaType.parse("application/json; charset=utf-8"), Gson().toJson(user, User::class.java))
-        client.updateUser(user._id, body).enqueue(object: Callback<User> {
-            override fun onResponse(call: Call<User>?, response: Response<User>?) {
-            }
-            override fun onFailure(call: Call<User>?, t: Throwable?) {
-                Log.e(TAG, t?.message.toString())
-            }
-        })
     }
 }
