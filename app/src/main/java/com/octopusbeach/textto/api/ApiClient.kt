@@ -1,13 +1,13 @@
+
 package com.octopusbeach.textto.api
 
-import android.util.Log
-import com.google.gson.JsonObject
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.Response
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import java.util.concurrent.TimeUnit
 
 /**
  * Created by hudson on 9/5/16.
@@ -16,7 +16,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 object ApiClient {
     val TAG = "Api Client"
 
-    private val BASE_URL = "http://192.168.0.16:8000/"
+    private val BASE_URL = "https://textto.herokuapp.com"
     private var client: Retrofit? = null
 
     private fun init() {
@@ -49,6 +49,8 @@ object ApiClient {
         val interceptor = HttpLoggingInterceptor()
         interceptor.level = HttpLoggingInterceptor.Level.BODY
         builder.addInterceptor(interceptor)
+        builder.readTimeout(30, TimeUnit.SECONDS)
+        builder.connectTimeout(30, TimeUnit.SECONDS)
 
         client = Retrofit.Builder()
                 .baseUrl(BASE_URL)

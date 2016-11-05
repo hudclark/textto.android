@@ -1,5 +1,6 @@
 package com.octopusbeach.textto.utils
 
+import android.content.ContentValues
 import android.content.Context
 import android.database.Cursor
 import android.net.Uri
@@ -60,7 +61,6 @@ object MessageUtils {
         if (cur.getInt(TYPE_INDEX) == 1) {
             status = "received"
         } else {
-            Log.e(TAG, cur.getString(DATE_SENT_INDEX))
             status = "sent"
         }
         val addr = cur.getString(ADDRESS_INDEX)
@@ -87,6 +87,7 @@ object MessageUtils {
                     // update scheduled messages
                     val manager = SmsManager.getDefault()
                     val messages = client.getScheduledMessages().execute().body()["scheduledMessages"]
+                    //val addressSet = HashSet<String>()
                     messages?.forEach {
                         try {
                             client.deleteScheduledMessage(it._id).execute()
@@ -94,7 +95,11 @@ object MessageUtils {
                             Log.d(TAG, "Error deleting scheduled message ${it._id}")
                         }
                         manager.sendTextMessage(it.address, null, it.body, null, null)
+                        //addressSet.add(it.address)
                     }
+                    //addressSet.forEach {
+                        //markAsRead(it, context)
+                    //}
 
                     // post messages
                     val id = client.getLastId().execute().body()["id"]
@@ -108,6 +113,32 @@ object MessageUtils {
                 }
             }
         }
+    }
+
+    private fun markAsRead(address: String, context: Context) {
+        val uri = Uri.parse("content://sms/inbox")
+        val cur = context.contentResolver.query(uri, null, null, null, null)
+        try {
+            var i = 0
+            val max = 25
+            val addressidx = cur.getColumnIndex("address")
+            val idIdx = cur.getColumnIndex("_id")
+            while (cur.moveToNext() && i < max) {
+                if (cur.getString(addressidx).equals(address)) {
+                    Log.e("TEST", cur.getString(cur.getColumnIndex("body")))
+                    val messageid = cur.getString(idIdx)
+                    val vals = ContentValues()
+                    vals.put("read", true)
+                    context.contentResolver.update(uri, vals, "_id=" + messageid, null)
+                }
+                i++
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error marking messages as read")
+        } finally {
+            cur?.close()
+        }
+
     }
 
     private fun syncToLastestMessage(lastId: Int, context: Context) {

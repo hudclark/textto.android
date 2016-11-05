@@ -3,11 +3,8 @@ package com.octopusbeach.textto.api
 import android.content.Context
 import android.preference.PreferenceManager
 import android.util.Log
-import com.google.gson.Gson
 import com.google.gson.JsonObject
 import com.octopusbeach.textto.model.User
-import com.octopusbeach.textto.utils.MessageUtils
-import okhttp3.RequestBody
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -75,13 +72,11 @@ object SessionManager {
         if (refreshToken != null) {
 
             try {
-
                 val data = JsonObject()
                 data.addProperty("token", refreshToken)
                 val call = ApiClient.getInstance().create(SessionEndpointInterface::class.java).refreshToken(data)
                 val response = call.execute()
                 val token = response?.body()?.get("token")?.asString
-                Log.e("TEST", response.toString())
                 if (token != null) {
                     setAccessToken(token)
                 }
