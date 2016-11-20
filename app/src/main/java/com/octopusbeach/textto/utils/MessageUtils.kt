@@ -1,6 +1,5 @@
 package com.octopusbeach.textto.utils
 
-import android.content.ContentValues
 import android.content.Context
 import android.database.Cursor
 import android.net.Uri
@@ -17,7 +16,7 @@ import java.util.*
 import java.util.concurrent.Executors
 
 /**
- * Created by hudson on 9/6/16.
+ * Handle sending and saving sms messages
  */
 object MessageUtils {
 
@@ -32,31 +31,30 @@ object MessageUtils {
     private var DATE_SENT_INDEX = 0
     private val client = ApiClient.getInstance().create(MessageEndpointInterface::class.java)
     private var lastId = 0
-    private val executer = Executors.newSingleThreadExecutor()
-    private var updating = false
 
-    fun sendScheduledMessage(id: String) {
-        if (!updating) {
-            updating = true
-            executer.execute {
-                try {
-                    // get our message
-                    val msg = client.getScheduledMessage(id).execute().body()["scheduledMessage"]
-                    // now delete the message.
-                    client.deleteScheduledMessage(id).execute()
-                    if (msg != null) {
-                        SmsManager.getDefault().sendTextMessage(msg.address, null, msg.body, null, null)
-                    }
-                } catch (e: Exception) {
-                    Log.e(TAG, e.toString())
-                } finally {
-                    updating = false
-                }
+    private val executer = Executors.newSingleThreadExecutor()
+
+    /**
+     * Sends all scheduled Messages, then syncs messages
+     */
+    fun updateMessages(context: Context) {
+        // only have one update task going at one time (don't double send messages)
+        executer.execute {
+            try {
+                syncScheduledMessages()
+                val id = client.getLastId().execute().body()["id"]
+                if (id != null)
+                    syncToLastestMessage(id, context)
+            } catch (e: Exception) {
+                Log.e(TAG, "Error updating messages: $e")
             }
         }
     }
 
-    fun getSmsForCursor(cur: Cursor): Message? {
+    /**
+     * Returns a sms object for a cursor, or null if message is malformed
+     */
+    private fun getSmsForCursor(cur: Cursor): Message? {
         val status: String
         if (cur.getInt(TYPE_INDEX) == 1) {
             status = "received"
@@ -79,68 +77,32 @@ object MessageUtils {
         return msg
     }
 
-    fun updateMessages(context: Context) {
-        if (!updating) {
-            updating = true
-            executer.execute {
+    /**
+     * Send all scheduled messages
+     */
+    private fun syncScheduledMessages() {
+        val messages = client.getScheduledMessages().execute().body()["scheduledMessages"]
+        if (messages != null) {
+            val manager = SmsManager.getDefault()
+            messages.forEach {
                 try {
-                    // update scheduled messages
-                    val manager = SmsManager.getDefault()
-                    val messages = client.getScheduledMessages().execute().body()["scheduledMessages"]
-                    //val addressSet = HashSet<String>()
-                    messages?.forEach {
-                        try {
-                            client.deleteScheduledMessage(it._id).execute()
-                        } catch (e: Exception) {
-                            Log.d(TAG, "Error deleting scheduled message ${it._id}")
-                        }
-                        manager.sendTextMessage(it.address, null, it.body, null, null)
-                        //addressSet.add(it.address)
-                    }
-                    //addressSet.forEach {
-                        //markAsRead(it, context)
-                    //}
-
-                    // post messages
-                    val id = client.getLastId().execute().body()["id"]
-                    if (id != null) {
-                        syncToLastestMessage(id, context)
-                    }
+                    client.deleteScheduledMessage(it._id).execute()
                 } catch (e: Exception) {
-                    Log.e(TAG, e.toString())
-                } finally {
-                    updating = false
+                    Log.d(TAG, "Error deleting scheduled message ${it._id}")
                 }
+                // make sure to break up body if it is too long
+                if (it.body.length > 160 ) {
+                    val smsParts = manager.divideMessage(it.body)
+                    manager.sendMultipartTextMessage(it.address, null, smsParts, null, null)
+                } else
+                    manager.sendTextMessage(it.address, null, it.body, null, null)
             }
         }
     }
 
-    private fun markAsRead(address: String, context: Context) {
-        val uri = Uri.parse("content://sms/inbox")
-        val cur = context.contentResolver.query(uri, null, null, null, null)
-        try {
-            var i = 0
-            val max = 25
-            val addressidx = cur.getColumnIndex("address")
-            val idIdx = cur.getColumnIndex("_id")
-            while (cur.moveToNext() && i < max) {
-                if (cur.getString(addressidx).equals(address)) {
-                    Log.e("TEST", cur.getString(cur.getColumnIndex("body")))
-                    val messageid = cur.getString(idIdx)
-                    val vals = ContentValues()
-                    vals.put("read", true)
-                    context.contentResolver.update(uri, vals, "_id=" + messageid, null)
-                }
-                i++
-            }
-        } catch (e: Exception) {
-            Log.e(TAG, "Error marking messages as read")
-        } finally {
-            cur?.close()
-        }
-
-    }
-
+    /**
+     * Will push sms up to last id to server
+     */
     private fun syncToLastestMessage(lastId: Int, context: Context) {
         val cur = context.contentResolver.query(Uri.parse("content://sms"), null, null, null, null)
 
@@ -181,17 +143,19 @@ object MessageUtils {
         if (msg.androidId == lastId) return
         client.createMessage(msg).enqueue(object: Callback<Map<String,   Message>> {
             override fun onResponse(call: Call<Map<String, Message>>?, response: Response<Map<String, Message>>?) {
-                Log.d(TAG, "Posted message: ${response?.body()?.get("message")?.body ?: "null"}")
                 lastId = msg.androidId!!
             }
 
             override fun onFailure(call: Call<Map<String, Message>>?, t: Throwable?) {
-                Log.e(TAG, t.toString())
+                Log.e(TAG, "Error posting message: ${t.toString()}")
             }
         })
     }
 
-    fun getContactInfo(address: String, context: Context): String {
+    /**
+     *  Just gets contact name for now
+     */
+    private fun getContactInfo(address: String, context: Context): String {
         var name: String = ""
         val uri = Uri.withAppendedPath(ContactsContract.PhoneLookup.CONTENT_FILTER_URI, Uri.encode(address))
         val cursor = context.contentResolver.query(uri, arrayOf(ContactsContract.PhoneLookup.DISPLAY_NAME, ContactsContract.PhoneLookup._ID), null, null, null)

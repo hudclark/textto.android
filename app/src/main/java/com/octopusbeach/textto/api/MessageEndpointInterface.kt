@@ -17,9 +17,6 @@ interface MessageEndpointInterface {
     @GET("messages/last-id")
     fun getLastId(): Call<Map<String, Int>>
 
-    @GET("scheduledMessages/{id}")
-    fun getScheduledMessage(@Path("id") id: String): Call<Map<String, ScheduledMessage>>
-
     @GET("scheduledMessages")
     fun getScheduledMessages(): Call<Map<String, List<ScheduledMessage>>>
 

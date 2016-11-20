@@ -21,7 +21,6 @@ object SessionManager {
     private var token: String? = null
     private var context: Context? = null
 
-
     fun init(context: Context) {
         this.context = context
     }

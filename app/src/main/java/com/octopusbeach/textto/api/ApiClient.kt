@@ -15,8 +15,9 @@ import java.util.concurrent.TimeUnit
 
 object ApiClient {
     val TAG = "Api Client"
-
+    private val TOKEN_HEADER = "x-access-token"
     private val BASE_URL = "https://textto.herokuapp.com"
+
     private var client: Retrofit? = null
 
     private fun init() {
@@ -26,7 +27,7 @@ object ApiClient {
                 val org = chain.request()
                 val token = SessionManager.getToken() ?: ""
                 val req = org.newBuilder()
-                        .header("x-access-token", token)
+                        .header(TOKEN_HEADER, token)
                         .method(org.method(), org.body())
                         .build()
                 val origResponse = chain.proceed(req)
@@ -36,7 +37,7 @@ object ApiClient {
                     SessionManager.reAuth()
                     val newToken = SessionManager.getToken() ?: ""
                     val newReq = org.newBuilder()
-                            .header("x-access-token", newToken)
+                            .header(TOKEN_HEADER, newToken)
                             .method(org.method(), org.body())
                             .build()
                     val newResponse = chain.proceed(newReq)
@@ -49,9 +50,10 @@ object ApiClient {
         val interceptor = HttpLoggingInterceptor()
         interceptor.level = HttpLoggingInterceptor.Level.BODY
         builder.addInterceptor(interceptor)
-        builder.readTimeout(30, TimeUnit.SECONDS)
-        builder.connectTimeout(30, TimeUnit.SECONDS)
 
+        // might have to spin heroku up
+        builder.readTimeout(5, TimeUnit.MINUTES)
+        builder.connectTimeout(5, TimeUnit.MINUTES)
         client = Retrofit.Builder()
                 .baseUrl(BASE_URL)
                 .addConverterFactory(GsonConverterFactory.create())
@@ -60,9 +62,7 @@ object ApiClient {
     }
 
     fun getInstance(): Retrofit {
-        if (client == null) {
-            init()
-        }
+        if (client == null) init()
         return client!!
     }
 }

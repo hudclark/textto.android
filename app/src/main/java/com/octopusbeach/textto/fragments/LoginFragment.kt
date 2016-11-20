@@ -17,7 +17,6 @@ import com.octopusbeach.textto.R
 import com.octopusbeach.textto.api.ApiClient
 import com.octopusbeach.textto.api.SessionEndpointInterface
 import com.octopusbeach.textto.api.SessionManager
-import com.octopusbeach.textto.utils.MessageUtils
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -26,22 +25,20 @@ import retrofit2.Response
  * Created by hudson on 10/27/16.
  */
 
-class LoginFragment: Fragment {
+class LoginFragment: Fragment() {
 
-    private lateinit var googleClient: GoogleApiClient
     private val TAG = "LoginFragment"
 
-    private lateinit var listener: OnAuthListener
+    private lateinit var googleClient: GoogleApiClient
+    private var listener: OnAuthListener? = null
 
-     constructor(listener: OnAuthListener): super() {
+    fun setAuthListener(listener: OnAuthListener) {
         this.listener = listener
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         val v = inflater.inflate(R.layout.fragment_login, container, false)
-
         v.findViewById(R.id.login_btn).setOnClickListener { login() }
-
         return v
     }
 
@@ -76,20 +73,14 @@ class LoginFragment: Fragment {
     }
 
     private fun getTokens(token: String) {
-        view.findViewById(R.id.login_btn).visibility = View.GONE
-        view.findViewById(R.id.spinner).visibility = View.VISIBLE
+        toggleLoadingView(true)
         val data = JsonObject()
         data.addProperty("token", token)
-        val call = ApiClient.getInstance().create(SessionEndpointInterface::class.java).googleAuth(data)
-        call.enqueue(object: Callback<JsonObject> {
-
-            private fun stopLoading() {
-                //view.findViewById(R.id.login_btn).visibility = View.VISIBLE
-                view.findViewById(R.id.spinner).visibility = View.GONE
-            }
-
+        val client = ApiClient.getInstance().create(SessionEndpointInterface::class.java)
+        client.googleAuth(data).enqueue(object: Callback<JsonObject> {
             override fun onFailure(call: Call<JsonObject>?, t: Throwable?) {
-                stopLoading()
+                toggleLoadingView(false)
+                Log.e(TAG, "Unable to authenticate: $t")
             }
 
             override fun onResponse(call: Call<JsonObject>?, response: Response<JsonObject>?) {
@@ -101,14 +92,22 @@ class LoginFragment: Fragment {
                 val firebaseToken = FirebaseInstanceId.getInstance().token
                 if (firebaseToken != null)
                     SessionManager.setFirebaseToken(firebaseToken)
-                MessageUtils.updateMessages(activity)
-                stopLoading()
+                // everything was successful
+                toggleLoadingView(false)
+                listener?.onAuth()
             }
         })
     }
 
+    private fun toggleLoadingView(isLoading: Boolean) {
+        view.findViewById(R.id.login_btn).visibility = if (isLoading) View.GONE else View.VISIBLE
+        view.findViewById(R.id.spinner).visibility = if (isLoading) View.VISIBLE else View.GONE
+    }
+
+    /**
+     * Provide an authentication callback
+     */
     interface OnAuthListener {
         fun onAuth()
     }
-
 }
