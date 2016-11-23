@@ -30,8 +30,6 @@ object MessageUtils {
     private var TYPE_INDEX = 0
     private var DATE_SENT_INDEX = 0
     private val client = ApiClient.getInstance().create(MessageEndpointInterface::class.java)
-    private var lastId = 0
-
     private val executer = Executors.newSingleThreadExecutor()
 
     /**
@@ -44,7 +42,7 @@ object MessageUtils {
                 syncScheduledMessages()
                 val id = client.getLastId().execute().body()["id"]
                 if (id != null)
-                    syncToLastestMessage(id, context)
+                    syncToMessageId(id, context)
             } catch (e: Exception) {
                 Log.e(TAG, "Error updating messages: $e")
             }
@@ -103,7 +101,7 @@ object MessageUtils {
     /**
      * Will push sms up to last id to server
      */
-    private fun syncToLastestMessage(lastId: Int, context: Context) {
+    private fun syncToMessageId(id: Int, context: Context) {
         val cur = context.contentResolver.query(Uri.parse("content://sms"), null, null, null, null)
 
         BODY_INDEX = cur.getColumnIndex("body")
@@ -120,7 +118,7 @@ object MessageUtils {
         var count = cur.count
         if (count > 100) count = 400
         if (cur.moveToFirst()) {
-            while (i < count && cur.getInt(0) != lastId) {
+            while (i < count && cur.getInt(0) != id) {
                 val msg = getSmsForCursor(cur)
                 if (msg != null) {
                     val name = threadMap.get(msg.threadId)
@@ -140,12 +138,10 @@ object MessageUtils {
     }
 
     private fun postMessage(msg: Message) {
-        if (msg.androidId == lastId) return
         client.createMessage(msg).enqueue(object: Callback<Map<String,   Message>> {
             override fun onResponse(call: Call<Map<String, Message>>?, response: Response<Map<String, Message>>?) {
-                lastId = msg.androidId!!
+                Log.v(TAG, "Posted Message: ${response?.body()?.get("message")?.androidId}")
             }
-
             override fun onFailure(call: Call<Map<String, Message>>?, t: Throwable?) {
                 Log.e(TAG, "Error posting message: ${t.toString()}")
             }

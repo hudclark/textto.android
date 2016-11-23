@@ -35,7 +35,8 @@ class MainActivity: AppCompatActivity(), LoginFragment.OnAuthListener {
             fragmentManager.beginTransaction()
                 .replace(R.id.fragment_content, frag)
                 .commit()
-        }
+        } else
+            startService(Intent(this, SmsListenerService::class.java))
         checkPermissions()
     }
 

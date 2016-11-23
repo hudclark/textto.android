@@ -15,38 +15,15 @@ import java.util.concurrent.TimeUnit
 
 object ApiClient {
     val TAG = "Api Client"
-    private val TOKEN_HEADER = "x-access-token"
     private val BASE_URL = "https://textto.herokuapp.com"
 
     private var client: Retrofit? = null
 
     private fun init() {
         val builder = OkHttpClient.Builder()
-        builder.addInterceptor(object: Interceptor {
-            override fun intercept(chain: Interceptor.Chain): Response {
-                val org = chain.request()
-                val token = SessionManager.getToken() ?: ""
-                val req = org.newBuilder()
-                        .header(TOKEN_HEADER, token)
-                        .method(org.method(), org.body())
-                        .build()
-                val origResponse = chain.proceed(req)
+        builder.addInterceptor(AuthInterceptor())
 
-                // handle token refresh
-                if (origResponse.code() == 403) {
-                    SessionManager.reAuth()
-                    val newToken = SessionManager.getToken() ?: ""
-                    val newReq = org.newBuilder()
-                            .header(TOKEN_HEADER, newToken)
-                            .method(org.method(), org.body())
-                            .build()
-                    val newResponse = chain.proceed(newReq)
-                    return newResponse
-                } else
-                    return origResponse
-            }
-        })
-
+        // logging
         val interceptor = HttpLoggingInterceptor()
         interceptor.level = HttpLoggingInterceptor.Level.BODY
         builder.addInterceptor(interceptor)
