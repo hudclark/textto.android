@@ -9,9 +9,6 @@ import android.util.Log
 import com.octopusbeach.textto.api.ApiClient
 import com.octopusbeach.textto.api.MessageEndpointInterface
 import com.octopusbeach.textto.model.Message
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
 import java.util.*
 import java.util.concurrent.Executors
 
@@ -19,9 +16,7 @@ import java.util.concurrent.Executors
  * Handle sending and saving sms messages
  */
 object MessageUtils {
-
     private val TAG = "MessageUtils"
-
     private var BODY_INDEX = 0
     private var DATE_INDEX = 0
     private var ADDRESS_INDEX = 0
@@ -128,6 +123,7 @@ object MessageUtils {
                     } else
                         msg.name = name
                     getContactInfo(msg.address, context)
+                    // note this should be run on a background thread
                     postMessage(msg)
                 }
                 i++
@@ -138,14 +134,12 @@ object MessageUtils {
     }
 
     private fun postMessage(msg: Message) {
-        client.createMessage(msg).enqueue(object: Callback<Map<String,   Message>> {
-            override fun onResponse(call: Call<Map<String, Message>>?, response: Response<Map<String, Message>>?) {
-                Log.v(TAG, "Posted Message: ${response?.body()?.get("message")?.androidId}")
-            }
-            override fun onFailure(call: Call<Map<String, Message>>?, t: Throwable?) {
-                Log.e(TAG, "Error posting message: ${t.toString()}")
-            }
-        })
+        try {
+            val id = client.createMessage(msg).execute()?.body()?.get("message")?.androidId
+            Log.v(TAG, "Posted Message: $id")
+        } catch (e: Exception) {
+            Log.e(TAG, "Error posting message: $e")
+        }
     }
 
     /**
@@ -162,5 +156,4 @@ object MessageUtils {
         cursor?.close()
         return name
     }
-
 }
