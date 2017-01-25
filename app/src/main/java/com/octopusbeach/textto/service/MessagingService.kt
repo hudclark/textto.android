@@ -13,9 +13,8 @@ class MessagingService: FirebaseMessagingService() {
 
     override fun onMessageReceived(msg: RemoteMessage) {
         // make sure we are listening to messages
-        if (!SmsListenerService.running)
-            applicationContext.startService(Intent(applicationContext, SmsListenerService::class.java))
+        //if (!SmsListenerService.running)
+        //    applicationContext.startService(Intent(applicationContext, SmsListenerService::class.java))
         MessageUtils.updateMessages(applicationContext)
     }
-
 }

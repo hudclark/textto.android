@@ -1,9 +1,7 @@
 
 package com.octopusbeach.textto.api
 
-import okhttp3.Interceptor
 import okhttp3.OkHttpClient
-import okhttp3.Response
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -29,8 +27,8 @@ object ApiClient {
         builder.addInterceptor(interceptor)
 
         // might have to spin heroku up
-        builder.readTimeout(5, TimeUnit.MINUTES)
-        builder.connectTimeout(5, TimeUnit.MINUTES)
+        builder.readTimeout(30, TimeUnit.SECONDS)
+        builder.connectTimeout(30, TimeUnit.SECONDS)
         client = Retrofit.Builder()
                 .baseUrl(BASE_URL)
                 .addConverterFactory(GsonConverterFactory.create())

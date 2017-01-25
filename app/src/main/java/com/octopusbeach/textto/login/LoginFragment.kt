@@ -1,4 +1,4 @@
-package com.octopusbeach.textto.fragments
+package com.octopusbeach.textto.login
 
 import android.app.Fragment
 import android.content.Intent
@@ -10,6 +10,7 @@ import com.google.android.gms.auth.api.Auth
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.GoogleApiClient
 import com.octopusbeach.textto.R
+import com.octopusbeach.textto.login.LoginPresenter
 
 /**
  * Created by hudson on 10/27/16.
@@ -20,7 +21,6 @@ class LoginFragment: Fragment() {
     private lateinit var googleClient: GoogleApiClient
     private var listener: OnAuthListener? = null
     private var presenter: LoginPresenter? = null
-
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         val v = inflater.inflate(R.layout.fragment_login, container, false)

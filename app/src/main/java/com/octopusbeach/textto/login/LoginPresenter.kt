@@ -1,4 +1,4 @@
-package com.octopusbeach.textto.fragments
+package com.octopusbeach.textto.login
 
 import android.util.Log
 import com.google.android.gms.auth.api.signin.GoogleSignInResult
@@ -37,6 +37,7 @@ class LoginPresenter {
     private fun getTokens(token: String) {
         val data = JsonObject()
         data.addProperty("token", token)
+        data.addProperty("platform", android.os.Build.MODEL)
         val client = ApiClient.getInstance().create(SessionEndpointInterface::class.java)
         client.googleAuth(data).enqueue(object: Callback<JsonObject> {
             override fun onFailure(call: Call<JsonObject>?, t: Throwable?) {

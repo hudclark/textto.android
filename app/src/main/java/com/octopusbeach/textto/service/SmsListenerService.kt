@@ -10,22 +10,26 @@ import android.os.Handler
  */
 class SmsListenerService: Service() {
 
-    private lateinit var observer: SmsObserver
+    private var observer: SmsObserver? = null
 
     companion object {
         var running = false
     }
 
-    override fun onCreate() {
-        observer = SmsObserver(Handler(), applicationContext)
-        contentResolver.registerContentObserver(Uri.parse("content://sms"), true, observer)
-        running = true
-    }
-
     override fun onDestroy() {
         running = false
-        contentResolver.unregisterContentObserver(observer)
-        super.onDestroy()
+        if (observer != null)
+            contentResolver.unregisterContentObserver(observer)
+        observer = null
+    }
+
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        if (observer == null) {
+            observer = SmsObserver(Handler(), applicationContext)
+            contentResolver.registerContentObserver(Uri.parse("content://sms"), true, observer)
+        }
+        running = true
+        return START_STICKY
     }
 
     override fun onBind(intent: Intent?) = null

@@ -6,11 +6,14 @@ import android.os.Bundle
 import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
+import android.util.Log
 import com.octopusbeach.textto.api.SessionManager
-import com.octopusbeach.textto.fragments.LoginFragment
+import com.octopusbeach.textto.login.LoginFragment
+import com.octopusbeach.textto.service.NotificationListener
 import com.octopusbeach.textto.service.SmsListenerService
 import com.octopusbeach.textto.utils.MessageUtils
 import java.util.*
+
 
 class MainActivity: AppCompatActivity(), LoginFragment.OnAuthListener {
 
@@ -29,7 +32,7 @@ class MainActivity: AppCompatActivity(), LoginFragment.OnAuthListener {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         // check logged in status
-        if (SessionManager.getToken() == null) {
+       if (SessionManager.getToken() == null) {
             val frag = LoginFragment()
             frag.setAuthListener(this)
             fragmentManager.beginTransaction()
@@ -38,6 +41,13 @@ class MainActivity: AppCompatActivity(), LoginFragment.OnAuthListener {
         } else
             startService(Intent(this, SmsListenerService::class.java))
         checkPermissions()
+
+        //startService(Intent(this, ContactSyncService::class.java))
+        startService(Intent(this, NotificationListener::class.java))
+    }
+
+    override fun onResume() {
+        super.onResume()
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {

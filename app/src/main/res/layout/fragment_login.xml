@@ -2,10 +2,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.octopusbeach.textto.fragments.LoginFragment">
+    tools:context="com.octopusbeach.textto.login.LoginFragment">
 
     <com.google.android.gms.common.SignInButton
-        android:layout_gravity="center_horizontal"
+        android:layout_gravity="center"
         android:id="@+id/login_btn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content">

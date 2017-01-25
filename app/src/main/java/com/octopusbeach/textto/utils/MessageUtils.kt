@@ -3,13 +3,11 @@ package com.octopusbeach.textto.utils
 import android.content.Context
 import android.database.Cursor
 import android.net.Uri
-import android.provider.ContactsContract
 import android.telephony.SmsManager
 import android.util.Log
 import com.octopusbeach.textto.api.ApiClient
 import com.octopusbeach.textto.api.MessageEndpointInterface
 import com.octopusbeach.textto.model.Message
-import java.util.*
 import java.util.concurrent.Executors
 
 /**
@@ -49,11 +47,10 @@ object MessageUtils {
      */
     private fun getSmsForCursor(cur: Cursor): Message? {
         val status: String
-        if (cur.getInt(TYPE_INDEX) == 1) {
+        if (cur.getInt(TYPE_INDEX) == 1)
             status = "received"
-        } else {
+        else
             status = "sent"
-        }
         val addr = cur.getString(ADDRESS_INDEX)
         val body = cur.getString(BODY_INDEX)
         if (addr == null || body == null)
@@ -64,7 +61,6 @@ object MessageUtils {
                 body = body,
                 status = status,
                 date = cur.getLong(DATE_INDEX),
-                name = "",
                 address = addr
         )
         return msg
@@ -107,25 +103,15 @@ object MessageUtils {
         TYPE_INDEX = cur.getColumnIndex("type")
         ADDRESS_INDEX = cur.getColumnIndex("address")
 
-        val threadMap = HashMap<Int, String>()
-
         var i = 0
         var count = cur.count
         if (count > 100) count = 400
         if (cur.moveToFirst()) {
+            // TODO while cur . move to next
             while (i < count && cur.getInt(0) != id) {
                 val msg = getSmsForCursor(cur)
-                if (msg != null) {
-                    val name = threadMap.get(msg.threadId)
-                    if (name == null) {
-                        msg.name = getContactInfo(msg.address, context)
-                        threadMap.put(msg.threadId, msg.name)
-                    } else
-                        msg.name = name
-                    getContactInfo(msg.address, context)
-                    // note this should be run on a background thread
+                if (msg != null)
                     postMessage(msg)
-                }
                 i++
                 cur.moveToNext()
             }
@@ -140,20 +126,5 @@ object MessageUtils {
         } catch (e: Exception) {
             Log.e(TAG, "Error posting message: $e")
         }
-    }
-
-    /**
-     *  Just gets contact name for now
-     */
-    private fun getContactInfo(address: String, context: Context): String {
-        var name: String = ""
-        val uri = Uri.withAppendedPath(ContactsContract.PhoneLookup.CONTENT_FILTER_URI, Uri.encode(address))
-        val cursor = context.contentResolver.query(uri, arrayOf(ContactsContract.PhoneLookup.DISPLAY_NAME, ContactsContract.PhoneLookup._ID), null, null, null)
-        if (cursor != null) {
-            if (cursor.moveToFirst())
-                name = cursor.getString(cursor.getColumnIndex(ContactsContract.PhoneLookup.DISPLAY_NAME))
-        }
-        cursor?.close()
-        return name
     }
 }

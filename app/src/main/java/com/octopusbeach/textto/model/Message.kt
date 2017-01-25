@@ -9,6 +9,5 @@ data class Message(val androidId: Int?,
                    val address: String,
                    val status: String,
                    val date: Long,
-                   var name: String,
                    val threadId: Int)
 
