@@ -6,13 +6,13 @@ import okhttp3.Response
 /**
  * Created by hudson on 11/22/16.
  */
-class AuthInterceptor : Interceptor {
+class AuthInterceptor(val sessionController: SessionController): Interceptor {
 
     private val TOKEN_HEADER = "x-access-token"
 
     override fun intercept(chain: Interceptor.Chain): Response {
         val org = chain.request()
-        val token = SessionManager.getToken() ?: ""
+        val token = sessionController.getAuthToken() ?: ""
         val req = org.newBuilder()
                 .header(TOKEN_HEADER, token)
                 .method(org.method(), org.body())
@@ -21,8 +21,8 @@ class AuthInterceptor : Interceptor {
 
         // handle token refresh
         if (origResponse.code() == 403) {
-            SessionManager.reAuth()
-            val newToken = SessionManager.getToken() ?: ""
+            sessionController.reAuthenticate()
+            val newToken = sessionController.getAuthToken() ?: ""
             val newReq = org.newBuilder()
                     .header(TOKEN_HEADER, newToken)
                     .method(org.method(), org.body())

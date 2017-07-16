@@ -1,9 +1,13 @@
 package com.octopusbeach.textto.service
 
-import android.content.Intent
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
-import com.octopusbeach.textto.utils.MessageUtils
+import com.octopusbeach.textto.BaseApplication
+import com.octopusbeach.textto.api.ApiService
+import com.octopusbeach.textto.tasks.MessageSyncTask
+import com.octopusbeach.textto.di.DaggerApiComponent
+import com.octopusbeach.textto.utils.ThreadUtils
+import javax.inject.Inject
 
 /**
  * Created by hudson on 9/18/16.
@@ -11,10 +15,14 @@ import com.octopusbeach.textto.utils.MessageUtils
 
 class MessagingService: FirebaseMessagingService() {
 
+    @Inject lateinit var apiService: ApiService
+
+    override fun onCreate() {
+        super.onCreate()
+        (applicationContext as BaseApplication).appComponent.inject(this)
+    }
+
     override fun onMessageReceived(msg: RemoteMessage) {
-        // make sure we are listening to messages
-        //if (!SmsListenerService.running)
-        //    applicationContext.startService(Intent(applicationContext, SmsListenerService::class.java))
-        MessageUtils.updateMessages(applicationContext)
+        ThreadUtils.runSingleThreadTask(MessageSyncTask(apiService, applicationContext))
     }
 }

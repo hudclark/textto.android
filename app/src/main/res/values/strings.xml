@@ -2,6 +2,23 @@
     <string name="app_name">Textto</string>
     <string name="client_id">447535604738-jp8o5if9nhl2v2b4ba5o425up9gmn7kr.apps.googleusercontent.com</string>
 
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="text_anywhere">Text Anywhere</string>
+    <string name="text_anywhere_message">With our website and mobile applications, available for Mac, Windows, and Linux.</string>
+
+    <string name="dont_change">Don\'t Change a Thing</string>
+    <string name="dont_change_message">No need to change your texting app. Just sign in and you\'re set.</string>
+
+    <string name="permissions_title">Textto needs these permissions to work.</string>
+    <string name="permissions_message">Let\'s Get Set Up</string>
+    <string name="enable_permissions">Allow Access</string>
+
+    <string name="text_permission_title">Sms</string>
+    <string name="text_permission_message">Send and receive text messages.</string>
+
+    <string name="contacts_permission_title">Contacts</string>
+    <string name="contacts_permission_message">Access your contacts.</string>
+
+    <string name="need_permissions">Textto needs all of the above permissions to work.</string>
+
+    <string name="welcome">Welcome</string>
 </resources>

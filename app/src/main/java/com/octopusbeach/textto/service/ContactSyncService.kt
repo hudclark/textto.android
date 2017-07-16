@@ -7,12 +7,6 @@ import android.net.Uri
 import android.provider.ContactsContract
 import android.util.Base64
 import android.util.Log
-import com.octopusbeach.textto.api.ApiClient
-import com.octopusbeach.textto.api.ContactEndpointInterface
-import com.octopusbeach.textto.model.Contact
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
 
 /**
  * Created by hudson on 12/2/16.
@@ -30,6 +24,7 @@ class ContactSyncService : Service() {
     override fun onBind(intent: Intent?) = null
 
     private fun readContacts() {
+        /*
         Log.d(TAG, "Syncing contacts...")
         Runnable {
             val api = ApiClient.getInstance().create(ContactEndpointInterface::class.java)
@@ -62,6 +57,7 @@ class ContactSyncService : Service() {
                 cur.close()
             }
         }.run()
+        */
     }
 
     private fun getContactThumbnail(id: Int): String? {

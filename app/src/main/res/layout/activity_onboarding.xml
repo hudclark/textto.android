@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main_content"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
+    tools:context="com.octopusbeach.textto.onboarding.OnboardingActivity">
+
+    <include
+        android:layout_alignParentBottom="true"
+        android:id="@+id/view_pager_bar"
+        layout="@layout/view_pager_bar"
+        android:layout_width="match_parent"
+        android:layout_height="80dp" />
+
+    <android.support.v4.view.ViewPager
+        android:layout_above="@id/view_pager_bar"
+        android:id="@+id/container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+
+</RelativeLayout>

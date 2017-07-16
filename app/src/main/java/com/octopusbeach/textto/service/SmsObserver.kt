@@ -2,16 +2,8 @@ package com.octopusbeach.textto.service
 
 import android.content.Context
 import android.database.ContentObserver
-import android.net.Uri
 import android.os.Handler
 import android.util.Log
-import com.octopusbeach.textto.api.ApiClient
-import com.octopusbeach.textto.api.MessageEndpointInterface
-import com.octopusbeach.textto.model.Message
-import com.octopusbeach.textto.utils.MessageUtils
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
 
 /**
  * Created by hudson on 9/6/16.
@@ -28,6 +20,6 @@ class SmsObserver: ContentObserver {
 
     override fun onChange(selfChange: Boolean) {
         super.onChange(selfChange)
-        MessageUtils.updateMessages(context)
+        Log.e(TAG, "sms observer not configured")
     }
 }

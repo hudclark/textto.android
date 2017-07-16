@@ -24,7 +24,7 @@ class LoginFragment: Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         val v = inflater.inflate(R.layout.fragment_login, container, false)
-        v.findViewById(R.id.login_btn).setOnClickListener { login() }
+        //v.findViewById(R.id.login_btn).setOnClickListener { login() }
         return v
     }
 
@@ -36,9 +36,11 @@ class LoginFragment: Fragment() {
         googleClient = GoogleApiClient.Builder(activity).addApi(Auth.GOOGLE_SIGN_IN_API, options)
                 .build()
 
+        /*
         if (presenter == null)
             presenter = LoginPresenter()
         presenter?.onTakeView(this)
+        */
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -72,8 +74,8 @@ class LoginFragment: Fragment() {
     }
 
     fun toggleLoadingView(isLoading: Boolean) {
-        view.findViewById(R.id.login_btn).visibility = if (isLoading) View.GONE else View.VISIBLE
-        view.findViewById(R.id.spinner).visibility = if (isLoading) View.VISIBLE else View.GONE
+        //view.findViewById(R.id.login_btn).visibility = if (isLoading) View.GONE else View.VISIBLE
+        //view.findViewById(R.id.spinner).visibility = if (isLoading) View.VISIBLE else View.GONE
     }
 
     fun setAuthListener(listener: OnAuthListener) {

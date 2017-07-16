@@ -1,0 +1,20 @@
+<vector android:height="48dp" android:viewportHeight="512.0"
+    android:viewportWidth="512.0" android:width="48dp" xmlns:android="http://schemas.android.com/apk/res/android">
+    <path android:fillColor="#CFDCE5" android:pathData="M256,256m-256,0a256,256 0,1 1,512 0a256,256 0,1 1,-512 0"/>
+    <path android:fillColor="#415E72" android:pathData="M156,56h200c6.6,0 12,5.4 12,12v376c0,6.6 -5.4,12 -12,12h-200c-6.6,0 -12,-5.4 -12,-12v-376C144,61.4 149.3,56 156,56z"/>
+    <path android:fillColor="#415E72" android:pathData="M156,88.1h200v320h-200z"/>
+    <path android:fillColor="#CFDCE5" android:pathData="M231.8,68h48c2.2,0 4,1.8 4,4l0,0c0,2.2 -1.8,4 -4,4h-48c-2.2,0 -4,-1.8 -4,-4l0,0C227.8,69.8 229.5,68 231.8,68z"/>
+    <path android:fillColor="#CFDCE5" android:pathData="M232,424h48c2.2,0 4,1.8 4,4l0,0c0,2.2 -1.8,4 -4,4h-48c-2.2,0 -4,-1.8 -4,-4l0,0C228,425.8 229.8,424 232,424z"/>
+    <path android:fillColor="#FFD07D" android:pathData="M108.1,124.1h164.9c8.3,0 15,6.7 15,15V244c0,8.3 -6.7,15 -15,15H108.1c-8.3,0 -15,-6.7 -15,-15V139.1C93.2,130.8 99.9,124.1 108.1,124.1z"/>
+    <path android:fillColor="#FFD07D" android:pathData="M243,304l0,-60l-74.9,0z"/>
+    <path android:fillColor="#FFFFFF" android:pathData="M183.1,169.1h15v15h-15z"/>
+    <path android:fillColor="#FFFFFF" android:pathData="M153.1,169.1h15v15h-15z"/>
+    <path android:fillColor="#FFFFFF" android:pathData="M123.1,169.1h15v15h-15z"/>
+    <path android:fillColor="#FFFFFF" android:pathData="M213.1,169.1h15v15h-15z"/>
+    <path android:fillColor="#FFFFFF" android:pathData="M243,169.1h15v15h-15z"/>
+    <path android:fillColor="#FFFFFF" android:pathData="M183.1,199.1h15v15h-15z"/>
+    <path android:fillColor="#FFFFFF" android:pathData="M213.1,199.1h15v15h-15z"/>
+    <path android:fillColor="#FFFFFF" android:pathData="M243,199.1h15v15h-15z"/>
+    <path android:fillColor="#E04F5F" android:pathData="M297.4,318.8m-17.8,0a17.8,17.8 0,1 1,35.6 0a17.8,17.8 0,1 1,-35.6 0"/>
+    <path android:fillColor="#E04F5F" android:pathData="M328,376v-15.7c0,-16.6 -18.1,-16.9 -18.1,-16.9h-25.2c0,0 -18.1,0.2 -18.1,16.9V376H328z"/>
+</vector>
