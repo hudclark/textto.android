@@ -1,24 +1,20 @@
 package com.octopusbeach.textto.login
 
 import android.content.Intent
-import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.support.design.widget.Snackbar
+import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import android.view.View
 import com.google.android.gms.auth.api.Auth
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount
-import com.google.android.gms.auth.api.signin.GoogleSignInApi
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.SignInButton
 import com.google.android.gms.common.api.GoogleApiClient
 import com.octopusbeach.textto.BaseApplication
-import com.octopusbeach.textto.BuildConfig
-import com.octopusbeach.textto.MainActivity
-
 import com.octopusbeach.textto.R
-import com.octopusbeach.textto.api.ApiService
+import com.octopusbeach.textto.api.PublicApiService
 import com.octopusbeach.textto.api.SessionController
+import com.octopusbeach.textto.home.MainActivity
 import javax.inject.Inject
 
 class LoginActivity : AppCompatActivity(), View.OnClickListener, LoginPresenter.View {
@@ -26,7 +22,7 @@ class LoginActivity : AppCompatActivity(), View.OnClickListener, LoginPresenter.
     private val TAG = "LoginActivity"
 
     @Inject lateinit var sessionController: SessionController
-    @Inject lateinit var apiService: ApiService
+    @Inject lateinit var apiService: PublicApiService
 
     private var googleClient: GoogleApiClient? = null
 
@@ -97,6 +93,8 @@ class LoginActivity : AppCompatActivity(), View.OnClickListener, LoginPresenter.
         Log.d(TAG, "Successfully signed in")
         redirectToMainActivity()
     }
+
+    override fun getBaseApplication() = applicationContext as BaseApplication
 
     private fun setLoadingViewVisibility(visible: Boolean) {
         loginLoader?.visibility = if (visible) View.VISIBLE else View.GONE

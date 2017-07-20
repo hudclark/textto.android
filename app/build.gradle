@@ -20,7 +20,13 @@ android {
         versionName "1.0"
     }
     buildTypes {
+        debug {
+            //buildConfigField "String", "API_URL", '"https://textto-staging.herokuapp.com"'
+            buildConfigField "String", "API_URL", '"http://10.0.2.2:5000"'
+        }
         release {
+            buildConfigField "String", "API_URL", "'https://textto.herokuapp.com'"
+
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
@@ -65,6 +71,12 @@ dependencies {
         compile 'com.google.dagger:dagger:2.4'
         kapt 'com.google.dagger:dagger-compiler:2.4'
         provided 'org.glassfish:javax.annotation:10.0-b28'
+
+        // glide
+        compile 'com.github.bumptech.glide:glide:4.0.0-RC1'
+
+        // circle image view
+        compile 'de.hdodenhof:circleimageview:2.1.0'
 
     }
 

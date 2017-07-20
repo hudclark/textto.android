@@ -1,9 +1,12 @@
 package com.octopusbeach.textto.di
 
-import com.octopusbeach.textto.MainActivity
+import com.octopusbeach.textto.api.ApiService
+import com.octopusbeach.textto.api.PublicApiService
 import com.octopusbeach.textto.api.SessionController
+import com.octopusbeach.textto.home.MainActivity
 import com.octopusbeach.textto.login.LoginActivity
 import com.octopusbeach.textto.onboarding.OnboardingActivity
+import com.octopusbeach.textto.service.ContactSyncService
 import com.octopusbeach.textto.service.MessagingService
 import com.octopusbeach.textto.service.NotificationListener
 import dagger.Component
@@ -23,6 +26,9 @@ interface AppComponent {
     fun inject(listener: NotificationListener)
 
     fun inject(service: MessagingService)
+    fun inject(service: ContactSyncService)
 
     fun getSessionController(): SessionController
+    fun getPublicApiService(): PublicApiService
+    fun getApiService(): ApiService
 }

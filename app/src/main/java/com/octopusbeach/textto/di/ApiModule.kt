@@ -3,9 +3,8 @@ package com.octopusbeach.textto.di
 import android.content.SharedPreferences
 import android.util.Log
 import com.jakewharton.retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
-import com.octopusbeach.textto.api.ApiService
-import com.octopusbeach.textto.api.AuthInterceptor
-import com.octopusbeach.textto.api.SessionController
+import com.octopusbeach.textto.BuildConfig
+import com.octopusbeach.textto.api.*
 import dagger.Module
 import dagger.Provides
 import okhttp3.OkHttpClient
@@ -22,22 +21,45 @@ import javax.inject.Singleton
 @Module(includes = arrayOf(PreferencesModule::class))
 class ApiModule {
 
-    // TODO move to gradle when it might change
-    private val BASE_URL = "https://textto.herokuapp.com"
-
     @Provides
     @Singleton
-    fun providesSessionController(prefs: SharedPreferences): SessionController {
-        return SessionController(null, prefs)
+    fun providesHttpLogginIntercepter(): HttpLoggingInterceptor {
+        val loggingInterceptor = HttpLoggingInterceptor()
+        loggingInterceptor.level = HttpLoggingInterceptor.Level.BASIC
+        return loggingInterceptor
     }
 
     @Provides
     @Singleton
-    fun providesOkHttpClient(sessionController: SessionController): OkHttpClient {
+    fun providesPublicApiService(loggingInterceptor: HttpLoggingInterceptor): PublicApiService {
+        val builder = OkHttpClient.Builder()
+        builder.addInterceptor(loggingInterceptor)
+
+        builder.readTimeout(30, TimeUnit.SECONDS)
+        builder.connectTimeout(30, TimeUnit.SECONDS)
+
+        val retrofit = Retrofit.Builder()
+                .baseUrl(BuildConfig.API_URL)
+                .client(builder.build())
+                .addConverterFactory(GsonConverterFactory.create())
+                .build()
+        val service = retrofit.create(PublicApiService::class.java)
+        return service
+    }
+
+    @Provides
+    @Singleton
+    fun providesSessionController(prefs: SharedPreferences, publicApiService: PublicApiService): SessionController {
+        return SessionController(publicApiService, prefs)
+    }
+
+    @Provides
+    @Singleton
+    fun providesOkHttpClient(sessionController: SessionController, loggingInterceptor: HttpLoggingInterceptor): OkHttpClient {
+
         val builder = OkHttpClient.Builder()
         builder.addInterceptor(AuthInterceptor(sessionController))
-        val loggingInterceptor = HttpLoggingInterceptor()
-        loggingInterceptor.level = HttpLoggingInterceptor.Level.BASIC
+
         builder.addInterceptor(loggingInterceptor)
 
         builder.readTimeout(30, TimeUnit.SECONDS)
@@ -48,22 +70,14 @@ class ApiModule {
 
     @Provides
     @Singleton
-    fun providesRetrofit(client: OkHttpClient): Retrofit {
-        Log.d("ApiModule", "Creating retrofit")
-        return Retrofit.Builder()
-                .baseUrl(BASE_URL)
+    fun providesApiService(client: OkHttpClient, sessionController: SessionController): ApiService {
+        val retrofit = Retrofit.Builder()
+                .baseUrl(BuildConfig.API_URL)
                 .client(client)
                 .addConverterFactory(GsonConverterFactory.create())
                 .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
                 .build()
-    }
-
-    @Provides
-    @Singleton
-    fun providesApiService(retrofit: Retrofit, sessionController: SessionController): ApiService {
-        val service = retrofit.create(ApiService::class.java)
-        sessionController.apiService = service
-        return service
+        return retrofit.create(ApiService::class.java)
     }
 
 }

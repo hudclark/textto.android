@@ -1,6 +1,7 @@
 package com.octopusbeach.textto.tasks
 
 import android.content.Context
+import android.content.SharedPreferences
 import android.database.Cursor
 import android.net.Uri
 import android.telephony.SmsManager
@@ -11,9 +12,16 @@ import com.octopusbeach.textto.model.Message
 /**
  * Created by hudson on 7/14/17.
  */
-class MessageSyncTask(val apiService: ApiService, val context: Context) : Runnable {
+class MessageSyncTask(val apiService: ApiService,
+                      val context: Context,
+                      val prefs: SharedPreferences) : Runnable {
 
     private val TAG = "MessageSyncTask"
+
+    companion object {
+        val CONTACTS_LAST_SYNCED = "contacts_last_synced"
+        val MESSAGES_LAST_SYNCED = "messages_last_synced"
+    }
 
     private var BODY_INDEX = 0
     private var DATE_INDEX = 0
@@ -111,6 +119,7 @@ class MessageSyncTask(val apiService: ApiService, val context: Context) : Runnab
                 syncToMessageId(id)
             }
             syncScheduledMessages()
+            prefs.edit().putLong(MESSAGES_LAST_SYNCED, System.currentTimeMillis()).commit()
         } catch (e: Exception) {
             Log.e(TAG, "Error updating messages: $e")
         }

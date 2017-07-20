@@ -1,10 +1,13 @@
 package com.octopusbeach.textto.login
 
 import android.util.Log
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInResult
 import com.google.firebase.iid.FirebaseInstanceId
 import com.google.gson.JsonObject
+import com.octopusbeach.textto.BaseApplication
 import com.octopusbeach.textto.api.ApiService
+import com.octopusbeach.textto.api.PublicApiService
 import com.octopusbeach.textto.api.SessionController
 import retrofit2.Call
 import retrofit2.Callback
@@ -14,7 +17,7 @@ import retrofit2.Response
  * Created by hudson on 11/29/16.
  */
 
-class LoginPresenter(val apiService: ApiService, val sessionController: SessionController) {
+class LoginPresenter(val apiService: PublicApiService, val sessionController: SessionController) {
 
     private var view: View? = null
     private val TAG = "LoginPresenter"
@@ -28,14 +31,14 @@ class LoginPresenter(val apiService: ApiService, val sessionController: SessionC
             val token = result.signInAccount?.idToken
             if (token != null) {
                 Log.d(TAG, "Received token from sign in result")
-                getTokens(token)
+                logIn(token, result.signInAccount)
                 return
             }
         }
         view?.onLoginFailure("Unable to sign in")
     }
 
-    private fun getTokens(token: String) {
+    private fun logIn(token: String, account: GoogleSignInAccount?) {
         val data = JsonObject()
         data.addProperty("token", token)
         data.addProperty("platform", android.os.Build.MODEL)
@@ -46,15 +49,17 @@ class LoginPresenter(val apiService: ApiService, val sessionController: SessionC
             }
 
             override fun onResponse(call: Call<JsonObject>?, response: Response<JsonObject>?) {
-                val firebaseToken = FirebaseInstanceId.getInstance().token
-                if (firebaseToken != null)
-                    sessionController.setFirebaseToken(firebaseToken)
-
                 val tokens = response?.body()?.getAsJsonObject("tokens")
                 if (tokens != null) {
                     Log.d(TAG, "Received tokens from api")
                     sessionController.setAuthToken(tokens.get("access").asString)
                     sessionController.setRefreshToken(tokens.get("refresh").asString)
+                    sessionController.saveSignInAccount(account)
+
+                    val firebaseToken = FirebaseInstanceId.getInstance().token
+                    if (firebaseToken != null)
+                        view?.getBaseApplication()?.setFirebaseToken(firebaseToken)
+
                     // everything was successful
                     view?.onLoginSuccess()
                 } else {
@@ -67,5 +72,6 @@ class LoginPresenter(val apiService: ApiService, val sessionController: SessionC
     interface View {
         fun onLoginSuccess()
         fun onLoginFailure(error: String)
+        fun getBaseApplication(): BaseApplication
     }
 }

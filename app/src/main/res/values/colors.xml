@@ -6,6 +6,7 @@
     <color name="colorAccent">#FF4081</color>
 
     <color name="blue">#00BCD4</color>
+    <color name="blueAction">#2196f3</color>
     <color name="slate">#364658</color>
     <color name="slateDark">#2d3e50</color>
     <color name="white">#ffffff</color>

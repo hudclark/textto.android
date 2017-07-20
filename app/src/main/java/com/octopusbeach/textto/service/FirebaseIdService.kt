@@ -13,7 +13,6 @@ class FirebaseIdService: FirebaseInstanceIdService() {
     override fun onTokenRefresh() {
         val refreshedToken = FirebaseInstanceId.getInstance().token
         if (refreshedToken != null)
-            (applicationContext as BaseApplication)
-                    .appComponent.getSessionController().setFirebaseToken(refreshedToken)
+            (applicationContext as BaseApplication).setFirebaseToken(refreshedToken)
     }
 }

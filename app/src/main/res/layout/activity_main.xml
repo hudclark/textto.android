@@ -4,6 +4,105 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/colorPrimary"
-    tools:context="com.octopusbeach.textto.MainActivity">
+    tools:context="com.octopusbeach.textto.home.MainActivity">
+
+    <LinearLayout
+        android:paddingRight="32dp"
+        android:paddingLeft="32dp"
+        android:gravity="center_horizontal"
+        android:layout_marginTop="72dp"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/profile_picture"
+            android:layout_width="160dp"
+            android:layout_height="160dp" />
+
+        <TextView
+            android:id="@+id/user_name"
+            android:layout_marginTop="24dp"
+            android:layout_marginBottom="32dp"
+            tools:text="Hudson Clark"
+            android:textSize="16dp"
+            android:textStyle="bold"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <include layout="@layout/divider"/>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="72dp"
+            android:padding="16dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/messages"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/messages_last_synced"
+                android:textSize="12sp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:gravity="bottom"
+                tools:text="Last Synced: 1 day ago" />
+
+            <Button
+                android:id="@+id/messages_sync"
+                android:layout_centerVertical="true"
+                android:minHeight="32dp"
+                android:textAllCaps="false"
+                android:text="@string/sync"
+                android:background="@color/blue"
+                android:layout_alignParentEnd="true"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+        </RelativeLayout>
+
+        <include layout="@layout/divider"/>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="72dp"
+            android:padding="16dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/contacts"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/contacts_last_synced"
+                android:textSize="12sp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:gravity="bottom"
+                tools:text="Last Synced: 1 day ago" />
+
+            <Button
+                android:id="@+id/contacts_sync"
+                android:layout_centerVertical="true"
+                android:minHeight="32dp"
+                android:textAllCaps="false"
+                android:text="@string/sync"
+                android:background="@color/blue"
+                android:layout_alignParentEnd="true"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+        </RelativeLayout>
+
+        <include layout="@layout/divider"/>
+
+    </LinearLayout>
+
 
 </RelativeLayout>

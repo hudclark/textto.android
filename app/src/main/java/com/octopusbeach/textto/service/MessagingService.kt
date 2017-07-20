@@ -1,11 +1,11 @@
 package com.octopusbeach.textto.service
 
+import android.content.SharedPreferences
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import com.octopusbeach.textto.BaseApplication
 import com.octopusbeach.textto.api.ApiService
 import com.octopusbeach.textto.tasks.MessageSyncTask
-import com.octopusbeach.textto.di.DaggerApiComponent
 import com.octopusbeach.textto.utils.ThreadUtils
 import javax.inject.Inject
 
@@ -16,6 +16,8 @@ import javax.inject.Inject
 class MessagingService: FirebaseMessagingService() {
 
     @Inject lateinit var apiService: ApiService
+    @Inject lateinit var prefs: SharedPreferences
+
 
     override fun onCreate() {
         super.onCreate()
@@ -23,6 +25,6 @@ class MessagingService: FirebaseMessagingService() {
     }
 
     override fun onMessageReceived(msg: RemoteMessage) {
-        ThreadUtils.runSingleThreadTask(MessageSyncTask(apiService, applicationContext))
+        ThreadUtils.runSingleThreadTask(MessageSyncTask(apiService, applicationContext, prefs))
     }
 }

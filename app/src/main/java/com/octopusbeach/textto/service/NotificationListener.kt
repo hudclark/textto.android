@@ -1,5 +1,6 @@
 package com.octopusbeach.textto.service
 
+import android.content.SharedPreferences
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
 import com.octopusbeach.textto.BaseApplication
@@ -15,6 +16,7 @@ import javax.inject.Inject
 class NotificationListener : NotificationListenerService() {
 
     @Inject lateinit var apiService: ApiService
+    @Inject lateinit var prefs: SharedPreferences
 
     override fun onCreate() {
         super.onCreate()
@@ -23,7 +25,7 @@ class NotificationListener : NotificationListenerService() {
 
     override fun onNotificationPosted(sbn: StatusBarNotification?) {
         super.onNotificationPosted(sbn)
-        ThreadUtils.runSingleThreadTask(MessageSyncTask(apiService, applicationContext))
+        ThreadUtils.runSingleThreadTask(MessageSyncTask(apiService, applicationContext, prefs))
     }
 
     override fun onNotificationRemoved(sbn: StatusBarNotification?) {

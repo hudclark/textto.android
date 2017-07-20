@@ -21,4 +21,9 @@
     <string name="need_permissions">Textto needs all of the above permissions to work.</string>
 
     <string name="welcome">Welcome</string>
+    <string name="logout">Logout</string>
+
+    <string name="messages">Messages</string>
+    <string name="sync">Sync Now</string>
+    <string name="contacts">Contacts</string>
 </resources>

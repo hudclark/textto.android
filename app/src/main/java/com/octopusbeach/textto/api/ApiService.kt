@@ -7,6 +7,7 @@ import com.octopusbeach.textto.model.ScheduledMessage
 import com.octopusbeach.textto.model.User
 import io.reactivex.Observable
 import retrofit2.Call
+import retrofit2.Callback
 import retrofit2.http.*
 
 /**
@@ -17,6 +18,9 @@ interface ApiService {
     // contacts
     @POST("contacts")
     fun postContact(@Body contact: Contact): Observable<Map<String, Contact>>
+
+    @POST("contacts/bulk")
+    fun postContacts(@Body contacts: List<Contact>): Call<String>
 
     // messaging
     @POST("messages")
@@ -30,13 +34,6 @@ interface ApiService {
 
     @DELETE("scheduledMessages/{id}")
     fun deleteScheduledMessage(@Path("id") id: String): Call<Void>
-
-    // Session
-    @POST("googleAuth")
-    fun googleAuth(@Body token: JsonObject): Call<JsonObject>
-
-    @POST("refreshToken")
-    fun refreshToken(@Body token: JsonObject): Call<JsonObject>
 
     @POST("user/firebase-id")
     fun updateFirebaseId(@Body token: JsonObject): Observable<Map<String, User>>
