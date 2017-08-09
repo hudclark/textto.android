@@ -4,6 +4,8 @@ import android.app.Service
 import android.content.Intent
 import android.net.Uri
 import android.os.Handler
+import android.util.Log
+import com.octopusbeach.textto.BaseApplication
 
 /**
  * Created by hudson on 9/6/16.
@@ -24,8 +26,11 @@ class SmsListenerService: Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+
+        val baseApp = applicationContext as BaseApplication
+
         if (observer == null) {
-            observer = SmsObserver(Handler(), applicationContext)
+            observer = SmsObserver(Handler(), baseApp.appComponent.getApiService(), baseApp.appComponent.getSharedPrefs())
             contentResolver.registerContentObserver(Uri.parse("content://sms"), true, observer)
         }
         running = true
