@@ -1,6 +1,7 @@
 package com.octopusbeach.textto.service
 
 import android.app.Service
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Handler
@@ -10,12 +11,20 @@ import com.octopusbeach.textto.BaseApplication
 /**
  * Created by hudson on 9/6/16.
  */
-class SmsListenerService: Service() {
+class SmsObserverService: Service() {
 
     private var observer: SmsObserver? = null
 
     companion object {
-        var running = false
+        private val TAG = "SmsObserverService"
+
+        private var running = false
+
+        fun ensureStarted(context: Context) {
+            if (!running) {
+                context.startService(Intent(context, SmsObserverService::class.java))
+            }
+        }
     }
 
     override fun onDestroy() {
@@ -30,8 +39,9 @@ class SmsListenerService: Service() {
         val baseApp = applicationContext as BaseApplication
 
         if (observer == null) {
-            observer = SmsObserver(Handler(), baseApp.appComponent.getApiService(), baseApp.appComponent.getSharedPrefs())
-            contentResolver.registerContentObserver(Uri.parse("content://sms"), true, observer)
+            Log.d(TAG, "Starting service")
+            observer = SmsObserver(applicationContext, baseApp.appComponent.getApiService(), baseApp.appComponent.getSharedPrefs())
+            contentResolver.registerContentObserver(Uri.parse("content://mms-sms"), true, observer)
         }
         running = true
         return START_STICKY

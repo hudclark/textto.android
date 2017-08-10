@@ -1,5 +1,6 @@
 package com.octopusbeach.textto.di
 
+import android.content.SharedPreferences
 import com.octopusbeach.textto.api.ApiService
 import com.octopusbeach.textto.api.PublicApiService
 import com.octopusbeach.textto.api.SessionController
@@ -31,4 +32,5 @@ interface AppComponent {
     fun getSessionController(): SessionController
     fun getPublicApiService(): PublicApiService
     fun getApiService(): ApiService
+    fun getSharedPrefs(): SharedPreferences
 }

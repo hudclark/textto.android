@@ -15,6 +15,7 @@ import com.octopusbeach.textto.api.ApiService
 import com.octopusbeach.textto.api.SessionController
 import com.octopusbeach.textto.login.LoginActivity
 import com.octopusbeach.textto.onboarding.OnboardingActivity
+import com.octopusbeach.textto.service.SmsObserverService
 import javax.inject.Inject
 
 
@@ -47,6 +48,7 @@ class MainActivity: AppCompatActivity(),
         // no redirects
         setContentView(R.layout.activity_main)
         initSyncButtons()
+        SmsObserverService.ensureStarted(this)
 
         // init presenter
         if (presenter == null)

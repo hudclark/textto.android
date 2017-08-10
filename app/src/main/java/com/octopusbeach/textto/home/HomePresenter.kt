@@ -1,5 +1,6 @@
 package com.octopusbeach.textto.home
 
+import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
@@ -8,6 +9,7 @@ import com.octopusbeach.textto.api.SessionController
 import com.octopusbeach.textto.model.Contact
 import com.octopusbeach.textto.service.ContactSyncService
 import com.octopusbeach.textto.tasks.MessageSyncTask
+import com.octopusbeach.textto.tasks.TestingClass
 import com.octopusbeach.textto.utils.ThreadUtils
 
 /**
@@ -35,9 +37,21 @@ class HomePresenter(val apiService: ApiService,
 
     // TODO this is a longer running task. Will have to make sure it is not already running
     fun syncContacts() {
+
+        view?.let {
+
+
+            val intent = Intent("com.octopusbeach.MMS_SENT")
+            val pendingIntent = PendingIntent.getBroadcast(it.getApplicationContext(), 0, intent, 0)
+            TestingClass(it.getApplicationContext(), pendingIntent).run()
+
+        }
+
+        /*
         view?.let {
             it.getApplicationContext().startService(Intent(it.getApplicationContext(), ContactSyncService::class.java))
         }
+        */
     }
 
     fun syncMessages() {
