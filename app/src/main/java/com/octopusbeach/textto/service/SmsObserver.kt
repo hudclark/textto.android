@@ -34,6 +34,7 @@ class SmsObserver(val context: Context,
 
     override fun onChange(selfChange: Boolean) {
         super.onChange(selfChange)
+        Log.d(TAG, "content::mms-sms changed")
         publishSubject.onNext(0)
     }
 }

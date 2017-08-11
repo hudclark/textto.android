@@ -70,7 +70,7 @@ class ApiModule {
 
     @Provides
     @Singleton
-    fun providesApiService(client: OkHttpClient, sessionController: SessionController): ApiService {
+    fun providesApiService(client: OkHttpClient): ApiService {
         val retrofit = Retrofit.Builder()
                 .baseUrl(BuildConfig.API_URL)
                 .client(client)

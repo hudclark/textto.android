@@ -1,4 +1,4 @@
-package com.octopusbeach.textto.sms
+package com.octopusbeach.textto.message
 
 import android.content.Context
 import android.database.Cursor
