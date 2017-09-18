@@ -6,4 +6,6 @@ package com.octopusbeach.textto.model
 data class MmsPart(val androidId: Int,
                    val data: String,
                    val contentType: String,
-                   val messageId: Int)
+                   val messageId: Int?,
+                   val imageUrl: String?,
+                   val thumbnail: String?)

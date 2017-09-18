@@ -23,7 +23,6 @@ class MainActivity: AppCompatActivity(),
         HomePresenter.View, View.OnClickListener {
 
     private val TAG = "MainActivity"
-    val RC_SIGN_IN = 2
 
     @Inject lateinit var apiService: ApiService
     @Inject lateinit var prefs: SharedPreferences
@@ -48,7 +47,6 @@ class MainActivity: AppCompatActivity(),
         // no redirects
         setContentView(R.layout.activity_main)
         initSyncButtons()
-        SmsObserverService.ensureStarted(this)
 
         // init presenter
         if (presenter == null)

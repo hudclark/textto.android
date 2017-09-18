@@ -28,19 +28,27 @@ interface ApiService {
     fun createMessages(@Body messages: List<Message>): Call<String>
 
     @GET("messages/last-update")
-    fun getLastUpdated(): Call<Map<String, Long>>
+    fun getLastUpdated(): Call<Map<String, Map<String, Long>>>
 
     @POST("mmsparts")
     fun createMmsPart(@Body part: MmsPart): Call<Map<String, MmsPart>>
 
+    @POST("mmsparts/bulk")
+    fun createMmsParts(@Body parts: List<MmsPart>): Call<Map<String, List<MmsPart?>>>
+
+    @PUT
     fun putMmsImage(@Url url: String, @Body body: RequestBody): Call<Int>
 
-    @GET("scheduledMessages")
-    fun getScheduledMessages(@Query("failed") failed: Boolean): Call<Map<String, List<ScheduledMessage>>>
+    @GET("scheduledMessages?failed=false&sent=false")
+    fun getSendableMessages(): Call<Map<String, List<ScheduledMessage>>>
+
+    @PUT("scheduledMessages/{id}")
+    fun updateScheduledMessage(@Path("id") id: String, @Body scheduledMessage: ScheduledMessage):
+            Call<Map<String, ScheduledMessage>>
 
     @DELETE("scheduledMessages/{id}")
     fun deleteScheduledMessage(@Path("id") id: String): Call<Void>
 
     @POST("user/firebase-id")
-    fun updateFirebaseId(@Body token: JsonObject): Observable<Map<String, User>>
+    fun updateFirebaseId(@Body token: JsonObject): Observable<String>
 }

@@ -16,6 +16,7 @@ val BASE_PERMISSIONS = arrayOf(
         android.Manifest.permission.READ_SMS,
         android.Manifest.permission.READ_CONTACTS
 )
+
 val PERMISSIONS_CODE = 0
 
 fun getNeededPermissions(context: Context): ArrayList<String> {

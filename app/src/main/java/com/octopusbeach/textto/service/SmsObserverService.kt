@@ -1,12 +1,15 @@
 package com.octopusbeach.textto.service
 
+import android.app.Notification
+import android.app.PendingIntent
 import android.app.Service
-import android.content.Context
 import android.content.Intent
 import android.net.Uri
-import android.os.Handler
+import android.support.v7.app.NotificationCompat
 import android.util.Log
 import com.octopusbeach.textto.BaseApplication
+import com.octopusbeach.textto.R
+import com.octopusbeach.textto.home.MainActivity
 
 /**
  * Created by hudson on 9/6/16.
@@ -14,38 +17,76 @@ import com.octopusbeach.textto.BaseApplication
 class SmsObserverService: Service() {
 
     private var observer: SmsObserver? = null
+    private val TAG = "SmsObserverService"
+    private var isForeground = false
 
     companion object {
-        private val TAG = "SmsObserverService"
+        val FOREGROUND_EXTRA = "foreground"
+        val START_FOREGROUND = "startForeground"
+        val STOP_FOREGROUND = "stopForeground"
+    }
 
-        private var running = false
-
-        fun ensureStarted(context: Context) {
-            if (!running) {
-                context.startService(Intent(context, SmsObserverService::class.java))
-            }
-        }
+    override fun onCreate() {
+        super.onCreate()
+        observeSms()
     }
 
     override fun onDestroy() {
-        running = false
-        if (observer != null)
+        Log.d(TAG, "Stopping")
+        if (observer != null) {
             contentResolver.unregisterContentObserver(observer)
-        observer = null
+            observer = null
+        }
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        super.onStartCommand(intent, flags, startId)
+        Log.d(TAG, "onStartCommand")
+        intent?.getStringExtra(FOREGROUND_EXTRA)?.let {
+            if (it == START_FOREGROUND && !isForeground) {
+                startForeground()
+            } else if (it == STOP_FOREGROUND && isForeground) {
+                stopForeground()
+            }
+        }
+        return START_STICKY
+    }
 
-        val baseApp = applicationContext as BaseApplication
-
+    private fun observeSms() {
+        Log.d(TAG, "Starting")
         if (observer == null) {
-            Log.d(TAG, "Starting service")
+            val baseApp = applicationContext as BaseApplication
             observer = SmsObserver(applicationContext, baseApp.appComponent.getApiService(), baseApp.appComponent.getSharedPrefs())
             contentResolver.registerContentObserver(Uri.parse("content://mms-sms"), true, observer)
         }
-        running = true
-        return START_STICKY
     }
+
+    private fun startForeground() {
+        if (!isForeground) {
+            Log.d(TAG, "Starting foreground")
+            isForeground = true
+            startForeground(1, createNotification())
+        }
+    }
+
+    private fun stopForeground() {
+        if (isForeground) {
+            Log.d(TAG, "Stopping foreground")
+            isForeground = false
+            stopForeground(true)
+        }
+    }
+
+    private fun createNotification(): Notification {
+        val notificationIntent = Intent(this, MainActivity::class.java)
+        val pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT)
+        return NotificationCompat.Builder(this)
+                .setSmallIcon(R.mipmap.ic_launcher)
+                .setContentTitle(this.getString(R.string.connected))
+                .setContentIntent(pendingIntent)
+                .build()
+    }
+
 
     override fun onBind(intent: Intent?) = null
 

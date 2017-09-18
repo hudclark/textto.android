@@ -26,4 +26,7 @@
     <string name="messages">Messages</string>
     <string name="sync">Sync Now</string>
     <string name="contacts">Contacts</string>
+
+    <string name="syncing_contacts">Syncing Contacts</string>
+    <string name="connected">Connected to Textto.io</string>
 </resources>

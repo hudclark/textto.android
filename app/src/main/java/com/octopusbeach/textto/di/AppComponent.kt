@@ -9,7 +9,6 @@ import com.octopusbeach.textto.login.LoginActivity
 import com.octopusbeach.textto.onboarding.OnboardingActivity
 import com.octopusbeach.textto.service.ContactSyncService
 import com.octopusbeach.textto.service.MessagingService
-import com.octopusbeach.textto.service.NotificationListener
 import dagger.Component
 import javax.inject.Singleton
 
@@ -23,8 +22,6 @@ interface AppComponent {
     fun inject(activity: MainActivity)
     fun inject(activity: OnboardingActivity)
     fun inject(activity: LoginActivity)
-
-    fun inject(listener: NotificationListener)
 
     fun inject(service: MessagingService)
     fun inject(service: ContactSyncService)

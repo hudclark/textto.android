@@ -24,7 +24,7 @@ class SessionController(var apiService: PublicApiService, val prefs: SharedPrefe
 
     @Synchronized fun getAuthToken(): String? {
         if (token != null) return token
-        return prefs.getString(REFRESH_TOKEN, null)
+        return prefs.getString(AUTH_TOKEN, null)
 
     }
 
@@ -35,12 +35,14 @@ class SessionController(var apiService: PublicApiService, val prefs: SharedPrefe
         val editor = prefs.edit()
         editor.putString(AUTH_TOKEN, token)
         editor.apply()
+        Log.d(TAG, "Saved auth token")
     }
 
     @Synchronized fun setRefreshToken(token: String?) {
         val editor = prefs.edit()
         editor.putString(REFRESH_TOKEN, token)
         editor.apply()
+        Log.d(TAG, "Saved refresh token")
     }
 
     fun isLoggedIn() = getRefreshToken() != null

@@ -1,7 +1,6 @@
 package com.octopusbeach.textto.di
 
 import com.octopusbeach.textto.service.MessagingService
-import com.octopusbeach.textto.service.NotificationListener
 import dagger.Component
 import javax.inject.Singleton
 
@@ -13,6 +12,5 @@ import javax.inject.Singleton
 interface ApiComponent {
 
     fun inject(service: MessagingService)
-    fun inject(listener: NotificationListener)
 
 }

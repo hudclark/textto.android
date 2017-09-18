@@ -24,11 +24,11 @@ class SmsObserver(val context: Context,
     val publishSubject: PublishSubject<Any?> = PublishSubject.create<Any?>()
 
     init {
-        publishSubject.throttleFirst(1, TimeUnit.SECONDS)
-                .subscribe {
-                    Log.d(TAG, "Starting...")
-                    ThreadUtils.runSingleThreadTask(MessageSyncTask(apiService, context, sharedPreferences))
-                }
+        publishSubject.debounce(500, TimeUnit.MILLISECONDS)
+            .subscribe {
+                Log.d(TAG, "Starting...")
+                ThreadUtils.runSingleThreadTask(MessageSyncTask(apiService, context, sharedPreferences))
+            }
 
     }
 

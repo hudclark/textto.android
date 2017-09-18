@@ -7,10 +7,9 @@ import java.util.concurrent.Executors
  */
 object ThreadUtils {
 
-    private val singleThreadExecut0r = Executors.newSingleThreadExecutor()
+    private val singleThreadExecutor = Executors.newSingleThreadExecutor()
 
     fun runSingleThreadTask(runnable: Runnable) {
-        singleThreadExecut0r.execute(runnable)
+        singleThreadExecutor.execute(runnable)
     }
-
 }

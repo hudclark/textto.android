@@ -1,13 +1,22 @@
 package com.octopusbeach.textto.message
 
+import android.app.PendingIntent
 import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import android.os.Build
+import android.provider.Telephony
 import android.support.v4.content.FileProvider
 import android.telephony.SmsManager
 import android.text.TextUtils
 import android.util.Log
+import com.octopusbeach.textto.api.ApiService
+import com.octopusbeach.textto.model.Message
+import com.octopusbeach.textto.model.MmsPart
+import com.octopusbeach.textto.service.DeliveryBroadcastReceiver
 import java.io.File
 import java.io.FileOutputStream
+import java.util.*
 
 /**
  * Created by hudson on 8/10/17.
@@ -18,7 +27,6 @@ object MessageController {
 
     private val FILE_PROVIDER = "com.octopusbeach.fileprovider"
     private val TEXT_PLAIN = "text/plain"
-    private val UTF_8 = 106
     private val EXPIRY_TIME: Long = 7 * 24 * 60 * 60
     private val PRIORITY = 0x81
     private val VALUE_NO = 0x81
@@ -38,29 +46,31 @@ object MessageController {
                     "</body>" +
                     "</smil>"
 
-    fun sendMessage(text: String?, recipients: Array<String>, context: Context) {
+    fun sendMessage(text: String?, recipients: Array<String>, context: Context, messageId: String) {
         // TODO right now images are not allowed
         if (text == null || recipients.isEmpty()) return
-        if (recipients.size > 1) {
-            sendMmsMessage(text, recipients, context)
+        val intent = getPendingIntent(context, messageId)
+        if (recipients.size > 1 || text.length > 160) {
+            sendMmsMessage(text, recipients, context, intent)
         } else {
-            sendSmsMessage(text, recipients[0])
+            sendSmsMessage(text, recipients[0], intent)
         }
     }
 
-    private fun sendSmsMessage(text: String, recipient: String) {
+    private fun getPendingIntent(context: Context, id: String): PendingIntent {
+        val intent = Intent(context, DeliveryBroadcastReceiver::class.java)
+        intent.putExtra(DeliveryBroadcastReceiver.MESSAGE_ID, id)
+        // pass unique id to intent
+        return PendingIntent.getBroadcast(context, Random().nextInt(), intent, 0)
+    }
+
+    private fun sendSmsMessage(text: String, recipient: String, intent: PendingIntent) {
         Log.d(TAG, "Sending sms message to $recipient...")
         val manager = SmsManager.getDefault()
-        val parts = manager.divideMessage(text)
-        // TODO could attach sent/delivered events?
-        if (parts.size > 1) {
-            manager.sendMultipartTextMessage(recipient, null, parts, null, null)
-        } else  {
-            manager.sendTextMessage(recipient, null, text, null, null)
-        }
+        manager.sendTextMessage(recipient, null, text, intent, null)
     }
 
-    private fun sendMmsMessage(text: String, recipients: Array<String>, context: Context) {
+    private fun sendMmsMessage(text: String, recipients: Array<String>, context: Context, intent: PendingIntent) {
         if (Build.VERSION.SDK_INT < 21) return
         Log.d(TAG, "Sending mms message to $recipients...")
         val pdu = buildPdu(context, recipients, text)
@@ -75,7 +85,7 @@ object MessageController {
             stream.close()
             val uri = FileProvider.getUriForFile(context, FILE_PROVIDER, file)
             Log.d(TAG, uri.encodedPath)
-            SmsManager.getDefault().sendMultimediaMessage(context, uri, null, null, null)
+            SmsManager.getDefault().sendMultimediaMessage(context, uri, null, null, intent)
         } catch (e: Exception) {
             Log.e(TAG, "Error writing mms to file", e)
         }
@@ -173,6 +183,73 @@ object MessageController {
         PduPart.getDeclaredMethod("setContentType", ByteArray::class.java).invoke(pduPart, "application/smil".toByteArray())
         PduPart.getDeclaredMethod("setData", ByteArray::class.java).invoke(pduPart, smil.toByteArray())
         PduBody.getDeclaredMethod("addPart", pduPart::class.java).invoke(pduBody, pduPart)
+    }
+
+    fun syncRecentThreads(context: Context, apiService: ApiService, messagesPerThread: Int) {
+        val threads = getTwentyRecentThreads(context)
+        threads.forEach {
+            syncMessagesForThread(context, apiService, it, messagesPerThread)
+        }
+    }
+
+    private fun syncMessagesForThread(context: Context, apiService: ApiService, threadId: Int, limit: Int) {
+        val uri = Uri.parse("content://mms-sms/conversations/$threadId?simple=true")
+        val projection = arrayOf("_id", "type", "date")
+        val cur = context.contentResolver.query(uri, projection, null, null, "date DESC LIMIT $limit")
+        val messages = ArrayList<Message>()
+        if (cur.moveToFirst()) {
+            do {
+                val contentType = cur.getString(cur.getColumnIndex("type"))
+                val id = cur.getInt(cur.getColumnIndex("_id"))
+                if (contentType == null) {
+                    Mms.getMmsForId(context, id)?.let { messages.add(it) }
+                } else {
+                    Sms.getSmsForId(context, id)?.let { messages.add(it) }
+                }
+                if (messages.size > 100) {
+                    postMessages(messages, context, apiService)
+                }
+            } while (cur.moveToNext())
+        }
+        cur.close()
+
+        if (messages.isNotEmpty()) {
+            postMessages(messages, context, apiService)
+        }
+    }
+
+    private fun getTwentyRecentThreads(context: Context): List<Int> {
+        val threadIdProjection = arrayOf(Telephony.Threads._ID, Telephony.Threads.DATE)
+        val uri = Uri.parse("content://mms-sms/conversations?simple=true")
+        val cur = context.contentResolver.query(uri, threadIdProjection, null, null, null)
+        val threads = ArrayList<Int>(15)
+        var counter = 0
+        if (cur.moveToFirst()) {
+            do {
+                val id = cur.getInt(cur.getColumnIndex("_id"))
+                threads.add(id)
+                counter++
+            } while (cur.moveToNext() && counter < 15)
+        }
+        cur.close()
+        return threads
+    }
+
+    fun postMessages(messages: List<Message>, context: Context, apiService: ApiService) {
+        apiService.createMessages(messages).execute()
+        val parts = ArrayList<MmsPart>()
+        messages.forEach {
+            if (it.type == "mms") {
+                parts.addAll(Mms.getPartsForMessage(it, context))
+                if (parts.size > 10) {
+                    Mms.postParts(parts, apiService, context)
+                    parts.clear()
+                }
+            }
+        }
+        if (parts.isNotEmpty()) {
+            Mms.postParts(parts, apiService, context)
+        }
     }
 
 }

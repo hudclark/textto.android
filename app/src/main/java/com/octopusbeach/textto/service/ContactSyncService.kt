@@ -1,15 +1,20 @@
 package com.octopusbeach.textto.service
 
+import android.app.Notification
+import android.app.PendingIntent
 import android.app.Service
 import android.content.ContentUris
 import android.content.Intent
 import android.net.Uri
 import android.os.Looper
 import android.provider.ContactsContract
+import android.support.v4.app.NotificationCompat
 import android.util.Base64
 import android.util.Log
 import com.octopusbeach.textto.BaseApplication
+import com.octopusbeach.textto.R
 import com.octopusbeach.textto.api.ApiService
+import com.octopusbeach.textto.home.MainActivity
 import com.octopusbeach.textto.model.Contact
 import javax.inject.Inject
 
@@ -26,12 +31,25 @@ class ContactSyncService : Service() {
         super.onCreate()
         (applicationContext as BaseApplication).appComponent.inject(this)
         val runnable = Runnable {
+            startForeground(1, createNotification())
             syncContacts()
             Looper.getMainLooper().run {
+                stopForeground(true)
                 stopSelf()
             }
         }
         Thread(runnable).start()
+    }
+
+    private fun createNotification(): Notification {
+        val notificationIntent = Intent(this, MainActivity::class.java)
+        val pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT)
+
+        return NotificationCompat.Builder(this)
+                .setSmallIcon(R.mipmap.ic_launcher)
+                .setContentTitle(this.getString(R.string.syncing_contacts))
+                .setContentIntent(pendingIntent)
+                .build()
     }
 
     private fun syncContacts() {
@@ -86,6 +104,7 @@ class ContactSyncService : Service() {
     }
 
     private fun getContactThumbnail(id: Int): String? {
+
         val contactUri = ContentUris.withAppendedId(ContactsContract.Contacts.CONTENT_URI, id.toLong())
         val photoUri = Uri.withAppendedPath(contactUri, ContactsContract.Contacts.Photo.CONTENT_DIRECTORY)
         val cur = contentResolver.query(photoUri,

@@ -21,9 +21,9 @@ android {
     }
     buildTypes {
         debug {
-            //buildConfigField "String", "API_URL", '"https://textto-staging.herokuapp.com"'
+            buildConfigField "String", "API_URL", '"https://textto.herokuapp.com"'
             //buildConfigField "String", "API_URL", '"http://10.0.2.2:5000"'
-            buildConfigField "String", "API_URL", '"http://192.168.0.15:5000"'
+            //buildConfigField "String", "API_URL", '"http://192.168.0.156:5000"'
         }
         release {
             buildConfigField "String", "API_URL", "'https://textto.herokuapp.com'"

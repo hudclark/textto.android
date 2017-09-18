@@ -22,10 +22,11 @@ class MessageSyncTask(val apiService: ApiService,
     }
 
     private fun syncScheduledMessages() {
-        apiService.getScheduledMessages(failed = false).execute().body()["scheduledMessages"]?.forEach {
+        apiService.getSendableMessages().execute().body()["scheduledMessages"]?.forEach {
             try {
-                apiService.deleteScheduledMessage(it._id).execute()
-                MessageController.sendMessage(it.body, it.addresses, context)
+                it.sent = true
+                apiService.updateScheduledMessage(it._id, it).execute()
+                MessageController.sendMessage(it.body, it.addresses, context, it._id)
             } catch (e: Exception) {
                 Log.d(TAG, "Error deleting scheduled message ${it._id}")
             }
@@ -33,14 +34,28 @@ class MessageSyncTask(val apiService: ApiService,
     }
 
     override fun run() {
+        Log.d(TAG, "Starting sync task")
         try {
-
             val updatedAt = apiService.getLastUpdated().execute().body()
-            val sms = updatedAt["sms"] ?: System.currentTimeMillis()
-            val mms = updatedAt["sms"] ?: System.currentTimeMillis()
 
-            Sms.syncSmsToDate(sms, context, apiService)
-            Mms.syncMmsToDate(mms, context, apiService)
+            val sms = updatedAt["sms"]
+            val mms = updatedAt["mms"]
+            Log.e(TAG, sms.toString())
+            Log.e(TAG, mms.toString())
+
+            if (sms == null && mms == null) {
+                // first sync
+                Log.d(TAG, "Syncing recent threads")
+                MessageController.syncRecentThreads(context, apiService, 20)
+            } else {
+                // TODO what happens when mms/sms has never been updated, and then this is called.
+                // We need to make sure to sync anything 'recent' -- however that is defined.
+                // This should only ever be used once for sms/mms
+                val withinFive = System.currentTimeMillis() - (1000 * 60 * 5)
+
+                Sms.syncSms(sms?.get("date") ?: withinFive, sms?.get("id")?.toInt() ?: -1, context, apiService)
+                Mms.syncMms(mms?.get("date") ?: withinFive, mms?.get("id")?.toInt() ?: -1, context, apiService)
+            }
 
             syncScheduledMessages()
 
@@ -48,5 +63,6 @@ class MessageSyncTask(val apiService: ApiService,
         } catch (e: Exception) {
             Log.e(TAG, "Error updating messages: $e")
         }
+        Log.d(TAG, "Finished sync task")
     }
 }

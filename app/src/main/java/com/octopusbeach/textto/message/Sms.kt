@@ -13,23 +13,22 @@ import com.octopusbeach.textto.model.Message
  */
 object Sms {
 
-    private val MAX_MESSAGES = 75
+    private val MAX_MESSAGES = 400
 
     /**
      * Will push sms up to last id to server
      */
-    fun syncSmsToDate(date: Long, context: Context, apiService: ApiService) {
-        val selection = "date > $date"
+    fun syncSms(date: Long, id: Int, context: Context, apiService: ApiService) {
+        val selection = "_id > $id"
         val cur = context.contentResolver.query(Uri.parse("content://sms"), null, selection, null, null)
         var counter = 0
         val messageCount = Math.min(cur.count, 1000)
-        Log.d("Sms", "$messageCount")
         val messages = ArrayList<Message>()
         if (cur.moveToFirst()) {
             while (counter < messageCount) {
                 getSmsForCursor(cur)?.let {
                     if (messages.size > MAX_MESSAGES) {
-                        postMessages(messages, apiService)
+                        MessageController.postMessages(messages, context, apiService)
                         messages.clear()
                     }
                     messages.add(it)
@@ -41,8 +40,18 @@ object Sms {
         cur.close()
 
         if (messages.isNotEmpty()) {
-            postMessages(messages, apiService)
+            MessageController.postMessages(messages, context, apiService)
         }
+    }
+
+    fun getSmsForId(context: Context, id: Int): Message? {
+        var message: Message? = null
+        val cur = context.contentResolver.query(Uri.parse("content://sms"), null, "_id=$id", null, null)
+        if (cur.moveToFirst()) {
+            message = getSmsForCursor(cur)
+        }
+        cur.close()
+        return message
     }
 
     private fun getSmsForCursor(cur: Cursor): Message? {
@@ -51,21 +60,14 @@ object Sms {
         val body = cur.getString(cur.getColumnIndex(Telephony.Sms.BODY))
         if (addr == null || body == null)
             return null
-        val msg = Message(
+        return Message(
                 androidId = cur.getInt(cur.getColumnIndex("_id")),
                 threadId = cur.getInt(cur.getColumnIndex(Telephony.Sms.THREAD_ID)),
                 body = body,
                 sender = sender,
                 date = cur.getLong(cur.getColumnIndex(Telephony.Sms.DATE)),
                 addresses = arrayListOf(addr),
-                type = "sms"
-        )
-        return msg
+                type = "sms")
     }
-
-    private fun postMessages(messages: List<Message>, apiService: ApiService) {
-        apiService.createMessages(messages).execute()
-    }
-
 
 }
