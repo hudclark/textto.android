@@ -84,6 +84,8 @@ class SmsObserverService: Service() {
                 .setSmallIcon(R.mipmap.ic_launcher)
                 .setContentTitle(this.getString(R.string.connected))
                 .setContentIntent(pendingIntent)
+                .setPriority(NotificationCompat.PRIORITY_MIN)
+                .setShowWhen(false)
                 .build()
     }
 

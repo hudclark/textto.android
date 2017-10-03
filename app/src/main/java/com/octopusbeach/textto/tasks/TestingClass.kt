@@ -1,6 +1,11 @@
 package com.octopusbeach.textto.tasks
 
+import android.content.ContentValues
 import android.content.Context
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.net.Uri
+import android.util.Log
 import com.octopusbeach.textto.api.ApiService
 import com.octopusbeach.textto.message.MessageController
 import com.octopusbeach.textto.message.Mms
@@ -11,8 +16,23 @@ import com.octopusbeach.textto.message.Mms
 class TestingClass(val context: Context, val apiService: ApiService) : Runnable {
 
     override fun run() {
-        MessageController.syncRecentThreads(context, apiService, 20)
+        val uri = Uri.parse("content://mms-sms/conversations")
+        val cur = context.contentResolver.query(uri, null, null, null, null, null)
+        if (cur.moveToFirst()) {
+            do {
+                val read = cur.getInt(cur.getColumnIndex("read"))
+                val address = cur.getString(cur.getColumnIndex("address"))
+                if (read == 0) {
+                    val contentValues = ContentValues()
+                    contentValues.put("seen", true)
+                    val id = cur.getString(cur.getColumnIndex("_id"))
+                    Log.e("TEST", "Attempting to mark message $id as read")
+                    val result = context.contentResolver.update(Uri.parse("content://mms-sms/conversations"), contentValues, "_id=$id", null)
+                    Log.e("TEST", "result: $result")
+                }
+            } while (cur.moveToNext())
+        }
+        cur.close()
     }
-
 
 }

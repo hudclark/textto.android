@@ -1,12 +1,13 @@
 package com.octopusbeach.textto.login
 
+import android.content.Context
+import android.provider.Settings
 import android.util.Log
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInResult
 import com.google.firebase.iid.FirebaseInstanceId
 import com.google.gson.JsonObject
 import com.octopusbeach.textto.BaseApplication
-import com.octopusbeach.textto.api.ApiService
 import com.octopusbeach.textto.api.PublicApiService
 import com.octopusbeach.textto.api.SessionController
 import retrofit2.Call
@@ -39,9 +40,11 @@ class LoginPresenter(val apiService: PublicApiService, val sessionController: Se
     }
 
     private fun logIn(token: String, account: GoogleSignInAccount?) {
+        val context = view?.getBaseApplication() ?: return
         val data = JsonObject()
         data.addProperty("token", token)
         data.addProperty("platform", android.os.Build.MODEL)
+        data.addProperty("deviceId", getDeviceId(context))
         apiService.googleAuth(data).enqueue(object: Callback<JsonObject> {
             override fun onFailure(call: Call<JsonObject>?, t: Throwable?) {
                 Log.e(TAG, "Unable to authenticate: $t")
@@ -68,6 +71,8 @@ class LoginPresenter(val apiService: PublicApiService, val sessionController: Se
             }
         })
     }
+
+    private fun getDeviceId(context: Context) = Settings.Secure.getString(context.contentResolver, Settings.Secure.ANDROID_ID)
 
     interface View {
         fun onLoginSuccess()

@@ -7,7 +7,6 @@ import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import com.octopusbeach.textto.BaseApplication
 import com.octopusbeach.textto.api.ApiService
-import com.octopusbeach.textto.model.Contact
 import com.octopusbeach.textto.tasks.MessageSyncTask
 import com.octopusbeach.textto.utils.ThreadUtils
 import javax.inject.Inject
@@ -23,10 +22,10 @@ class MessagingService: FirebaseMessagingService() {
 
     private val TAG = "MessagingService"
 
-    val TYPE_REFRESH = "refresh"
-    val TYPE_SYNC_CONTACTS = "syncContacts"
-    val TYPE_START_SESSION = "startSession"
-    val TYPE_STOP_SESSION = "endSession"
+    private val TYPE_REFRESH = "refresh"
+    private val TYPE_SYNC_CONTACTS = "syncContacts"
+    private val TYPE_START_SESSION = "startSession"
+    private val TYPE_STOP_SESSION = "endSession"
 
     override fun onCreate() {
         super.onCreate()
@@ -54,6 +53,8 @@ class MessagingService: FirebaseMessagingService() {
                 val intent = Intent(applicationContext, SmsObserverService::class.java)
                 intent.putExtra(SmsObserverService.FOREGROUND_EXTRA, SmsObserverService.START_FOREGROUND)
                 applicationContext.startService(intent)
+                // On session start, update messages
+                ThreadUtils.runSingleThreadTask(MessageSyncTask(apiService, applicationContext, prefs))
             }
 
             TYPE_STOP_SESSION -> {

@@ -21,15 +21,13 @@ class SmsObserver(val context: Context,
 
     private val TAG = "Sms Observer"
 
-    val publishSubject: PublishSubject<Any?> = PublishSubject.create<Any?>()
+    val publishSubject: PublishSubject<Any?> = PublishSubject.create()
 
     init {
-        publishSubject.debounce(500, TimeUnit.MILLISECONDS)
-            .subscribe {
-                Log.d(TAG, "Starting...")
-                ThreadUtils.runSingleThreadTask(MessageSyncTask(apiService, context, sharedPreferences))
-            }
-
+        publishSubject.debounce(500, TimeUnit.MILLISECONDS).subscribe {
+            Log.d(TAG, "Starting...")
+            ThreadUtils.runSingleThreadTask(MessageSyncTask(apiService, context, sharedPreferences))
+        }
     }
 
     override fun onChange(selfChange: Boolean) {

@@ -26,7 +26,7 @@ class DeliveryBroadcastReceiver : BroadcastReceiver() {
         ThreadUtils.runSingleThreadTask(Runnable {
             try {
                 // Guess we'll just delete the message for now.
-                // Could definitely decide to mark as sent instead.
+                // Could definitely decide to mark as delivered instead.
                 apiService.deleteScheduledMessage(id).execute()
             } catch (e: Exception) {
                 Log.e(TAG, "Error marking message as sent", e)

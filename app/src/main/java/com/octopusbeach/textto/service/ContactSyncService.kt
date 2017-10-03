@@ -31,14 +31,19 @@ class ContactSyncService : Service() {
         super.onCreate()
         (applicationContext as BaseApplication).appComponent.inject(this)
         val runnable = Runnable {
-            startForeground(1, createNotification())
+            startForeground(2, createNotification())
             syncContacts()
             Looper.getMainLooper().run {
-                stopForeground(true)
+                Log.d(TAG, "Finished sync")
                 stopSelf()
             }
         }
         Thread(runnable).start()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        stopForeground(true)
     }
 
     private fun createNotification(): Notification {
@@ -57,7 +62,7 @@ class ContactSyncService : Service() {
         val contacts = readContacts()
         val postContent = ArrayList<Contact>(20)
         contacts.forEach {
-            if (postContent.size == 20) {
+            if (postContent.size == 80) {
                 postContacts(postContent)
                 postContent.clear()
             } else {
