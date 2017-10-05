@@ -34,6 +34,8 @@ class MainActivity: AppCompatActivity(),
         super.onCreate(savedInstanceState)
         (applicationContext as BaseApplication).appComponent.inject(this)
 
+        redirect(OnboardingActivity::class.java)
+        return
         // check for redirects
         if (!prefs.getBoolean(OnboardingActivity.ONBOARDING_COMPLETED, false)) {
             redirect(OnboardingActivity::class.java)

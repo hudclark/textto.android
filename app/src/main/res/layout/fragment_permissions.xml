@@ -1,19 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:paddingLeft="32dp"
+    android:orientation="vertical"
     android:paddingRight="32dp">
 
-    <com.octopusbeach.textto.onboarding.SquareLinearLayout
-        android:id="@+id/permissions_content"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_centerInParent="true"
-        android:gravity="center_vertical"
-        android:orientation="vertical">
+        <TextView
+            android:layout_marginTop="100dp"
+            android:id="@+id/permission_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="@string/permissions_message"
+            android:textSize="30sp" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:gravity="center"
+            android:text="@string/permissions_title"
+            android:textSize="16sp" />
 
         <RelativeLayout
+            android:layout_marginTop="100dp"
             android:layout_width="match_parent"
             android:layout_height="76dp"
             android:padding="16dp">
@@ -76,42 +87,14 @@
 
         </RelativeLayout>
 
-    </com.octopusbeach.textto.onboarding.SquareLinearLayout>
-
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_above="@id/permissions_content"
-        android:layout_alignParentTop="true">
-
-        <TextView
-            android:id="@+id/permission_title"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
-            android:gravity="center"
-            android:text="@string/permissions_message"
-            android:textSize="28sp" />
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/permission_title"
-            android:layout_marginTop="8dp"
-            android:gravity="center"
-            android:text="@string/permissions_title"
-            android:textSize="16sp" />
-
-    </RelativeLayout>
-
     <Button
+        android:layout_marginTop="100dp"
         android:id="@+id/permission_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
+        android:layout_gravity="center_horizontal"
         android:background="@color/blue"
         android:paddingLeft="16dp"
         android:paddingRight="16dp"
         android:text="@string/enable_permissions" />
-</RelativeLayout>
+</LinearLayout>

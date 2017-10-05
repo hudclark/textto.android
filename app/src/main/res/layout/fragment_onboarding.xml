@@ -1,51 +1,39 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:paddingLeft="32dp"
     android:paddingRight="32dp"
+    android:orientation="vertical"
     tools:context="com.octopusbeach.textto.onboarding.OnboardingActivity$PlaceholderFragment">
 
     <ImageView
+        android:layout_marginTop="156dp"
         android:id="@+id/onboarding_image"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
+        android:layout_height="256dp"
         android:adjustViewBounds="true"
         tools:src="@drawable/ic_chat" />
 
-    <FrameLayout
+    <TextView
+        android:layout_marginTop="48dp"
+        android:id="@+id/onboarding_title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_above="@id/onboarding_image"
-        android:layout_alignParentTop="true">
+        android:layout_gravity="center"
+        android:gravity="center"
+        tools:text="Text Anywhere"
+        android:textSize="28sp"/>
 
-        <TextView
-            android:id="@+id/onboarding_title"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:gravity="center"
-            tools:text="Text Anywhere"
-            android:textSize="28sp"/>
-    </FrameLayout>
-
-
-    <FrameLayout
+    <TextView
+        android:layout_marginTop="16dp"
+        android:id="@+id/onboarding_message"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_below="@id/onboarding_image">
+        android:layout_gravity="center"
+        android:gravity="center"
+        tools:text="With our website and desktop applications available for Mac, Windows, and Linux"
+        android:textSize="18sp" />
 
-        <TextView
-            android:id="@+id/onboarding_message"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:gravity="center"
-            tools:text="With our website and desktop applications available for Mac, Windows, and Linux"
-            android:textSize="16sp" />
-    </FrameLayout>
-
-</RelativeLayout>
+</LinearLayout>
 

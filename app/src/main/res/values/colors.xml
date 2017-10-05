@@ -1,14 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#364658</color>
-    <color name="colorPrimaryDark">#455A64</color>
-    <color name="colorPrimaryLight">#8cadbc</color>
-    <color name="colorAccent">#FF4081</color>
 
-    <color name="blue">#00BCD4</color>
-    <color name="blueAction">#2196f3</color>
-    <color name="slate">#364658</color>
-    <color name="slateDark">#2d3e50</color>
+    <color name="blueBackground">#1e88e5</color>
+    <color name="cyanBackground">#30c9e8</color>
+    <color name="greenBackground">#43a047</color>
+    <color name="indigoBackground">#3f51b5</color>
+
+    <color name="blue">#19B5FE</color>
+    <color name="blueDark">#2196f3</color>
     <color name="white">#ffffff</color>
     <color name="textWhite">#c8ffffff</color>
     <color name="divider">#1affffff</color>

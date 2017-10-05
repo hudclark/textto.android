@@ -1,5 +1,6 @@
 package com.octopusbeach.textto.onboarding
 
+import android.animation.ArgbEvaluator
 import android.content.Intent
 import android.content.SharedPreferences
 import android.support.v7.app.AppCompatActivity
@@ -10,6 +11,7 @@ import android.support.v4.app.FragmentPagerAdapter
 import android.support.v4.view.ViewPager
 import android.os.Bundle
 import android.support.design.widget.Snackbar
+import android.support.v4.content.ContextCompat
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -34,8 +36,10 @@ class OnboardingActivity :
     private lateinit var indicatorOne: ImageView
     private lateinit var indicatorTwo: ImageView
     private lateinit var indicatorThree: ImageView
-    private lateinit var fab: View
     private lateinit var rootView: View
+    private lateinit var nextButton: View
+    private lateinit var argbEvaluator: ArgbEvaluator
+    private lateinit var colors: Array<Int>
 
     @Inject lateinit var prefs: SharedPreferences
 
@@ -46,19 +50,26 @@ class OnboardingActivity :
 
         rootView = findViewById(R.id.main_content)
 
-        fab = findViewById(R.id.fab)
-        fab.setOnClickListener({
-            viewPager.setCurrentItem(viewPager.currentItem + 1, true)
-        })
-
         indicatorOne = findViewById(R.id.view_pager_indicator_one) as ImageView
         indicatorTwo = findViewById(R.id.view_pager_indicator_two) as ImageView
         indicatorThree = findViewById(R.id.view_pager_indicator_three) as ImageView
+
+        nextButton = findViewById(R.id.next_button) as View
+        nextButton.setOnClickListener {
+            if (viewPager.currentItem < 2)
+            viewPager.setCurrentItem(viewPager.currentItem + 1, true)
+        }
+
+        argbEvaluator = ArgbEvaluator()
+        colors = arrayOf(ContextCompat.getColor(this, R.color.blueBackground),
+                        ContextCompat.getColor(this, R.color.greenBackground),
+                        ContextCompat.getColor(this, R.color.indigoBackground))
 
         sectionsPagerAdapter = SectionsPagerAdapter(supportFragmentManager)
         viewPager = findViewById(R.id.container) as ViewPager
         viewPager.adapter = sectionsPagerAdapter
         viewPager.addOnPageChangeListener(this)
+        viewPager.setPageTransformer(false, OnboardingPageTransformer())
 
         // set initial page to 0
         onPageSelected(0)
@@ -92,17 +103,20 @@ class OnboardingActivity :
     }
 
     override fun onPageScrollStateChanged(state: Int) {}
-    override fun onPageScrolled(position: Int, positionOffset: Float, positionOffsetPixels: Int) {}
+
+    override fun onPageScrolled(position: Int, positionOffset: Float, positionOffsetPixels: Int) {
+        if (position < (sectionsPagerAdapter.count - 1)) {
+            rootView.setBackgroundColor(argbEvaluator.evaluate(positionOffset, colors[position], colors[position + 1]) as Int)
+        } else {
+            rootView.setBackgroundColor(colors.last())
+        }
+    }
+
     override fun onPageSelected(position: Int) {
         indicatorOne.alpha = if (position == 0) 1f else 0.5f
         indicatorTwo.alpha = if (position == 1) 1f else 0.5f
         indicatorThree.alpha = if (position == 2) 1f else 0.5f
-
-        if (position == 2 && fab.visibility == View.VISIBLE) {
-            fab.post { circleRevealExit(fab) }
-        } else if (fab.visibility == View.GONE) {
-            fab.post { circleRevealEnter(fab) }
-        }
+        nextButton.visibility = if (position < 2) View.VISIBLE else View.GONE
     }
 
     inner class SectionsPagerAdapter(fm: FragmentManager) : FragmentPagerAdapter(fm) {
@@ -110,10 +124,8 @@ class OnboardingActivity :
         override fun getItem(position: Int): Fragment {
             // getItem is called to instantiate the fragment for the given page.
             // Return a PlaceholderFragment (defined as a static inner class below).
-            if (position == 0 || position == 1)
-                return PlaceholderFragment.newInstance(position)
-            else
-                return PermissionsFragment.newInstance(this@OnboardingActivity)
+            return if  (position == 0 || position == 1) PlaceholderFragment.newInstance(position)
+            else PermissionsFragment.newInstance(this@OnboardingActivity)
         }
 
         override fun getCount(): Int {
@@ -146,6 +158,8 @@ class OnboardingActivity :
             titleView.text = getTitleForPosition(position)
             messageView.text = getMessageForPosition(position)
             imageView.setImageResource(getImageForPosition(position))
+
+            rootView.tag = position
 
             return rootView
         }

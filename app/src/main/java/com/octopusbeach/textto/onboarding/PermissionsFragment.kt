@@ -19,6 +19,7 @@ class PermissionsFragment: Fragment() {
         rootView.findViewById<View>(R.id.permission_button).setOnClickListener {
             requestPermissionsListener?.onRequestPermissions()
         }
+        rootView.tag = 2
         return rootView
     }
 
