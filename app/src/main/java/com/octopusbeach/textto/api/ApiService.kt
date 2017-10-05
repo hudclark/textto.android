@@ -51,4 +51,7 @@ interface ApiService {
 
     @POST("user/firebase-id")
     fun updateFirebaseId(@Body token: JsonObject): Observable<String>
+
+    @GET("ping")
+    fun ping(): Call<String>
 }
