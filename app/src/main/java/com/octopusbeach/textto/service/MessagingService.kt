@@ -7,6 +7,7 @@ import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import com.octopusbeach.textto.BaseApplication
 import com.octopusbeach.textto.api.ApiService
+import com.octopusbeach.textto.api.SessionController
 import com.octopusbeach.textto.tasks.MessageSyncTask
 import com.octopusbeach.textto.utils.ThreadUtils
 import javax.inject.Inject
@@ -19,6 +20,7 @@ class MessagingService: FirebaseMessagingService() {
 
     @Inject lateinit var apiService: ApiService
     @Inject lateinit var prefs: SharedPreferences
+    @Inject lateinit var sessionController: SessionController
 
     private val TAG = "MessagingService"
 
@@ -33,6 +35,7 @@ class MessagingService: FirebaseMessagingService() {
     }
 
     override fun onMessageReceived(msg: RemoteMessage) {
+        if (!sessionController.isLoggedIn()) return
         val message = msg.data?.get("type") ?: return
         Log.d(TAG, "Received message: $message")
         when (message) {

@@ -50,8 +50,11 @@ interface ApiService {
     fun deleteScheduledMessage(@Path("id") id: String): Call<Void>
 
     @POST("user/firebase-id")
-    fun updateFirebaseId(@Body token: JsonObject): Observable<String>
+    fun updateFirebaseId(@Body token: JsonObject): Observable<Map<String, String>>
 
     @GET("ping")
     fun ping(): Call<String>
+
+    @POST("revokeToken")
+    fun revokeToken(@Query("refreshToken") refreshToken: String): Observable<Map<String, String>>
 }

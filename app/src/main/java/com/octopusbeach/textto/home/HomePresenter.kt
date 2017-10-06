@@ -1,14 +1,17 @@
 package com.octopusbeach.textto.home
 
 import android.content.Context
+import android.content.Intent
 import android.content.SharedPreferences
 import android.util.Log
 import com.octopusbeach.textto.api.ApiService
 import com.octopusbeach.textto.api.SessionController
+import com.octopusbeach.textto.service.SmsObserverService
 import com.octopusbeach.textto.tasks.MessageSyncTask
-import com.octopusbeach.textto.tasks.TestingClass
 import com.octopusbeach.textto.utils.ThreadUtils
 import com.octopusbeach.textto.utils.getNeededPermissions
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.schedulers.Schedulers
 
 /**
  * Created by hudson on 7/16/17.
@@ -35,8 +38,8 @@ class HomePresenter(val apiService: ApiService,
 
     fun syncContacts() {
         view?.let {
-            //it.getApplicationContext().startService(Intent(it.getApplicationContext(), ContactSyncService::class.java))
-            ThreadUtils.runSingleThreadTask(TestingClass(it.getApplicationContext(), apiService))
+            it.getApplicationContext().startService(Intent(it.getApplicationContext(), ContactSyncService::class.java))
+            //ThreadUtils.runSingleThreadTask(TestingClass(it.getApplicationContext(), apiService))
         }
     }
 
@@ -67,6 +70,31 @@ class HomePresenter(val apiService: ApiService,
         }
     }
 
+    fun logOut () {
+        view?.let {
+            val refreshToken = sessionController.getRefreshToken()
+            apiService.revokeToken(refreshToken)
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe({
+                        Log.d(TAG, "Successfully logged out")
+                        onLogOut()
+                    }, {
+                        Log.e(TAG, "Error logging out", it)
+                        onLogOut()
+                    })
+        }
+    }
+
+    private fun onLogOut () {
+        sessionController.clearTokens()
+        view?.let {
+            val context = it.getApplicationContext()
+            context.stopService(Intent(context, SmsObserverService::class.java))
+            it.redirectToLogin()
+        }
+    }
+
     private fun formatSyncTime(time: Long): String {
         if (time == 0L) {
             return "Syncing now"
@@ -80,7 +108,7 @@ class HomePresenter(val apiService: ApiService,
         val days = Math.round(hours.toDouble() / 24)
 
         if (seconds < 60) {
-            return "Last synced $seconds ${if (seconds == 1L) "second" else "seconds"} ago"
+            return "Last synced less than a minute ago"
         } else if (minutes < 60) {
             return "Last synced $minutes ${if (minutes == 1L) "minute" else "minutes"} ago"
         } else if (hours < 24) {
@@ -96,6 +124,7 @@ class HomePresenter(val apiService: ApiService,
         fun setMessagesLastSynced(message: String)
         fun getApplicationContext(): Context
         fun showRequestPermissions()
+        fun redirectToLogin()
 
         fun setDisplayName(name: String)
         fun setPhotoUrl(url: String)

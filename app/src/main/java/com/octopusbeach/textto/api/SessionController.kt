@@ -30,6 +30,11 @@ class SessionController(var apiService: PublicApiService, val prefs: SharedPrefe
 
     @Synchronized fun getRefreshToken() = prefs.getString(REFRESH_TOKEN, null)
 
+    fun clearTokens () {
+        setAuthToken(null)
+        setRefreshToken(null)
+    }
+
     @Synchronized fun setAuthToken(token: String?) {
         this.token = token
         val editor = prefs.edit()
@@ -80,4 +85,5 @@ class SessionController(var apiService: PublicApiService, val prefs: SharedPrefe
             }
         }
     }
+
 }

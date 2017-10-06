@@ -116,6 +116,10 @@ class MainActivity: AppCompatActivity(),
         messagesLastSynced.text = message
     }
 
+    override fun redirectToLogin() {
+        redirect(LoginActivity::class.java)
+    }
+
     override fun onClick(v: View) {
         if (!sessionController.isLoggedIn()) {
             redirect(LoginActivity::class.java)
@@ -123,7 +127,7 @@ class MainActivity: AppCompatActivity(),
         }
         when (v.id) {
             R.id.messages_sync -> presenter?.syncMessages()
-            R.id.contacts_sync -> redirect(OnboardingActivity::class.java)//presenter?.syncContacts()
+            R.id.contacts_sync -> presenter?.syncContacts()
         }
     }
 
