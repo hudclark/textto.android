@@ -26,7 +26,7 @@ class SmsObserverService: Service() {
         val STOP_FOREGROUND = "stopForeground"
     }
 
-    private val PING_INTERVAL = 20L * 1000L
+    private val PING_INTERVAL = 30L * 1000L
 
     private var observer: SmsObserver? = null
     private val TAG = "SmsObserverService"

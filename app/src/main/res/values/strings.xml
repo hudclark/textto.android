@@ -2,11 +2,11 @@
     <string name="app_name">Textto</string>
     <string name="client_id">447535604738-jp8o5if9nhl2v2b4ba5o425up9gmn7kr.apps.googleusercontent.com</string>
 
-    <string name="text_anywhere">Text Anywhere</string>
-    <string name="text_anywhere_message">With our website and mobile applications, available for Mac, Windows, and Linux.</string>
+    <string name="text_anywhere">Text From Your Computer</string>
+    <string name="text_anywhere_message">Visit Textto.io to use the web app or download the desktop application for Mac, Windows, or Linux.</string>
 
-    <string name="dont_change">Don\'t Change a Thing</string>
-    <string name="dont_change_message">No need to change your texting app. Just sign in and you\'re set.</string>
+    <string name="dont_change">Keep Your Texting App</string>
+    <string name="dont_change_message">Textto syncs with your existing sms app. There\'s no need to change!</string>
 
     <string name="permissions_title">Textto needs these permissions to work.</string>
     <string name="permissions_message">Let\'s Get Set Up</string>
@@ -19,9 +19,15 @@
     <string name="contacts_permission_message">Access your contacts.</string>
 
     <string name="need_permissions">Textto needs all of the above permissions to work.</string>
+    <string name="missing_permissions">Required permissions are not enabled</string>
+    <string name="enable">Enable</string>
+
+    <string name="visit">Visit <a href="textto.io">Textto.io</a> to text from your computer.</string>
 
     <string name="welcome">Welcome</string>
     <string name="logout">Logout</string>
+
+    <string name="terms">By signing in you agree to the <a href="textto.io/legal/terms">terms and conditions</a> and <a href="textto.io/legal/privacy">privacy policy</a>.</string>
 
     <string name="messages">Messages</string>
     <string name="sync">Sync Now</string>

@@ -2,11 +2,13 @@ package com.octopusbeach.textto.home
 
 import android.content.Context
 import android.content.SharedPreferences
+import android.util.Log
 import com.octopusbeach.textto.api.ApiService
 import com.octopusbeach.textto.api.SessionController
 import com.octopusbeach.textto.tasks.MessageSyncTask
 import com.octopusbeach.textto.tasks.TestingClass
 import com.octopusbeach.textto.utils.ThreadUtils
+import com.octopusbeach.textto.utils.getNeededPermissions
 
 /**
  * Created by hudson on 7/16/17.
@@ -56,6 +58,15 @@ class HomePresenter(val apiService: ApiService,
         }
     }
 
+    fun checkPermissions() {
+        view?.let {
+            val needed = getNeededPermissions(it.getApplicationContext())
+            if (needed.isNotEmpty()) {
+                it.showRequestPermissions()
+            }
+        }
+    }
+
     private fun formatSyncTime(time: Long): String {
         if (time == 0L) {
             return "Syncing now"
@@ -84,6 +95,7 @@ class HomePresenter(val apiService: ApiService,
         fun setContactsLastSynced(message: String)
         fun setMessagesLastSynced(message: String)
         fun getApplicationContext(): Context
+        fun showRequestPermissions()
 
         fun setDisplayName(name: String)
         fun setPhotoUrl(url: String)

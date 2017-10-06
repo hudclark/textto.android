@@ -28,14 +28,4 @@
         android:layout_height="10dp"
         android:background="@drawable/ic_indicator_selected" />
 
-    <ImageView
-        android:id="@+id/next_button"
-        android:layout_alignParentRight="true"
-        android:layout_marginRight="48dp"
-        android:layout_centerVertical="true"
-        android:tint="@color/white"
-        android:src="@drawable/ic_chevron_right_black_24dp"
-        android:layout_width="40dp"
-        android:layout_height="40dp" />
-
 </RelativeLayout>

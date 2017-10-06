@@ -1,7 +1,6 @@
 package com.octopusbeach.textto.onboarding
 
 import android.support.v4.view.ViewPager
-import android.util.Log
 import android.view.View
 import com.octopusbeach.textto.R
 
@@ -12,13 +11,9 @@ class OnboardingPageTransformer : ViewPager.PageTransformer {
 
     override fun transformPage(page: View, position: Float) {
         val pagePosition = page.tag as Int
-
         val pageWidth = page.width
-
-        Log.d("TEST", "Pos: $position")
         if (position > -1f && position < 1f) {
             val delta = pageWidth * position
-            Log.d("TEST", "Delta: $delta, Pos: $pagePosition")
 
             if (pagePosition < 2) {
                 val imageView = page.findViewById<View>(R.id.onboarding_image)
@@ -30,7 +25,11 @@ class OnboardingPageTransformer : ViewPager.PageTransformer {
                 val messageView = page.findViewById<View>(R.id.onboarding_message)
                 messageView.translationX = (delta * .2).toFloat()
             } else {
+                val titleView = page.findViewById<View>(R.id.permission_title)
+                titleView.translationX = (delta * .8).toFloat()
 
+                val itemsView = page.findViewById<View>(R.id.permission_items)
+                itemsView.translationX = (delta * .5).toFloat()
             }
         }
     }

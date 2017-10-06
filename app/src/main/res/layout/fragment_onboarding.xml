@@ -5,25 +5,27 @@
     android:paddingLeft="32dp"
     android:paddingRight="32dp"
     android:orientation="vertical"
+    tools:background="@color/blueBackground"
     tools:context="com.octopusbeach.textto.onboarding.OnboardingActivity$PlaceholderFragment">
 
     <ImageView
-        android:layout_marginTop="156dp"
+        android:layout_marginTop="76dp"
         android:id="@+id/onboarding_image"
+        android:padding="48dp"
         android:layout_width="match_parent"
-        android:layout_height="256dp"
+        android:layout_height="wrap_content"
         android:adjustViewBounds="true"
         tools:src="@drawable/ic_chat" />
 
     <TextView
-        android:layout_marginTop="48dp"
         android:id="@+id/onboarding_title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:gravity="center"
         tools:text="Text Anywhere"
-        android:textSize="28sp"/>
+        android:textStyle="bold"
+        android:textSize="22sp"/>
 
     <TextView
         android:layout_marginTop="16dp"
@@ -33,7 +35,8 @@
         android:layout_gravity="center"
         android:gravity="center"
         tools:text="With our website and desktop applications available for Mac, Windows, and Linux"
-        android:textSize="18sp" />
+        android:lineSpacingExtra="4dp"
+        android:textSize="16sp" />
 
 </LinearLayout>
 

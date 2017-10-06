@@ -3,6 +3,7 @@ package com.octopusbeach.textto.home;
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
+import android.support.design.widget.Snackbar
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import android.view.View
@@ -16,6 +17,9 @@ import com.octopusbeach.textto.api.SessionController
 import com.octopusbeach.textto.login.LoginActivity
 import com.octopusbeach.textto.onboarding.OnboardingActivity
 import com.octopusbeach.textto.service.SmsObserverService
+import com.octopusbeach.textto.utils.PERMISSIONS_CODE
+import com.octopusbeach.textto.utils.getNeededPermissions
+import com.octopusbeach.textto.utils.requestPermissions
 import javax.inject.Inject
 
 
@@ -34,8 +38,6 @@ class MainActivity: AppCompatActivity(),
         super.onCreate(savedInstanceState)
         (applicationContext as BaseApplication).appComponent.inject(this)
 
-        redirect(OnboardingActivity::class.java)
-        return
         // check for redirects
         if (!prefs.getBoolean(OnboardingActivity.ONBOARDING_COMPLETED, false)) {
             redirect(OnboardingActivity::class.java)
@@ -63,6 +65,7 @@ class MainActivity: AppCompatActivity(),
             redirect(LoginActivity::class.java)
             return
         }
+        presenter?.checkPermissions()
         presenter?.loadSyncTimes()
     }
 
@@ -71,6 +74,13 @@ class MainActivity: AppCompatActivity(),
         presenter?.onTakeView(null)
         if (!isChangingConfigurations)
             presenter = null
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        if (requestCode == PERMISSIONS_CODE) {
+            presenter?.checkPermissions()
+        }
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
     }
 
     override fun setDisplayName(name: String) {
@@ -85,6 +95,15 @@ class MainActivity: AppCompatActivity(),
                     .load(url)
                     .into(profilePicture)
         }
+    }
+
+    override fun showRequestPermissions() {
+        val snackbar = Snackbar.make(findViewById(R.id.main_activity_root), R.string.missing_permissions, Snackbar.LENGTH_INDEFINITE)
+        snackbar.setAction(R.string.enable, {
+            requestPermissions(this, getNeededPermissions(this@MainActivity))
+            snackbar.dismiss()
+        })
+        snackbar.show()
     }
 
     override fun setContactsLastSynced(message: String) {
@@ -104,7 +123,7 @@ class MainActivity: AppCompatActivity(),
         }
         when (v.id) {
             R.id.messages_sync -> presenter?.syncMessages()
-            R.id.contacts_sync -> presenter?.syncContacts()
+            R.id.contacts_sync -> redirect(OnboardingActivity::class.java)//presenter?.syncContacts()
         }
     }
 

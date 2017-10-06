@@ -37,7 +37,6 @@ class OnboardingActivity :
     private lateinit var indicatorTwo: ImageView
     private lateinit var indicatorThree: ImageView
     private lateinit var rootView: View
-    private lateinit var nextButton: View
     private lateinit var argbEvaluator: ArgbEvaluator
     private lateinit var colors: Array<Int>
 
@@ -53,12 +52,6 @@ class OnboardingActivity :
         indicatorOne = findViewById(R.id.view_pager_indicator_one) as ImageView
         indicatorTwo = findViewById(R.id.view_pager_indicator_two) as ImageView
         indicatorThree = findViewById(R.id.view_pager_indicator_three) as ImageView
-
-        nextButton = findViewById(R.id.next_button) as View
-        nextButton.setOnClickListener {
-            if (viewPager.currentItem < 2)
-            viewPager.setCurrentItem(viewPager.currentItem + 1, true)
-        }
 
         argbEvaluator = ArgbEvaluator()
         colors = arrayOf(ContextCompat.getColor(this, R.color.blueBackground),
@@ -116,7 +109,6 @@ class OnboardingActivity :
         indicatorOne.alpha = if (position == 0) 1f else 0.5f
         indicatorTwo.alpha = if (position == 1) 1f else 0.5f
         indicatorThree.alpha = if (position == 2) 1f else 0.5f
-        nextButton.visibility = if (position < 2) View.VISIBLE else View.GONE
     }
 
     inner class SectionsPagerAdapter(fm: FragmentManager) : FragmentPagerAdapter(fm) {
