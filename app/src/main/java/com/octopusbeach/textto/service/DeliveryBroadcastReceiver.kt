@@ -7,6 +7,7 @@ import android.text.TextUtils
 import android.util.Log
 import com.octopusbeach.textto.BaseApplication
 import com.octopusbeach.textto.utils.ThreadUtils
+import java.io.File
 
 /**
  * Created by hudson on 8/11/17.
@@ -16,6 +17,7 @@ class DeliveryBroadcastReceiver : BroadcastReceiver() {
     companion object {
         private val TAG = "DeliveryReciever"
         val MESSAGE_ID = "id"
+        val FILENAME = "filename"
     }
 
     override fun onReceive(context: Context, intent: Intent) {
@@ -23,11 +25,14 @@ class DeliveryBroadcastReceiver : BroadcastReceiver() {
         if (TextUtils.isEmpty(id)) return
         Log.d(TAG, "Received delivered intent: $id")
         val apiService = (context.applicationContext as BaseApplication).appComponent.getApiService()
+        val filename = intent.getStringExtra(FILENAME)
         ThreadUtils.runSingleThreadTask(Runnable {
             try {
-                // Guess we'll just delete the message for now.
-                // Could definitely decide to mark as delivered instead.
                 apiService.deleteScheduledMessage(id).execute()
+                if (!TextUtils.isEmpty(filename)) {
+                    Log.d(TAG, "Deleting $filename")
+                    File(context.cacheDir, filename).delete()
+                }
             } catch (e: Exception) {
                 Log.e(TAG, "Error marking message as sent", e)
             }

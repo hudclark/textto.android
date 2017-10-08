@@ -49,33 +49,28 @@ object MessageController {
     fun sendMessage(text: String?, recipients: Array<String>, context: Context, messageId: String) {
         // TODO right now images are not allowed
         if (text == null || recipients.isEmpty()) return
-        val intent = getPendingIntent(context, messageId)
         if (recipients.size > 1 || text.length > 160) {
-            sendMmsMessage(text, recipients, context, intent)
+            sendMmsMessage(text, recipients, context, messageId)
         } else {
-            sendSmsMessage(text, recipients[0], intent)
+            sendSmsMessage(text, recipients[0], context, messageId)
         }
     }
 
-    private fun getPendingIntent(context: Context, id: String): PendingIntent {
-        val intent = Intent(context, DeliveryBroadcastReceiver::class.java)
-        intent.putExtra(DeliveryBroadcastReceiver.MESSAGE_ID, id)
-        // pass unique id to intent
-        return PendingIntent.getBroadcast(context, Random().nextInt(), intent, 0)
-    }
-
-    private fun sendSmsMessage(text: String, recipient: String, intent: PendingIntent) {
+    private fun sendSmsMessage(text: String, recipient: String, context: Context, messageId: String) {
         Log.d(TAG, "Sending sms message to $recipient...")
         val manager = SmsManager.getDefault()
-        manager.sendTextMessage(recipient, null, text, intent, null)
+        val intent = Intent(context, DeliveryBroadcastReceiver::class.java)
+        intent.putExtra(DeliveryBroadcastReceiver.MESSAGE_ID, messageId)
+        val pendingIntent = PendingIntent.getBroadcast(context, messageId.toInt(), intent, 0)
+        manager.sendTextMessage(recipient, null, text, pendingIntent, null)
     }
 
-    private fun sendMmsMessage(text: String, recipients: Array<String>, context: Context, intent: PendingIntent) {
+    private fun sendMmsMessage(text: String, recipients: Array<String>, context: Context, messageId: String) {
         if (Build.VERSION.SDK_INT < 21) return
         Log.d(TAG, "Sending mms message to $recipients...")
         val pdu = buildPdu(context, recipients, text)
-
-        val file = File(context.cacheDir, "text_0.txt") // FILE_NAME should be unique
+        val filename = "text_$messageId.txt"
+        val file = File(context.cacheDir, filename) // FILE_NAME should be unique
         if (!file.exists()) {
             file.createNewFile()
         }
@@ -84,8 +79,13 @@ object MessageController {
             stream.write(pdu)
             stream.close()
             val uri = FileProvider.getUriForFile(context, FILE_PROVIDER, file)
-            Log.d(TAG, uri.encodedPath)
-            SmsManager.getDefault().sendMultimediaMessage(context, uri, null, null, intent)
+
+            val intent = Intent(context, DeliveryBroadcastReceiver::class.java)
+            intent.putExtra(DeliveryBroadcastReceiver.MESSAGE_ID, messageId)
+            intent.putExtra(DeliveryBroadcastReceiver.FILENAME, filename)
+            val pendingIntent = PendingIntent.getBroadcast(context, messageId.toInt(), intent, 0)
+
+            SmsManager.getDefault().sendMultimediaMessage(context, uri, null, null, pendingIntent)
         } catch (e: Exception) {
             Log.e(TAG, "Error writing mms to file", e)
         }

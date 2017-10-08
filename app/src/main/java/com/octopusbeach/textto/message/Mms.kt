@@ -110,7 +110,7 @@ object Mms {
         val postedParts = apiService.createMmsParts(parts).execute().body()["mmsParts"]
         postedParts?.forEach {
             it?.imageUrl?.let { imageUrl ->
-                uploadFullImage(it.contentType, imageUrl, it.androidId, context, apiService)
+                uploadFullImage(imageUrl, it.androidId, context, apiService)
             }
         }
     }
@@ -226,25 +226,31 @@ object Mms {
         return Base64.encodeToString(bytes, Base64.NO_WRAP)
     }
 
-    private fun uploadFullImage(contentType: String, imageUrl: String, partId: Int, context: Context, apiService: ApiService) {
+    private fun uploadFullImage(imageUrl: String, partId: Int, context: Context, apiService: ApiService) {
         // get signed url
-        val uri = Uri.parse("content://mms/part/$partId")
-        // TODO might not be able to keep such a large image in memory
-        val stream: InputStream = context.contentResolver.openInputStream(uri)
-        val buffer = ByteArray(stream.available())
-        while (stream.read(buffer) != -1);
-        stream.close()
-        // upload image to aws.
-        val body = RequestBody.create(MediaType.parse(contentType), buffer)
-        apiService.putMmsImage(imageUrl, body).enqueue(object: retrofit2.Callback<Int> {
-            override fun onFailure(call: Call<Int>?, t: Throwable?) {
-                Log.e(TAG, "failed to upload mms image")
-            }
+        try {
+            val uri = Uri.parse("content://mms/part/$partId")
+            // TODO might not be able to keep such a large image in memory
+            val stream: InputStream = context.contentResolver.openInputStream(uri)
+            val bitmap = BitmapFactory.decodeStream(stream)
+            val outStream = ByteArrayOutputStream()
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 70, outStream)
+            bitmap.recycle()
+            // upload image to aws.
+            val body = RequestBody.create(MediaType.parse("image/jpeg"), outStream.toByteArray())
+            apiService.putMmsImage(imageUrl, body).enqueue(object: retrofit2.Callback<Int> {
+                override fun onFailure(call: Call<Int>?, t: Throwable?) {
+                    Log.e(TAG, "failed to upload mms image")
+                }
 
-            override fun onResponse(call: Call<Int>?, response: Response<Int>?) {
-                Log.d(TAG, "Uploaded mms image")
-            }
-        })
+                override fun onResponse(call: Call<Int>?, response: Response<Int>?) {
+                    Log.d(TAG, "Uploaded mms image")
+                }
+            })
+
+        } catch (e: Exception) {
+            Log.e(TAG, "Error uploading full size image", e)
+        }
     }
 
     private fun isTextPart(type: String) = ("text/plain" == (type))
