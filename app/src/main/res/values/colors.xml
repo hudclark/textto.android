@@ -13,4 +13,8 @@
     <color name="textWhite">#c8ffffff</color>
     <color name="textSecondary">#a5ffffff</color>
     <color name="divider">#1affffff</color>
+
+    <color name="textDark">#454545</color>
+
+    <color name="lightBackground">#eeeeee</color>
 </resources>

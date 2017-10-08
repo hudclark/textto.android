@@ -17,6 +17,7 @@ class SessionController(var apiService: PublicApiService, val prefs: SharedPrefe
 
     private val PROFILE_IMAGE = "PROFILE_IMAGE"
     private val DISPLAY_NAME = "DISPLAY_NAME"
+    private val DISPLAY_EMAIL = "DISPLAY_EMAIL"
 
     val TOKEN_HEADER = "x-access-token"
 
@@ -25,7 +26,6 @@ class SessionController(var apiService: PublicApiService, val prefs: SharedPrefe
     @Synchronized fun getAuthToken(): String? {
         if (token != null) return token
         return prefs.getString(AUTH_TOKEN, null)
-
     }
 
     @Synchronized fun getRefreshToken() = prefs.getString(REFRESH_TOKEN, null)
@@ -55,15 +55,18 @@ class SessionController(var apiService: PublicApiService, val prefs: SharedPrefe
     fun saveSignInAccount(account: GoogleSignInAccount?) {
         account?.let {
             Log.d(TAG, "Saving google sign in account")
+            Log.d(TAG, "${it.grantedScopes}")
             val editor = prefs.edit()
             editor.putString(PROFILE_IMAGE, it.photoUrl.toString())
             editor.putString(DISPLAY_NAME, it.displayName)
+            editor.putString(DISPLAY_EMAIL, it.email)
             editor.apply()
         }
     }
 
     fun getProfileImage(): String = prefs.getString(PROFILE_IMAGE, "")
     fun getDisplayName(): String = prefs.getString(DISPLAY_NAME, "")
+    fun getDisplayEmail(): String = prefs.getString(DISPLAY_EMAIL, "")
 
     fun reAuthenticate() {
         setAuthToken(null)

@@ -5,6 +5,7 @@ import android.content.SharedPreferences
 import android.os.Bundle
 import android.support.design.widget.Snackbar
 import android.support.v7.app.AppCompatActivity
+import android.text.method.LinkMovementMethod
 import android.util.Log
 import android.view.View
 import android.widget.ImageView
@@ -52,11 +53,15 @@ class MainActivity: AppCompatActivity(),
         setContentView(R.layout.activity_main)
         initSyncButtons()
 
+        findViewById(R.id.contact_support).setOnClickListener { presenter?.contactSupport() }
+        findViewById(R.id.log_out).setOnClickListener { presenter?.logOut() }
+
         // init presenter
         if (presenter == null)
             presenter = HomePresenter(apiService, sessionController, prefs)
         presenter!!.onTakeView(this)
         presenter!!.loadUser()
+
     }
 
     override fun onResume() {
@@ -66,7 +71,13 @@ class MainActivity: AppCompatActivity(),
             return
         }
         presenter?.checkPermissions()
-        presenter?.loadSyncTimes()
+        if (intent.getBooleanExtra(LoginActivity.DID_LOG_IN, false)) {
+            startService(Intent(this, SmsObserverService::class.java))
+            presenter?.syncMessages()
+            presenter?.syncContacts()
+        } else {
+            presenter?.loadSyncTimes()
+        }
     }
 
     override fun onDestroy() {
@@ -86,6 +97,11 @@ class MainActivity: AppCompatActivity(),
     override fun setDisplayName(name: String) {
         val displayName = findViewById(R.id.user_name) as TextView
         displayName.text = name
+    }
+
+    override fun setDisplayEmail(email: String) {
+        val displayEmail = findViewById(R.id.user_email) as TextView
+        displayEmail.text = email
     }
 
     override fun setPhotoUrl(url: String) {

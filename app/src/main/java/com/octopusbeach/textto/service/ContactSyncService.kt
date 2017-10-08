@@ -5,6 +5,7 @@ import android.app.PendingIntent
 import android.app.Service
 import android.content.ContentUris
 import android.content.Intent
+import android.content.SharedPreferences
 import android.net.Uri
 import android.os.Looper
 import android.provider.ContactsContract
@@ -26,6 +27,11 @@ class ContactSyncService : Service() {
     private val TAG = "ContactSyncService"
 
     @Inject lateinit var apiService: ApiService
+    @Inject lateinit var prefs: SharedPreferences
+
+    companion object {
+        val CONTACTS_LAST_SYNCED = "contacts_last_synced"
+    }
 
     override fun onCreate() {
         super.onCreate()
@@ -39,6 +45,7 @@ class ContactSyncService : Service() {
             }
         }
         Thread(runnable).start()
+        prefs.edit().putLong(CONTACTS_LAST_SYNCED, System.currentTimeMillis()).apply()
     }
 
     override fun onDestroy() {

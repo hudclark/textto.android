@@ -15,6 +15,7 @@ import com.octopusbeach.textto.R
 import com.octopusbeach.textto.api.PublicApiService
 import com.octopusbeach.textto.api.SessionController
 import com.octopusbeach.textto.home.MainActivity
+import com.squareup.haha.perflib.Main
 import javax.inject.Inject
 
 class LoginActivity : AppCompatActivity(), View.OnClickListener, LoginPresenter.View {
@@ -32,6 +33,10 @@ class LoginActivity : AppCompatActivity(), View.OnClickListener, LoginPresenter.
 
     private var presenter: LoginPresenter? = null
 
+    companion object {
+        val DID_LOG_IN = "did_log_in"
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         (applicationContext as BaseApplication).appComponent.inject(this)
@@ -47,13 +52,13 @@ class LoginActivity : AppCompatActivity(), View.OnClickListener, LoginPresenter.
 
         signInButton = findViewById(R.id.sign_in_button) as SignInButton
         signInButton?.let {
-            it.setSize(SignInButton.SIZE_WIDE)
             it.setOnClickListener(this)
         }
         loginLoader = findViewById(R.id.login_loader)
 
         val options = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestIdToken(getString(R.string.client_id))
+                .requestEmail()
                 .build()
         googleClient = GoogleApiClient.Builder(this).addApi(Auth.GOOGLE_SIGN_IN_API, options)
                 .build()
@@ -102,7 +107,9 @@ class LoginActivity : AppCompatActivity(), View.OnClickListener, LoginPresenter.
     }
 
     private fun redirectToMainActivity() {
-        startActivity(Intent(this, MainActivity::class.java))
+        val intent = Intent(this, MainActivity::class.java)
+        intent.putExtra(DID_LOG_IN, true)
+        startActivity(intent)
         finish()
     }
 }

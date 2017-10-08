@@ -3,9 +3,11 @@ package com.octopusbeach.textto.home
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
+import android.net.Uri
 import android.util.Log
 import com.octopusbeach.textto.api.ApiService
 import com.octopusbeach.textto.api.SessionController
+import com.octopusbeach.textto.service.ContactSyncService
 import com.octopusbeach.textto.service.SmsObserverService
 import com.octopusbeach.textto.tasks.MessageSyncTask
 import com.octopusbeach.textto.utils.ThreadUtils
@@ -30,9 +32,10 @@ class HomePresenter(val apiService: ApiService,
 
     fun loadSyncTimes() {
         val messagesLastSynced = prefs.getLong(MessageSyncTask.MESSAGES_LAST_SYNCED, 0)
+        val contactsLastSynced = prefs.getLong(ContactSyncService.CONTACTS_LAST_SYNCED, 0)
         view?.let {
             it.setMessagesLastSynced(formatSyncTime(messagesLastSynced))
-            it.setContactsLastSynced(formatSyncTime(0)) // todo
+            it.setContactsLastSynced(formatSyncTime(contactsLastSynced)) // todo
         }
     }
 
@@ -40,13 +43,14 @@ class HomePresenter(val apiService: ApiService,
         view?.let {
             it.getApplicationContext().startService(Intent(it.getApplicationContext(), ContactSyncService::class.java))
             //ThreadUtils.runSingleThreadTask(TestingClass(it.getApplicationContext(), apiService))
+            it.setContactsLastSynced("Synced less than a minute ago")
         }
     }
 
     fun syncMessages() {
         view?.let {
             ThreadUtils.runSingleThreadTask(MessageSyncTask(apiService, it.getApplicationContext(), prefs))
-            it.setMessagesLastSynced("Last synced 0 seconds ago")
+            it.setMessagesLastSynced("Synced less than a minute ago")
         }
     }
 
@@ -55,9 +59,11 @@ class HomePresenter(val apiService: ApiService,
         view?.let {
             val photoUrl = sessionController.getProfileImage()
             val displayName = sessionController.getDisplayName()
+            val displayEmail = sessionController.getDisplayEmail()
 
             it.setPhotoUrl(photoUrl)
             it.setDisplayName(displayName)
+            it.setDisplayEmail(displayEmail)
         }
     }
 
@@ -68,6 +74,14 @@ class HomePresenter(val apiService: ApiService,
                 it.showRequestPermissions()
             }
         }
+    }
+
+    fun contactSupport() {
+        val context = view?.getApplicationContext() ?: return
+        val intent = Intent(Intent.ACTION_SENDTO)
+        intent.data = Uri.parse("mailto:")
+        intent.putExtra(Intent.EXTRA_EMAIL, arrayOf("help@textto.io"))
+        context.startActivity(Intent.createChooser(intent, "Email Support"))
     }
 
     fun logOut () {
@@ -97,7 +111,7 @@ class HomePresenter(val apiService: ApiService,
 
     private fun formatSyncTime(time: Long): String {
         if (time == 0L) {
-            return "Syncing now"
+            return "Synced less than a minute ago"
         }
 
         val delta = System.currentTimeMillis() - time
@@ -108,13 +122,13 @@ class HomePresenter(val apiService: ApiService,
         val days = Math.round(hours.toDouble() / 24)
 
         if (seconds < 60) {
-            return "Last synced less than a minute ago"
+            return "Synced less than a minute ago"
         } else if (minutes < 60) {
-            return "Last synced $minutes ${if (minutes == 1L) "minute" else "minutes"} ago"
+            return "Synced $minutes ${if (minutes == 1L) "minute" else "minutes"} ago"
         } else if (hours < 24) {
-            return "Last synced $hours ${if (hours == 1L) "hour" else "hours"} ago"
+            return "Synced $hours ${if (hours == 1L) "hour" else "hours"} ago"
         } else {
-            return "Last synced $days ${if (days == 1L) "day" else "days"} ago"
+            return "Synced $days ${if (days == 1L) "day" else "days"} ago"
         }
     }
 
@@ -127,6 +141,7 @@ class HomePresenter(val apiService: ApiService,
         fun redirectToLogin()
 
         fun setDisplayName(name: String)
+        fun setDisplayEmail(email: String)
         fun setPhotoUrl(url: String)
 
     }

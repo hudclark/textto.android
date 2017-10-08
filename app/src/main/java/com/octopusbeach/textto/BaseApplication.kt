@@ -6,6 +6,7 @@ import com.google.gson.JsonObject
 import com.octopusbeach.textto.di.AppComponent
 import com.octopusbeach.textto.di.DaggerAppComponent
 import com.octopusbeach.textto.di.PreferencesModule
+import com.squareup.leakcanary.LeakCanary
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 
@@ -23,6 +24,8 @@ class BaseApplication: Application() {
         appComponent = DaggerAppComponent.builder()
                 .preferencesModule(PreferencesModule(applicationContext))
                 .build()
+        if (LeakCanary.isInAnalyzerProcess(this)) return
+        LeakCanary.install(this)
     }
 
     fun setFirebaseToken(token: String) {
