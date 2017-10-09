@@ -110,7 +110,7 @@ object Mms {
         val postedParts = apiService.createMmsParts(parts).execute().body()["mmsParts"]
         postedParts?.forEach {
             it?.imageUrl?.let { imageUrl ->
-                uploadFullImage(imageUrl, it.androidId, context, apiService)
+                uploadFullImage(it.contentType, imageUrl, it.androidId, context, apiService)
             }
         }
     }
@@ -226,18 +226,39 @@ object Mms {
         return Base64.encodeToString(bytes, Base64.NO_WRAP)
     }
 
-    private fun uploadFullImage(imageUrl: String, partId: Int, context: Context, apiService: ApiService) {
+    private fun uploadFullImage(contentType: String, imageUrl: String, partId: Int, context: Context, apiService: ApiService) {
         // get signed url
         try {
             val uri = Uri.parse("content://mms/part/$partId")
-            // TODO might not be able to keep such a large image in memory
+
             val stream: InputStream = context.contentResolver.openInputStream(uri)
-            val bitmap = BitmapFactory.decodeStream(stream)
-            val outStream = ByteArrayOutputStream()
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 70, outStream)
-            bitmap.recycle()
+            val bytes: ByteArray
+            when (contentType) {
+                "image/jpeg" -> {
+                    val bitmap = BitmapFactory.decodeStream(stream)
+                    val outStream = ByteArrayOutputStream()
+                    bitmap.compress(Bitmap.CompressFormat.JPEG, 70, outStream)
+                    bitmap.recycle()
+                    bytes = outStream.toByteArray()
+                }
+
+                "image/png" -> {
+                    val bitmap = BitmapFactory.decodeStream(stream)
+                    val outStream = ByteArrayOutputStream()
+                    bitmap.compress(Bitmap.CompressFormat.PNG, 70, outStream)
+                    bitmap.recycle()
+                    bytes = outStream.toByteArray()
+                }
+
+                else -> {
+                    bytes = ByteArray(stream.available())
+                    while (stream.read(bytes) != -1);
+                    stream.close()
+                }
+            }
+
             // upload image to aws.
-            val body = RequestBody.create(MediaType.parse("image/jpeg"), outStream.toByteArray())
+            val body = RequestBody.create(MediaType.parse(contentType), bytes)
             apiService.putMmsImage(imageUrl, body).enqueue(object: retrofit2.Callback<Int> {
                 override fun onFailure(call: Call<Int>?, t: Throwable?) {
                     Log.e(TAG, "failed to upload mms image")
