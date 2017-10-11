@@ -62,6 +62,11 @@ class MainActivity: AppCompatActivity(),
         presenter!!.onTakeView(this)
         presenter!!.loadUser()
 
+        if (intent.getBooleanExtra(LoginActivity.DID_LOG_IN, false)) {
+            startService(Intent(this, SmsObserverService::class.java))
+            presenter?.syncMessages()
+            presenter?.syncContacts()
+        }
     }
 
     override fun onResume() {
@@ -71,11 +76,7 @@ class MainActivity: AppCompatActivity(),
             return
         }
         presenter?.checkPermissions()
-        if (intent.getBooleanExtra(LoginActivity.DID_LOG_IN, false)) {
-            startService(Intent(this, SmsObserverService::class.java))
-            presenter?.syncMessages()
-            presenter?.syncContacts()
-        } else {
+        if (!intent.getBooleanExtra(LoginActivity.DID_LOG_IN, false)) {
             presenter?.loadSyncTimes()
         }
     }

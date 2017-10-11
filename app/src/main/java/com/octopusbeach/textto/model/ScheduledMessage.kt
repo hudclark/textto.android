@@ -6,4 +6,5 @@ package com.octopusbeach.textto.model
 data class ScheduledMessage(val _id: String,
                             val addresses: Array<String>,
                             var sent: Boolean?,
-                            val body: String)
+                            val body: String?,
+                            val fileUrl: String?)

@@ -21,7 +21,7 @@ class SmsObserver(val context: Context,
 
     private val TAG = "Sms Observer"
 
-    val publishSubject: PublishSubject<Any?> = PublishSubject.create()
+    private val publishSubject: PublishSubject<Any?> = PublishSubject.create()
 
     init {
         publishSubject.debounce(500, TimeUnit.MILLISECONDS).subscribe {
@@ -32,7 +32,6 @@ class SmsObserver(val context: Context,
 
     override fun onChange(selfChange: Boolean) {
         super.onChange(selfChange)
-        Log.d(TAG, "content::mms-sms changed")
         publishSubject.onNext(0)
     }
 }

@@ -7,7 +7,7 @@
     android:gravity="center_horizontal"
     android:orientation="vertical"
     android:id="@+id/login_content"
-    android:background="@color/slate"
+    android:background="@color/indigoBackground"
     tools:context="com.octopusbeach.textto.login.LoginActivity">
 
     <RelativeLayout
@@ -19,7 +19,7 @@
 
         <ImageView
             android:id="@+id/logo"
-            android:src="@drawable/ic_logo"
+            android:src="@drawable/textto"
             android:layout_width="72dp"
             android:layout_marginRight="32dp"
             android:layout_height="72dp" />

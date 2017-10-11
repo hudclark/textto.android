@@ -5,6 +5,7 @@ import android.content.SharedPreferences
 import android.util.Log
 import com.octopusbeach.textto.api.ApiService
 import com.octopusbeach.textto.message.MessageController
+import com.octopusbeach.textto.message.MessageSender
 import com.octopusbeach.textto.message.Mms
 import com.octopusbeach.textto.message.Sms
 import com.octopusbeach.textto.model.ScheduledMessage
@@ -30,8 +31,8 @@ class MessageSyncTask(val apiService: ApiService,
 
             val sms = status.sms
             val mms = status.mms
-            Log.e(TAG, sms.toString())
-            Log.e(TAG, mms.toString())
+            Log.d(TAG, sms.toString())
+            Log.d(TAG, mms.toString())
 
             if (sms == null && mms == null) {
                 // first sync
@@ -60,7 +61,7 @@ class MessageSyncTask(val apiService: ApiService,
             try {
                 it.sent = true
                 apiService.updateScheduledMessage(it._id, it).execute()
-                MessageController.sendMessage(it.body, it.addresses, context, it._id)
+                MessageSender.sendMessage(it, context)
             } catch (e: Exception) {
                 Log.d(TAG, "Error deleting scheduled message ${it._id}")
             }

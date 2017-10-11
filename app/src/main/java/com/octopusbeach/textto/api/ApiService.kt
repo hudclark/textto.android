@@ -4,6 +4,7 @@ import com.google.gson.JsonObject
 import com.octopusbeach.textto.model.*
 import io.reactivex.Observable
 import okhttp3.RequestBody
+import okhttp3.ResponseBody
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.http.*
@@ -24,6 +25,9 @@ interface ApiService {
 
     @PUT
     fun putMmsImage(@Url url: String, @Body body: RequestBody): Call<Int>
+
+    @GET
+    fun putMmsImage(): Call<ResponseBody>
 
     @GET("messages/status")
     fun getStatusUpdate(): Call<StatusUpdate>
