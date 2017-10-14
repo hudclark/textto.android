@@ -45,7 +45,7 @@ class MessagingService: FirebaseMessagingService() {
                 val intent = Intent(applicationContext, SmsObserverService::class.java)
                 intent.putExtra(SmsObserverService.FOREGROUND_EXTRA, SmsObserverService.START_FOREGROUND)
                 applicationContext.startService(intent)
-                ThreadUtils.runSingleThreadTask(MessageSyncTask(apiService, applicationContext, prefs))
+                ThreadUtils.runSingleThreadTask(MessageSyncTask(apiService, applicationContext as BaseApplication, prefs))
             }
 
             TYPE_SYNC_CONTACTS -> {
@@ -57,7 +57,7 @@ class MessagingService: FirebaseMessagingService() {
                 intent.putExtra(SmsObserverService.FOREGROUND_EXTRA, SmsObserverService.START_FOREGROUND)
                 applicationContext.startService(intent)
                 // On session start, update messages
-                ThreadUtils.runSingleThreadTask(MessageSyncTask(apiService, applicationContext, prefs))
+                ThreadUtils.runSingleThreadTask(MessageSyncTask(apiService, applicationContext as BaseApplication, prefs))
             }
 
             TYPE_STOP_SESSION -> {

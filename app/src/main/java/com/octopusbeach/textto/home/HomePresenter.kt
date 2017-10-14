@@ -5,6 +5,7 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.net.Uri
 import android.util.Log
+import com.octopusbeach.textto.BaseApplication
 import com.octopusbeach.textto.api.ApiService
 import com.octopusbeach.textto.api.SessionController
 import com.octopusbeach.textto.service.ContactSyncService
@@ -49,7 +50,7 @@ class HomePresenter(val apiService: ApiService,
 
     fun syncMessages() {
         view?.let {
-            ThreadUtils.runSingleThreadTask(MessageSyncTask(apiService, it.getApplicationContext(), prefs))
+            ThreadUtils.runSingleThreadTask(MessageSyncTask(apiService, it.getApplicationContext() as BaseApplication, prefs))
             it.setMessagesLastSynced("Synced less than a minute ago")
         }
     }

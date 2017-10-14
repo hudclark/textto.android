@@ -1,8 +1,8 @@
 package com.octopusbeach.textto.tasks
 
-import android.content.Context
 import android.content.SharedPreferences
 import android.util.Log
+import com.octopusbeach.textto.BaseApplication
 import com.octopusbeach.textto.api.ApiService
 import com.octopusbeach.textto.message.MessageController
 import com.octopusbeach.textto.message.MessageSender
@@ -14,7 +14,7 @@ import com.octopusbeach.textto.model.ScheduledMessage
  * Created by hudson on 7/14/17.
  */
 class MessageSyncTask(val apiService: ApiService,
-                      val context: Context,
+                      val context: BaseApplication,
                       val prefs: SharedPreferences) : Runnable {
 
     private val TAG = "MessageSyncTask"

@@ -3,13 +3,16 @@ package com.octopusbeach.textto.message
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.graphics.Bitmap
 import android.os.Build
 import android.support.v4.content.FileProvider
 import android.telephony.SmsManager
 import android.text.TextUtils
 import android.util.Log
+import com.octopusbeach.textto.BaseApplication
 import com.octopusbeach.textto.model.ScheduledMessage
 import com.octopusbeach.textto.service.DeliveryBroadcastReceiver
+import com.octopusbeach.textto.utils.ImageUtils
 import java.io.File
 import java.io.FileOutputStream
 
@@ -26,22 +29,10 @@ object MessageSender {
     private val PRIORITY = 0x81
     private val VALUE_NO = 0x81
 
-    private val smilText =
-            "<smil>" +
-                    "<head>" +
-                    "<layout>" +
-                    "<root-layout/>" +
-                    "<region height=\"100%%\" id=\"Text\" left=\"0%%\" top=\"0%%\" width=\"100%%\"/>" +
-                    "</layout>" +
-                    "</head>" +
-                    "<body>" +
-                    "<par dur=\"8000ms\">" +
-                    "<text src=\"%s\" region=\"Text\"/>" +
-                    "</par>" +
-                    "</body>" +
-                    "</smil>"
+    private val MAX_MMS_IMAGE_SIZE = 500 * 1024 // 500kb
 
-    fun sendMessage(scheduledMessage: ScheduledMessage, context: Context) {
+
+    fun sendMessage(scheduledMessage: ScheduledMessage, context: BaseApplication) {
 
         // Nothing to send
         if (scheduledMessage.addresses.isEmpty()) {
@@ -57,9 +48,6 @@ object MessageSender {
         val isMms = fileUrl != null || scheduledMessage.addresses.size > 1 || scheduledMessage.body?.length ?: 0 > 160
 
         if (isMms) {
-            // TODO remove
-            if (fileUrl != null) return
-
             sendMmsMessage(scheduledMessage, context)
         } else {
             sendSmsMessage(scheduledMessage, context)
@@ -76,16 +64,16 @@ object MessageSender {
         manager.sendTextMessage(recipient, null, scheduledMessage.body, pendingIntent, null)
     }
 
-    private fun sendMmsMessage(scheduledMessage: ScheduledMessage, context: Context) {
+    private fun sendMmsMessage(scheduledMessage: ScheduledMessage, context: BaseApplication) {
         if (Build.VERSION.SDK_INT < 21) return
         Log.d(TAG, "Sending mms message to ${scheduledMessage.addresses}...")
         val filename = "text_${scheduledMessage._id}.txt"
-        val pdu = buildPdu(scheduledMessage, filename, context)
-        val file = File(context.cacheDir, filename) // FILE_NAME should be unique
-        if (!file.exists()) {
-            file.createNewFile()
-        }
         try {
+            val pdu = buildPdu(scheduledMessage, filename, context)
+            val file = File(context.cacheDir, filename) // FILE_NAME should be unique
+            if (!file.exists()) {
+                file.createNewFile()
+            }
             val stream = FileOutputStream(file)
             stream.write(pdu)
             stream.close()
@@ -102,7 +90,7 @@ object MessageSender {
         }
     }
 
-    private fun buildPdu(scheduledMessage: ScheduledMessage, filename: String, context: Context): ByteArray {
+    private fun buildPdu(scheduledMessage: ScheduledMessage, filename: String, context: BaseApplication): ByteArray {
 
         val SendReq = Class.forName("com.google.android.mms.pdu.SendReq")
         val EncodedStringValue = Class.forName("com.google.android.mms.pdu.EncodedStringValue")
@@ -136,14 +124,14 @@ object MessageSender {
         // add text part
         if (!TextUtils.isEmpty(scheduledMessage.body)) {
             val text = scheduledMessage.body as String
-            size = addTextPart(pduBody, text, false, filename)
-            SendReq.getMethod("setBody", pduBody::class.java).invoke(sendReq, pduBody)
+            size = addTextPart(pduBody, text)
         }
         // Add file. NOTE: cannot currently send multi part messages
         else if (!TextUtils.isEmpty(scheduledMessage.fileUrl)) {
             val url = scheduledMessage.fileUrl as String
-            size = addFilePart(pduBody, url, filename)
+            size = addFilePart(pduBody, url, context)
         }
+        SendReq.getMethod("setBody", pduBody::class.java).invoke(sendReq, pduBody)
 
         // set message size
         SendReq.getDeclaredMethod("setMessageSize", Long::class.java).invoke(sendReq, size)
@@ -168,12 +156,55 @@ object MessageSender {
 
     }
 
-    private fun addFilePart (pduBody: Any, url: String, filename: String): Int {
+    private fun addFilePart (pduBody: Any, url: String, context: BaseApplication): Int {
 
-        return 0
+        // Fetch image
+        Log.d(TAG, "Fetching file...")
+        val response = context.appComponent.getApiService().getFile(url).execute().body()
+        Log.d(TAG, "Successfully fetched file")
+
+        val contentType = response.contentType().toString()
+        if (!(contentType == "image/jpeg" || contentType == "image/png" || contentType == "image/jpg" || contentType == "gif")) {
+            Log.e(TAG, "Invalid file type for mms")
+            throw IllegalArgumentException("Invalid filetype")
+        }
+
+        Log.d(TAG, "Sending image with contentType $contentType")
+
+        // Begin pdu
+        val PduBody = Class.forName("com.google.android.mms.pdu.PduBody")
+        val PduPart = Class.forName("com.google.android.mms.pdu.PduPart")
+        val pduPart = PduPart.newInstance()
+
+        val filename = "image_${System.currentTimeMillis()}"
+        val fileNameBytes = filename.toByteArray()
+        val fileBytes =
+            if (contentType == "image/gif")
+                response.bytes()
+            else
+                ImageUtils.compressImage(response.byteStream(), MAX_MMS_IMAGE_SIZE)
+
+        // set content type
+        PduPart.getDeclaredMethod("setContentType", ByteArray::class.java).invoke(pduPart, contentType.toByteArray())
+
+        // set content location
+        PduPart.getDeclaredMethod("setContentLocation", ByteArray::class.java).invoke(pduPart, fileNameBytes)
+        PduPart.getDeclaredMethod("setContentId", ByteArray::class.java).invoke(pduPart, fileNameBytes)
+
+        // set data
+        PduPart.getDeclaredMethod("setData", ByteArray::class.java).invoke(pduPart, fileBytes)
+        PduBody.getDeclaredMethod("addPart", pduPart::class.java).invoke(pduBody, pduPart)
+
+        // add smil
+        addSmil(pduBody, getSmilText(contentType, filename))
+
+        // get length
+        val byteArray = PduPart.getDeclaredMethod("getData").invoke(pduPart) as ByteArray
+
+        return byteArray.size + fileNameBytes.size
     }
 
-    private fun addTextPart(pduBody: Any /*PdyBody*/, text: String, includeSmil: Boolean, filename: String): Int {
+    private fun addTextPart(pduBody: Any /*PdyBody*/, text: String): Int {
         val PduBody = Class.forName("com.google.android.mms.pdu.PduBody")
         val PduPart = Class.forName("com.google.android.mms.pdu.PduPart")
 
@@ -186,30 +217,52 @@ object MessageSender {
         PduPart.getDeclaredMethod("setContentType", ByteArray::class.java).invoke(pduPart, TEXT_PLAIN.toByteArray())
 
         // set content location
-        PduPart.getDeclaredMethod("setContentLocation", ByteArray::class.java).invoke(pduPart, filename.toByteArray())
-        PduPart.getDeclaredMethod("setContentId", ByteArray::class.java).invoke(pduPart, filename.toByteArray())
+        PduPart.getDeclaredMethod("setContentLocation", ByteArray::class.java).invoke(pduPart, "text_0.txt".toByteArray())
+        PduPart.getDeclaredMethod("setContentId", ByteArray::class.java).invoke(pduPart, "text_0".toByteArray())
 
         // set data
         PduPart.getDeclaredMethod("setData", ByteArray::class.java).invoke(pduPart, text.toByteArray())
         PduBody.getDeclaredMethod("addPart", pduPart::class.java).invoke(pduBody, pduPart)
 
-        if (includeSmil) {
-            val smil = String.format(smilText, "text_0.txt")
-            addSmil(pduBody, smil)
-        }
+        addSmil(pduBody, getSmilText("text/plain", "text_0.txt"))
         val byteArray = PduPart.getDeclaredMethod("getData").invoke(pduPart) as ByteArray
         return byteArray.size
     }
+
 
     private fun addSmil(pduBody: Any, smil: String) {
         val PduBody = Class.forName("com.google.android.mms.pdu.PduBody")
         val PduPart = Class.forName("com.google.android.mms.pdu.PduPart")
         val pduPart = PduPart.newInstance()
+        val utf8 = 106
+        PduPart.getDeclaredMethod("setCharset", utf8::class.java).invoke(pduPart, utf8)
         PduPart.getDeclaredMethod("setContentId", ByteArray::class.java).invoke(pduPart, "smil".toByteArray())
         PduPart.getDeclaredMethod("setContentLocation", ByteArray::class.java).invoke(pduPart, "smil.xml".toByteArray())
         PduPart.getDeclaredMethod("setContentType", ByteArray::class.java).invoke(pduPart, "application/smil".toByteArray())
         PduPart.getDeclaredMethod("setData", ByteArray::class.java).invoke(pduPart, smil.toByteArray())
         PduBody.getDeclaredMethod("addPart", pduPart::class.java).invoke(pduBody, pduPart)
     }
+
+    private fun getSmilText(type: String, src: String): String {
+        var smil = smilOpen
+        if (type.contains("image")) {
+            smil += "<img src=\"" + src + "\" region=\"Text\"/>"
+        }
+        smil += "</par></body></smil>"
+        Log.d(TAG, smil)
+        return smil
+    }
+
+    private val smilOpen =
+            "<smil>" +
+                    "<head>" +
+                    "<layout>" +
+                    "<root-layout/>" +
+                    "<region height=\"100%%\" id=\"Text\" left=\"0%%\" top=\"0%%\" width=\"100%%\"/>" +
+                    "</layout>" +
+                    "</head>" +
+                    "<body>" +
+                    "<par dur=\"8000ms\">" +
+                    "<text src=\"text_0.txt\" region=\"Text\"/>"
 
 }

@@ -12,6 +12,7 @@ import android.util.Log
 import com.octopusbeach.textto.api.ApiService
 import com.octopusbeach.textto.model.Message
 import com.octopusbeach.textto.model.MmsPart
+import com.octopusbeach.textto.utils.ImageUtils
 import okhttp3.MediaType
 import okhttp3.RequestBody
 import retrofit2.Call
@@ -233,28 +234,15 @@ object Mms {
 
             val stream: InputStream = context.contentResolver.openInputStream(uri)
             val bytes: ByteArray
+
             when (contentType) {
-                "image/jpeg" -> {
-                    val bitmap = BitmapFactory.decodeStream(stream)
-                    val outStream = ByteArrayOutputStream()
-                    bitmap.compress(Bitmap.CompressFormat.JPEG, 70, outStream)
-                    bitmap.recycle()
-                    bytes = outStream.toByteArray()
-                }
-
-                "image/png" -> {
-                    val bitmap = BitmapFactory.decodeStream(stream)
-                    val outStream = ByteArrayOutputStream()
-                    bitmap.compress(Bitmap.CompressFormat.PNG, 70, outStream)
-                    bitmap.recycle()
-                    bytes = outStream.toByteArray()
-                }
-
-                else -> {
+                "image/gif" -> {
                     bytes = ByteArray(stream.available())
                     while (stream.read(bytes) != -1);
                     stream.close()
                 }
+                "image/png" -> bytes = ImageUtils.compressImage(stream, Bitmap.CompressFormat.PNG)
+                else -> bytes = ImageUtils.compressImage(stream, Bitmap.CompressFormat.JPEG)
             }
 
             // upload image to aws.

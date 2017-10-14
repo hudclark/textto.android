@@ -82,7 +82,7 @@ class SmsObserverService: Service() {
         Log.d(TAG, "Starting")
         if (observer == null) {
             val baseApp = applicationContext as BaseApplication
-            observer = SmsObserver(applicationContext, baseApp.appComponent.getApiService(), baseApp.appComponent.getSharedPrefs())
+            observer = SmsObserver(baseApp, baseApp.appComponent.getApiService(), baseApp.appComponent.getSharedPrefs())
             contentResolver.registerContentObserver(Uri.parse("content://mms-sms"), true, observer)
         }
     }
