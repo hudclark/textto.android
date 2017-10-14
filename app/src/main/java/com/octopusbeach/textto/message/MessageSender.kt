@@ -3,7 +3,6 @@ package com.octopusbeach.textto.message
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import android.graphics.Bitmap
 import android.os.Build
 import android.support.v4.content.FileProvider
 import android.telephony.SmsManager

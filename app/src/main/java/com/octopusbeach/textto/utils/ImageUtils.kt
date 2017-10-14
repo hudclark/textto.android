@@ -2,6 +2,7 @@ package com.octopusbeach.textto.utils
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.util.Base64
 import android.util.Log
 import java.io.ByteArrayOutputStream
 import java.io.InputStream
@@ -55,6 +56,14 @@ class ImageUtils {
             outStream.close()
             return outStream.toByteArray()
         }
+
+        fun imageToBase64(image: Bitmap): String {
+            val outStream = ByteArrayOutputStream()
+            image.compress(Bitmap.CompressFormat.PNG, 100, outStream)
+            val bytes = outStream.toByteArray()
+            return Base64.encodeToString(bytes, Base64.NO_WRAP)
+        }
+
     }
 
 }

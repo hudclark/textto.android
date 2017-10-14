@@ -7,7 +7,6 @@ import android.graphics.BitmapFactory
 import android.net.Uri
 import android.provider.Telephony
 import android.text.TextUtils
-import android.util.Base64
 import android.util.Log
 import com.octopusbeach.textto.api.ApiService
 import com.octopusbeach.textto.model.Message
@@ -18,7 +17,6 @@ import okhttp3.RequestBody
 import retrofit2.Call
 import retrofit2.Response
 import java.io.BufferedReader
-import java.io.ByteArrayOutputStream
 import java.io.InputStream
 import java.io.InputStreamReader
 
@@ -129,12 +127,12 @@ object Mms {
                     Log.d(TAG, "Part from " + mms.sender + ": " + type)
                     if (isTextPart(type)) {
                         val data =  cur.getString(cur.getColumnIndex("_data"))
-                        val textPart: String
-                        if (data != null) {
-                            textPart = readTextData(partId, context)
-                        } else {
-                            textPart = cur.getString(cur.getColumnIndex("text"))
-                        }
+                        val textPart =
+                            if (data != null) {
+                                readTextData(partId, context)
+                            } else {
+                                cur.getString(cur.getColumnIndex("text"))
+                            }
                         val part = MmsPart(
                                 androidId = partId,
                                 data = textPart,
@@ -210,7 +208,7 @@ object Mms {
         inputStream = context.contentResolver.openInputStream(uri)
         val bitmap = BitmapFactory.decodeStream(inputStream, null, outOptions)
         inputStream.close()
-        val imageString = getBase64Image(bitmap)
+        val imageString = ImageUtils.imageToBase64(bitmap)
         bitmap.recycle()
         return imageString
     }
@@ -220,15 +218,7 @@ object Mms {
         return if (i == 0) 1 else i
     }
 
-    private fun getBase64Image(image: Bitmap): String {
-        val outStream = ByteArrayOutputStream()
-        image.compress(Bitmap.CompressFormat.PNG, 100, outStream)
-        val bytes = outStream.toByteArray()
-        return Base64.encodeToString(bytes, Base64.NO_WRAP)
-    }
-
     private fun uploadFullImage(contentType: String, imageUrl: String, partId: Int, context: Context, apiService: ApiService) {
-        // get signed url
         try {
             val uri = Uri.parse("content://mms/part/$partId")
 
