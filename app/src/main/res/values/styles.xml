@@ -6,8 +6,8 @@
         <item name="colorPrimary">@color/blue</item>
         <item name="colorPrimaryDark">@color/blueDark</item>
         <item name="colorAccent">@color/blue</item>
-        <item name="android:textColor">#f7f7f7</item>
-        <item name="android:textColorPrimary">@color/white</item>
+        <item name="android:textColor">@color/textDark</item>
+        <item name="android:textColorPrimary">@color/textDark</item>
 
         <item name="android:windowTranslucentStatus">true</item>
     </style>

@@ -1,9 +1,12 @@
 package com.octopusbeach.textto.home;
 
+import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
+import android.provider.Settings
 import android.support.design.widget.Snackbar
+import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
 import android.text.method.LinkMovementMethod
 import android.util.Log
@@ -17,6 +20,7 @@ import com.octopusbeach.textto.api.ApiService
 import com.octopusbeach.textto.api.SessionController
 import com.octopusbeach.textto.login.LoginActivity
 import com.octopusbeach.textto.onboarding.OnboardingActivity
+import com.octopusbeach.textto.service.NotificationListener
 import com.octopusbeach.textto.service.SmsObserverService
 import com.octopusbeach.textto.utils.PERMISSIONS_CODE
 import com.octopusbeach.textto.utils.getNeededPermissions
@@ -78,6 +82,12 @@ class MainActivity: AppCompatActivity(),
         presenter?.checkPermissions()
         if (!intent.getBooleanExtra(LoginActivity.DID_LOG_IN, false)) {
             presenter?.loadSyncTimes()
+        }
+
+        val notificationsEnabled = NotificationListener.isEnabled(this)
+        findViewById(R.id.notification_card).visibility = if (notificationsEnabled) View.GONE else View.VISIBLE
+        if (!notificationsEnabled) {
+            findViewById(R.id.enable_notifications).setOnClickListener { openNotificationSettings() }
         }
     }
 
@@ -146,6 +156,17 @@ class MainActivity: AppCompatActivity(),
             R.id.messages_sync -> presenter?.syncMessages()
             R.id.contacts_sync -> presenter?.syncContacts()
         }
+    }
+
+    private fun openNotificationSettings() {
+        AlertDialog.Builder(this)
+                .setTitle(R.string.enable_notification_access)
+                .setMessage(R.string.enable_notification_message)
+                .setPositiveButton(R.string.enable, { d, _ ->
+                    startActivity(Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS"))
+                    d.dismiss()
+                })
+                .show()
     }
 
     private fun initSyncButtons() {

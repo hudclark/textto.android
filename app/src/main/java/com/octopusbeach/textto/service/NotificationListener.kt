@@ -1,5 +1,10 @@
 package com.octopusbeach.textto.service
 
+import android.content.Context
+import android.content.Intent
+import android.os.Build
+import android.provider.Settings
+import android.provider.Telephony
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
 import android.util.Log
@@ -9,17 +14,51 @@ import android.util.Log
  */
 class NotificationListener : NotificationListenerService() {
 
-    private val TAG = "NotificationListener"
+    private var canUse = false
 
-    override fun onNotificationPosted(sbn: StatusBarNotification) {
-        return
-        Log.e(TAG, "notification received")
-        Log.d(TAG, "${sbn.packageName} ")
-        Log.d(TAG, "${sbn.notification.extras} ")
+    companion object {
+        private val TAG = "NotificationListener"
+        val CLEAR_TEXT_NOTIFICATIONS = "clear_text"
+
+        fun isEnabled (context: Context): Boolean {
+            val listeners = Settings.Secure.getString(context.contentResolver, "enabled_notification_listeners")
+            return (listeners != null && listeners.contains(context.packageName))
+        }
 
     }
 
-    override fun onNotificationRemoved(sbn: StatusBarNotification?) {
+    override fun onNotificationPosted(sbn: StatusBarNotification) {}
+    override fun onNotificationRemoved(sbn: StatusBarNotification?) {}
+
+    override fun onListenerConnected() {
+        super.onListenerConnected()
+        canUse = true
+    }
+
+    override fun onListenerDisconnected() {
+        super.onListenerDisconnected()
+        canUse = false
+    }
+
+    override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
+        if (canUse && intent.getBooleanExtra(CLEAR_TEXT_NOTIFICATIONS, false)) {
+            clearTextNotifications()
+        }
+        return super.onStartCommand(intent, flags, startId)
+    }
+
+    private fun clearTextNotifications () {
+        Log.d(TAG, "Clearing texting notifications")
+        val defaultApp = Telephony.Sms.getDefaultSmsPackage(applicationContext)
+        activeNotifications.forEach {
+            if (it.packageName == defaultApp) {
+                if (Build.VERSION.SDK_INT >= 21) {
+                    cancelNotification(it.key)
+                } else {
+                    cancelNotification(defaultApp, it.tag, it.id)
+                }
+            }
+        }
     }
 
 }

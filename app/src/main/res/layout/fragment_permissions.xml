@@ -17,6 +17,7 @@
         android:layout_height="wrap_content">
 
         <TextView
+            android:textColor="@color/textWhite"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
@@ -24,6 +25,7 @@
             android:textSize="28sp" />
 
         <TextView
+            android:textColor="@color/textWhite"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
@@ -52,6 +54,7 @@
                 android:src="@drawable/ic_text" />
 
             <TextView
+                android:textColor="@color/textWhite"
                 android:id="@+id/permission_item_title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -62,6 +65,7 @@
                 android:textStyle="bold" />
 
             <TextView
+                android:textColor="@color/textWhite"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentBottom="true"
@@ -83,6 +87,7 @@
                 android:src="@drawable/ic_agenda" />
 
             <TextView
+                android:textColor="@color/textWhite"
                 android:id="@+id/permission_item_title_1"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -93,6 +98,7 @@
                 android:textStyle="bold" />
 
             <TextView
+                android:textColor="@color/textWhite"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentBottom="true"
@@ -105,6 +111,7 @@
     </LinearLayout>
 
     <Button
+        android:textColor="@color/textWhite"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="24dp"

@@ -35,6 +35,10 @@
 
     <string name="sign_in">Sign In</string>
 
+    <string name="enable_notification_access">Enable Notification Access</string>
+    <string name="clear_old">Textto will clear old text notifications</string>
+    <string name="enable_notification_message">Textto will clear your texting app\'s notifications when you send a new message.</string>
+
     <string name="contact_support">Contact Support</string>
 
     <string name="syncing_contacts">Syncing Contacts</string>

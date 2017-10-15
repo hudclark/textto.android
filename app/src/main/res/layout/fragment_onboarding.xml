@@ -18,6 +18,7 @@
         tools:src="@drawable/ic_chat" />
 
     <TextView
+        android:textColor="@color/textWhite"
         android:id="@+id/onboarding_title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -28,6 +29,7 @@
         android:textSize="22sp"/>
 
     <TextView
+        android:textColor="@color/textWhite"
         android:layout_marginTop="16dp"
         android:id="@+id/onboarding_message"
         android:layout_width="match_parent"

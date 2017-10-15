@@ -1,5 +1,6 @@
 package com.octopusbeach.textto.tasks
 
+import android.content.Intent
 import android.content.SharedPreferences
 import android.util.Log
 import com.octopusbeach.textto.BaseApplication
@@ -9,6 +10,7 @@ import com.octopusbeach.textto.message.MessageSender
 import com.octopusbeach.textto.message.Mms
 import com.octopusbeach.textto.message.Sms
 import com.octopusbeach.textto.model.ScheduledMessage
+import com.octopusbeach.textto.service.NotificationListener
 
 /**
  * Created by hudson on 7/14/17.
@@ -57,6 +59,12 @@ class MessageSyncTask(val apiService: ApiService,
     }
 
     private fun syncScheduledMessages(scheduledMessages: Array<ScheduledMessage>) {
+        if (scheduledMessages.isNotEmpty()) {
+            // Mark messages for this thread as read
+            val intent = Intent(context, NotificationListener::class.java)
+            intent.putExtra(NotificationListener.CLEAR_TEXT_NOTIFICATIONS, true)
+            context.startService(intent)
+        }
         scheduledMessages.forEach {
             try {
                 it.sent = true
