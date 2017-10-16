@@ -14,7 +14,9 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".home.MainActivity" android:launchMode="singleTop">
+        <activity
+            android:name=".home.MainActivity"
+            android:launchMode="singleTop">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -27,13 +29,13 @@
                 <action android:name="com.google.firebase.INSTANCE_ID_EVENT" />
             </intent-filter>
         </service>
-        
+
         <service android:name=".service.MessagingService">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
-        
+
         <service
             android:name=".service.SmsObserverService"
             android:enabled="true"
@@ -42,31 +44,43 @@
             android:name=".service.ContactSyncService"
             android:enabled="true"
             android:exported="true" />
-        
-        <service android:name=".service.NotificationListener"
+
+        <service
+            android:name=".service.NotificationListener"
             android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE">
             <intent-filter>
                 <action android:name="android.service.notification.NotificationListenerService" />
             </intent-filter>
         </service>
 
-        <receiver android:name=".service.DeliveryBroadcastReceiver"/>
+        <receiver android:name=".service.DeliveryBroadcastReceiver" />
 
         <activity
             android:name=".onboarding.OnboardingActivity"
             android:label="@string/app_name"
             android:theme="@style/AppTheme" />
-        <activity android:name=".login.LoginActivity"/>
+        <activity android:name=".login.LoginActivity" />
 
         <provider
             android:name="android.support.v4.content.FileProvider"
             android:authorities="com.octopusbeach.fileprovider"
             android:exported="false"
             android:grantUriPermissions="true">
+
+
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/file_paths" />
+
         </provider>
+
+
+        <meta-data
+            android:name="io.fabric.ApiKey"
+            android:value="06a7a0214516b112c0757b48bec33f2035c70247" />
+
+
     </application>
+
 
 </manifest>

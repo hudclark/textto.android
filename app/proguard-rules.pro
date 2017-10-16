@@ -15,3 +15,38 @@
 #-keepclassmembers class fqcn.of.javascript.interface.for.webview {
 #   public *;
 #}
+
+# fabric
+-keepattributes *Annotation*
+-keepattributes SourceFile,LineNumberTable
+-keep public class * extends java.lang.Exception
+
+# Retrofit
+-dontwarn retrofit2.Platform$Java8
+-dontwarn retrofit2.**
+-dontwarn org.codehaus.mojo.**
+
+-dontwarn okhttp3.**
+-dontwarn okio.**
+
+-keep class retrofit2.** { *; }
+-keepattributes Signature
+-keepattributes Exceptions
+-keepattributes *Annotation*
+
+-keepattributes RuntimeVisibleAnnotations
+-keepattributes RuntimeInvisibleAnnotations
+-keepattributes RuntimeVisibleParameterAnnotations
+-keepattributes RuntimeInvisibleParameterAnnotations
+
+-keepattributes EnclosingMethod
+
+-keepclasseswithmembers class * {
+    @retrofit2.* <methods>;
+}
+
+-keepclasseswithmembers interface * {
+    @retrofit2.* <methods>;
+}
+
+-keep class com.octopusbeach.textto.model.** { *; }

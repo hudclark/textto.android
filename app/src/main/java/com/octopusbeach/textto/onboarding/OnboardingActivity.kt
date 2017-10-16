@@ -17,11 +17,15 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import com.crashlytics.android.Crashlytics
+import com.crashlytics.android.answers.Answers
+import com.crashlytics.android.answers.CustomEvent
 import com.octopusbeach.textto.BaseApplication
 
 import com.octopusbeach.textto.R
 import com.octopusbeach.textto.login.LoginActivity
 import com.octopusbeach.textto.utils.*
+import io.fabric.sdk.android.Fabric
 import javax.inject.Inject
 
 class OnboardingActivity :
@@ -45,6 +49,8 @@ class OnboardingActivity :
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         (applicationContext as BaseApplication).appComponent.inject(this)
+        Fabric.with(this, Crashlytics())
+
         setContentView(R.layout.activity_onboarding)
 
         rootView = findViewById(R.id.main_content)
@@ -63,6 +69,8 @@ class OnboardingActivity :
         viewPager.adapter = sectionsPagerAdapter
         viewPager.addOnPageChangeListener(this)
         viewPager.setPageTransformer(false, OnboardingPageTransformer())
+
+        Answers.getInstance().logCustom(CustomEvent("Start Onboarding"))
 
         // set initial page to 0
         onPageSelected(0)
@@ -88,6 +96,7 @@ class OnboardingActivity :
     }
 
     private fun finishOnboarding() {
+        Answers.getInstance().logCustom(CustomEvent("Finish Onboarding"))
         val editor = prefs.edit()
         editor.putBoolean(ONBOARDING_COMPLETED, true)
         editor.apply()
@@ -120,9 +129,7 @@ class OnboardingActivity :
             else PermissionsFragment.newInstance(this@OnboardingActivity)
         }
 
-        override fun getCount(): Int {
-            return 3
-        }
+        override fun getCount() = 3
 
         override fun getPageTitle(position: Int): CharSequence? {
             when (position) {

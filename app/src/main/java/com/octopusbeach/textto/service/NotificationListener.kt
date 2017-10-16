@@ -14,8 +14,6 @@ import android.util.Log
  */
 class NotificationListener : NotificationListenerService() {
 
-    private var canUse = false
-
     companion object {
         private val TAG = "NotificationListener"
         val CLEAR_TEXT_NOTIFICATIONS = "clear_text"
@@ -27,28 +25,23 @@ class NotificationListener : NotificationListenerService() {
 
     }
 
+    override fun onBind(intent: Intent?) = super.onBind(intent)
+
     override fun onNotificationPosted(sbn: StatusBarNotification) {}
     override fun onNotificationRemoved(sbn: StatusBarNotification?) {}
 
-    override fun onListenerConnected() {
-        super.onListenerConnected()
-        canUse = true
-    }
-
-    override fun onListenerDisconnected() {
-        super.onListenerDisconnected()
-        canUse = false
-    }
-
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
-        if (canUse && intent.getBooleanExtra(CLEAR_TEXT_NOTIFICATIONS, false)) {
-            clearTextNotifications()
+        if (intent.getBooleanExtra(CLEAR_TEXT_NOTIFICATIONS, false) && isEnabled(applicationContext)) {
+            try {
+                clearTextNotifications()
+            } catch (e: Exception) {
+                Log.e(TAG, "Error clearing notifications", e)
+            }
         }
         return super.onStartCommand(intent, flags, startId)
     }
 
     private fun clearTextNotifications () {
-        Log.d(TAG, "Clearing texting notifications")
         val defaultApp = Telephony.Sms.getDefaultSmsPackage(applicationContext)
         activeNotifications.forEach {
             if (it.packageName == defaultApp) {

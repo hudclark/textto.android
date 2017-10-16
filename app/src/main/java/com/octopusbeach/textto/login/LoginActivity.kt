@@ -6,6 +6,9 @@ import android.support.design.widget.Snackbar
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import android.view.View
+import com.crashlytics.android.Crashlytics
+import com.crashlytics.android.answers.Answers
+import com.crashlytics.android.answers.LoginEvent
 import com.google.android.gms.auth.api.Auth
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.SignInButton
@@ -15,7 +18,7 @@ import com.octopusbeach.textto.R
 import com.octopusbeach.textto.api.PublicApiService
 import com.octopusbeach.textto.api.SessionController
 import com.octopusbeach.textto.home.MainActivity
-import com.squareup.haha.perflib.Main
+import io.fabric.sdk.android.Fabric
 import javax.inject.Inject
 
 class LoginActivity : AppCompatActivity(), View.OnClickListener, LoginPresenter.View {
@@ -40,6 +43,7 @@ class LoginActivity : AppCompatActivity(), View.OnClickListener, LoginPresenter.
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         (applicationContext as BaseApplication).appComponent.inject(this)
+        Fabric.with(this, Crashlytics())
 
         if (sessionController.isLoggedIn()) {
             redirectToMainActivity()
@@ -92,10 +96,14 @@ class LoginActivity : AppCompatActivity(), View.OnClickListener, LoginPresenter.
         Log.e(TAG, "Log in failure: $error")
         setLoadingViewVisibility(false)
         Snackbar.make(rootView!!, error, Snackbar.LENGTH_SHORT).show()
+
+        Answers.getInstance().logLogin(LoginEvent().putSuccess(false))
+        Crashlytics.log(1, TAG, error)
     }
 
     override fun onLoginSuccess() {
         Log.d(TAG, "Successfully signed in")
+        Answers.getInstance().logLogin(LoginEvent().putSuccess(true))
         redirectToMainActivity()
     }
 

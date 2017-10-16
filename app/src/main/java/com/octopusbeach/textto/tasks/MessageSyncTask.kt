@@ -3,6 +3,7 @@ package com.octopusbeach.textto.tasks
 import android.content.Intent
 import android.content.SharedPreferences
 import android.util.Log
+import com.crashlytics.android.Crashlytics
 import com.octopusbeach.textto.BaseApplication
 import com.octopusbeach.textto.api.ApiService
 import com.octopusbeach.textto.message.MessageController
@@ -53,6 +54,7 @@ class MessageSyncTask(val apiService: ApiService,
 
             prefs.edit().putLong(MESSAGES_LAST_SYNCED, System.currentTimeMillis()).commit()
         } catch (e: Exception) {
+            Crashlytics.logException(e)
             Log.e(TAG, "Error updating messages: $e")
         }
         Log.d(TAG, "Finished sync task")
@@ -72,6 +74,7 @@ class MessageSyncTask(val apiService: ApiService,
                 MessageSender.sendMessage(it, context)
             } catch (e: Exception) {
                 Log.d(TAG, "Error deleting scheduled message ${it._id}")
+                Crashlytics.logException(e)
             }
         }
     }

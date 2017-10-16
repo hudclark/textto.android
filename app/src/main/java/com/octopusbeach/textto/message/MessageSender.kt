@@ -8,10 +8,14 @@ import android.support.v4.content.FileProvider
 import android.telephony.SmsManager
 import android.text.TextUtils
 import android.util.Log
+import com.crashlytics.android.Crashlytics
+import com.crashlytics.android.answers.Answers
+import com.crashlytics.android.answers.CustomEvent
 import com.octopusbeach.textto.BaseApplication
 import com.octopusbeach.textto.model.ScheduledMessage
 import com.octopusbeach.textto.service.DeliveryBroadcastReceiver
 import com.octopusbeach.textto.utils.ImageUtils
+import io.fabric.sdk.android.services.common.Crash
 import java.io.File
 import java.io.FileOutputStream
 
@@ -33,6 +37,7 @@ object MessageSender {
 
     fun sendMessage(scheduledMessage: ScheduledMessage, context: BaseApplication) {
 
+
         // Nothing to send
         if (scheduledMessage.addresses.isEmpty()) {
             return
@@ -45,6 +50,11 @@ object MessageSender {
         if (fileUrl == null && textContent == null) return
 
         val isMms = fileUrl != null || scheduledMessage.addresses.size > 1 || scheduledMessage.body?.length ?: 0 > 160
+
+        // analytics
+        val type = if (isMms) "mms" else "sms"
+        Answers.getInstance().logCustom(CustomEvent("Send Message")
+                .putCustomAttribute("type", type))
 
         if (isMms) {
             sendMmsMessage(scheduledMessage, context)
@@ -85,6 +95,7 @@ object MessageSender {
 
             SmsManager.getDefault().sendMultimediaMessage(context, uri, null, null, pendingIntent)
         } catch (e: Exception) {
+            Crashlytics.logException(e)
             Log.e(TAG, "Error writing mms to file", e)
         }
     }
@@ -147,6 +158,7 @@ object MessageSender {
             SendReq.getDeclaredMethod("setDeliveryReport", Int::class.java).invoke(sendReq, VALUE_NO)
             SendReq.getDeclaredMethod("setReadReport", Int::class.java).invoke(sendReq, VALUE_NO)
         } catch (e: Exception) {
+            Crashlytics.logException(e)
             Log.e(TAG, "Error setting properties on sendReq", e)
         }
 

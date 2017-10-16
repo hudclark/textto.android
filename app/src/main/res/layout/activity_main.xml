@@ -41,12 +41,14 @@
                     android:layout_height="match_parent"
                     android:layout_weight="1"
                     android:gravity="center"
-                    android:orientation="vertical">
+                    android:orientation="vertical"
+                    android:padding="8dp">
 
                     <TextView
                         android:id="@+id/user_name"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:gravity="center_horizontal"
                         android:textColor="@color/textWhite"
                         android:textSize="16sp"
                         android:textStyle="bold"
@@ -57,6 +59,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="2dp"
+                        android:gravity="center_horizontal"
                         android:textColor="@color/textWhite"
                         android:textSize="14sp"
                         tools:text="hudson@textto.io" />

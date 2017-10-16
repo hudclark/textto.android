@@ -8,6 +8,7 @@ import android.net.Uri
 import android.provider.Telephony
 import android.text.TextUtils
 import android.util.Log
+import com.crashlytics.android.Crashlytics
 import com.octopusbeach.textto.api.ApiService
 import com.octopusbeach.textto.model.Message
 import com.octopusbeach.textto.model.MmsPart
@@ -146,6 +147,7 @@ object Mms {
                     }
                 } catch (e: Exception) {
                     Log.e(TAG, "Error creating mms part", e)
+                    Crashlytics.logException(e)
                 }
 
             } while (cur.moveToNext())
@@ -171,6 +173,7 @@ object Mms {
             }
         } catch (e: Exception) {
             Log.e(TAG, "Error reading mms text", e)
+            Crashlytics.logException(e)
         } finally {
             stream?.close()
         }
@@ -248,6 +251,7 @@ object Mms {
             })
 
         } catch (e: Exception) {
+            Crashlytics.logException(e)
             Log.e(TAG, "Error uploading full size image", e)
         }
     }

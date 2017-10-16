@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.text.TextUtils
 import android.util.Log
+import com.crashlytics.android.Crashlytics
 import com.octopusbeach.textto.BaseApplication
 import com.octopusbeach.textto.utils.ThreadUtils
 import java.io.File
@@ -34,6 +35,7 @@ class DeliveryBroadcastReceiver : BroadcastReceiver() {
                     File(context.cacheDir, filename).delete()
                 }
             } catch (e: Exception) {
+                Crashlytics.logException(e)
                 Log.e(TAG, "Error marking message as sent", e)
             }
         })

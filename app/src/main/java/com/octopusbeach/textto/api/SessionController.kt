@@ -2,6 +2,7 @@ package com.octopusbeach.textto.api
 
 import android.content.SharedPreferences
 import android.util.Log
+import com.crashlytics.android.Crashlytics
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.gson.JsonObject
 
@@ -61,6 +62,9 @@ class SessionController(var apiService: PublicApiService, val prefs: SharedPrefe
             editor.putString(DISPLAY_NAME, it.displayName)
             editor.putString(DISPLAY_EMAIL, it.email)
             editor.apply()
+
+            Crashlytics.setUserEmail(it.email)
+            Crashlytics.setUserIdentifier(it.email)
         }
     }
 

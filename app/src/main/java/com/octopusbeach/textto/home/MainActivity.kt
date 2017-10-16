@@ -1,19 +1,19 @@
 package com.octopusbeach.textto.home;
 
-import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
-import android.provider.Settings
 import android.support.design.widget.Snackbar
 import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
-import android.text.method.LinkMovementMethod
 import android.util.Log
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
 import com.bumptech.glide.Glide
+import com.crashlytics.android.Crashlytics
+import com.crashlytics.android.answers.Answers
+import com.crashlytics.android.answers.CustomEvent
 import com.octopusbeach.textto.BaseApplication
 import com.octopusbeach.textto.R
 import com.octopusbeach.textto.api.ApiService
@@ -25,6 +25,7 @@ import com.octopusbeach.textto.service.SmsObserverService
 import com.octopusbeach.textto.utils.PERMISSIONS_CODE
 import com.octopusbeach.textto.utils.getNeededPermissions
 import com.octopusbeach.textto.utils.requestPermissions
+import io.fabric.sdk.android.Fabric
 import javax.inject.Inject
 
 
@@ -42,6 +43,7 @@ class MainActivity: AppCompatActivity(),
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         (applicationContext as BaseApplication).appComponent.inject(this)
+        Fabric.with(this, Crashlytics())
 
         // check for redirects
         if (!prefs.getBoolean(OnboardingActivity.ONBOARDING_COMPLETED, false)) {
@@ -58,7 +60,10 @@ class MainActivity: AppCompatActivity(),
         initSyncButtons()
 
         findViewById(R.id.contact_support).setOnClickListener { presenter?.contactSupport() }
-        findViewById(R.id.log_out).setOnClickListener { presenter?.logOut() }
+        findViewById(R.id.log_out).setOnClickListener {
+            presenter?.logOut()
+            Answers.getInstance().logCustom(CustomEvent("Log Out"))
+        }
 
         // init presenter
         if (presenter == null)
@@ -127,6 +132,7 @@ class MainActivity: AppCompatActivity(),
     override fun showRequestPermissions() {
         val snackbar = Snackbar.make(findViewById(R.id.main_activity_root), R.string.missing_permissions, Snackbar.LENGTH_INDEFINITE)
         snackbar.setAction(R.string.enable, {
+            Answers.getInstance().logCustom(CustomEvent("Enable Permissions Click"))
             requestPermissions(this, getNeededPermissions(this@MainActivity))
             snackbar.dismiss()
         })
@@ -153,8 +159,15 @@ class MainActivity: AppCompatActivity(),
             return
         }
         when (v.id) {
-            R.id.messages_sync -> presenter?.syncMessages()
-            R.id.contacts_sync -> presenter?.syncContacts()
+            R.id.messages_sync -> {
+                presenter?.syncMessages()
+                Answers.getInstance().logCustom(CustomEvent("Sync Messages Click"))
+            }
+
+            R.id.contacts_sync -> {
+                presenter?.syncContacts()
+                Answers.getInstance().logCustom(CustomEvent("Sync Contacts Click"))
+            }
         }
     }
 
@@ -164,6 +177,7 @@ class MainActivity: AppCompatActivity(),
                 .setMessage(R.string.enable_notification_message)
                 .setPositiveButton(R.string.enable, { d, _ ->
                     startActivity(Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS"))
+                    Answers.getInstance().logCustom(CustomEvent("Enable Notifications"))
                     d.dismiss()
                 })
                 .show()

@@ -1,6 +1,7 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-kapt'
+apply plugin: 'io.fabric'
 
 ext {
     supportLibs = '25.3.0'
@@ -21,14 +22,16 @@ android {
     }
     buildTypes {
         debug {
+            minifyEnabled true
             buildConfigField "String", "API_URL", '"https://textto.herokuapp.com"'
             //buildConfigField "String", "API_URL", '"http://10.0.2.2:5000"'
             //buildConfigField "String", "API_URL", '"http://192.168.0.156:5000"'
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
         release {
+            minifyEnabled true
             buildConfigField "String", "API_URL", "'https://textto.herokuapp.com'"
 
-            minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
@@ -83,6 +86,11 @@ dependencies {
         debugCompile 'com.squareup.leakcanary:leakcanary-android:1.5.4'
         releaseCompile 'com.squareup.leakcanary:leakcanary-android-no-op:1.5.4'
 
+        // crash
+        compile('com.crashlytics.sdk.android:crashlytics:2.7.0@aar') {
+            transitive = true;
+        }
+
     }
 
     task testDependencies {
@@ -93,9 +101,8 @@ dependencies {
 
 repositories {
     mavenCentral()
-    maven {
-        url 'https://maven.google.com'
-    }
+    maven { url 'https://maven.google.com' }
+    maven { url 'https://maven.fabric.io/public' }
 }
 
 apply plugin: 'com.google.gms.google-services'
