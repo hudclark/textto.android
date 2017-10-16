@@ -3,6 +3,7 @@ package com.octopusbeach.textto.login
 import android.content.Context
 import android.provider.Settings
 import android.util.Log
+import com.crashlytics.android.Crashlytics
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInResult
 import com.google.firebase.iid.FirebaseInstanceId
@@ -49,6 +50,7 @@ class LoginPresenter(val apiService: PublicApiService, val sessionController: Se
             override fun onFailure(call: Call<JsonObject>?, t: Throwable?) {
                 Log.e(TAG, "Unable to authenticate: $t")
                 view?.onLoginFailure("Unable to sign in. Error: ${t?.message ?: "Unknown"}")
+                Crashlytics.logException(t)
             }
 
             override fun onResponse(call: Call<JsonObject>?, response: Response<JsonObject>?) {
@@ -66,6 +68,7 @@ class LoginPresenter(val apiService: PublicApiService, val sessionController: Se
                     // everything was successful
                     view?.onLoginSuccess()
                 } else {
+                    Crashlytics.log(1, TAG, "Response did not return tokens")
                     view?.onLoginFailure("Unable to sign in. Try again in a minute")
                 }
             }

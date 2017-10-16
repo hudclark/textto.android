@@ -27,8 +27,7 @@ class AuthInterceptor(val sessionController: SessionController): Interceptor {
                     .header(sessionController.TOKEN_HEADER, newToken)
                     .method(org.method(), org.body())
                     .build()
-            val newResponse = chain.proceed(newReq)
-            return newResponse
+            return chain.proceed(newReq)
         }
         return origResponse
     }

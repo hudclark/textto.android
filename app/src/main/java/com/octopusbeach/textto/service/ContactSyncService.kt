@@ -12,6 +12,8 @@ import android.provider.ContactsContract
 import android.support.v4.app.NotificationCompat
 import android.util.Base64
 import android.util.Log
+import com.crashlytics.android.Crashlytics
+import com.crashlytics.android.core.CrashlyticsListener
 import com.octopusbeach.textto.BaseApplication
 import com.octopusbeach.textto.R
 import com.octopusbeach.textto.api.ApiService
@@ -86,6 +88,7 @@ class ContactSyncService : Service() {
             apiService.postContacts(contacts).execute()
         } catch (e: Exception) {
             Log.e(TAG, "Error posting contacts $e")
+            Crashlytics.logException(e)
         }
     }
 
@@ -109,6 +112,8 @@ class ContactSyncService : Service() {
                 val contact = Contact(contactId, name, address, thumbnail)
                 contacts.add(contact)
             }
+        } catch (e: Exception) {
+            Crashlytics.logException(e)
         } finally {
             cur.close()
             return contacts
@@ -119,14 +124,15 @@ class ContactSyncService : Service() {
 
         val contactUri = ContentUris.withAppendedId(ContactsContract.Contacts.CONTENT_URI, id.toLong())
         val photoUri = Uri.withAppendedPath(contactUri, ContactsContract.Contacts.Photo.CONTENT_DIRECTORY)
-        val cur = contentResolver.query(photoUri,
-                arrayOf(ContactsContract.Contacts.Photo.PHOTO), null, null, null) ?: return null
+        val cur = contentResolver.query(photoUri, arrayOf(ContactsContract.Contacts.Photo.PHOTO), null, null, null)
         try {
             if (cur.moveToFirst()) {
                 val data = cur.getBlob(0)
                 if (data != null)
                     return Base64.encodeToString(data, Base64.DEFAULT)
             }
+        } catch (e: Exception) {
+            Crashlytics.logException(e)
         } finally {
             cur.close()
         }

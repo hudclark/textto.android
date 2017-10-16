@@ -55,9 +55,8 @@ class LoginActivity : AppCompatActivity(), View.OnClickListener, LoginPresenter.
         rootView = findViewById(R.id.login_content)
 
         signInButton = findViewById(R.id.sign_in_button) as SignInButton
-        signInButton?.let {
-            it.setOnClickListener(this)
-        }
+        signInButton?.setOnClickListener(this)
+
         loginLoader = findViewById(R.id.login_loader)
 
         val options = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)

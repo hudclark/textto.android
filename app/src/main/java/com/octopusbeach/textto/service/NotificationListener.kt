@@ -8,6 +8,7 @@ import android.provider.Telephony
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
 import android.util.Log
+import com.crashlytics.android.Crashlytics
 
 /**
  * Created by hudson on 10/2/17.
@@ -36,6 +37,7 @@ class NotificationListener : NotificationListenerService() {
                 clearTextNotifications()
             } catch (e: Exception) {
                 Log.e(TAG, "Error clearing notifications", e)
+                Crashlytics.logException(e)
             }
         }
         return super.onStartCommand(intent, flags, startId)
