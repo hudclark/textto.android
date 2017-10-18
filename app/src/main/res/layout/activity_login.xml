@@ -8,7 +8,7 @@
     android:orientation="vertical"
     android:id="@+id/login_content"
     android:background="@drawable/home_gradient"
-    tools:context="com.octopusbeach.textto.login.LoginActivity">
+    tools:context="com.moduloapps.textto.login.LoginActivity">
 
     <RelativeLayout
         android:layout_marginTop="128dp"

@@ -49,4 +49,4 @@
     @retrofit2.* <methods>;
 }
 
--keep class com.octopusbeach.textto.model.** { *; }
+-keep class com.moduloapps.textto.model.** { *; }

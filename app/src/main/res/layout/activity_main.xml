@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/home_gradient"
-    tools:context="com.octopusbeach.textto.home.MainActivity">
+    tools:context="com.moduloapps.textto.home.MainActivity">
 
     <ScrollView
         android:layout_width="match_parent"
@@ -235,7 +235,6 @@
         android:layout_gravity="bottom"
         android:layout_marginBottom="16dp"
         android:gravity="center_horizontal"
-        android:text="@string/contact_support"
-        android:textColor="@color/blue" />
+        android:text="@string/contact_support"/>
 
 </FrameLayout>

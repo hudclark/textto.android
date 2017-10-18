@@ -14,7 +14,7 @@ android {
     buildToolsVersion "26.0.0"
 
     defaultConfig {
-        applicationId "com.octopusbeach.textto"
+        applicationId "com.moduloapps.textto"
         minSdkVersion 19
         targetSdkVersion 23
         versionCode 1

@@ -6,7 +6,7 @@
     android:paddingRight="32dp"
     android:orientation="vertical"
     tools:background="@color/blueBackground"
-    tools:context="com.octopusbeach.textto.onboarding.OnboardingActivity$PlaceholderFragment">
+    tools:context="com.moduloapps.textto.onboarding.OnboardingActivity$PlaceholderFragment">
 
     <ImageView
         android:layout_marginTop="76dp"
