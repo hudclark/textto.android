@@ -91,6 +91,9 @@ dependencies {
             transitive = true;
         }
 
+        // lib phone number
+        compile 'com.googlecode.libphonenumber:libphonenumber:8.2.0'
+
     }
 
     task testDependencies {

@@ -41,6 +41,12 @@ interface ApiService {
     @POST("user/firebase-id")
     fun updateFirebaseId(@Body token: JsonObject): Observable<Map<String, String>>
 
+    @POST("user/startInitialSync")
+    fun startInitialSync(): Call<Map<String, String>>
+
+    @POST("user/endInitialSync")
+    fun endInitialSync(): Call<Map<String, String>>
+
     @GET("ping")
     fun ping(): Call<String>
 

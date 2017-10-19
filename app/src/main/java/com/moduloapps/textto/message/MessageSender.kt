@@ -12,6 +12,7 @@ import com.crashlytics.android.Crashlytics
 import com.crashlytics.android.answers.Answers
 import com.crashlytics.android.answers.CustomEvent
 import com.moduloapps.textto.BaseApplication
+import com.moduloapps.textto.model.Message
 import com.moduloapps.textto.model.ScheduledMessage
 import com.moduloapps.textto.service.DeliveryBroadcastReceiver
 import com.moduloapps.textto.utils.ImageUtils
@@ -74,7 +75,7 @@ object MessageSender {
 
     private fun sendMmsMessage(scheduledMessage: ScheduledMessage, context: BaseApplication) {
         if (Build.VERSION.SDK_INT < 21) return
-        Log.d(TAG, "Sending mms message to ${scheduledMessage.addresses}...")
+        Log.d(TAG, "Sending mms message to ${scheduledMessage.addresses.joinToString(",")}...")
         val filename = "text_${scheduledMessage._id}.txt"
         try {
             val pdu = buildPdu(scheduledMessage, filename, context)
@@ -109,9 +110,9 @@ object MessageSender {
         val sendReq = SendReq.newInstance()
 
         // set from
-        val sim = null//getSimNumber(context)  // For whatever reason this is different than what textra does.
+        val sim = MessageController.getSimNumber(context)
         if (!TextUtils.isEmpty(sim)) {
-            val encodedSim = EncodedStringValue.getConstructor(String::class.java).newInstance("+$sim")
+            val encodedSim = EncodedStringValue.getConstructor(String::class.java).newInstance(sim)
             SendReq.getMethod("setFrom", encodedSim::class.java).invoke(sendReq, encodedSim)
         }
 

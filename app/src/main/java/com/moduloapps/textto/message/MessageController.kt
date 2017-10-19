@@ -3,6 +3,9 @@ package com.moduloapps.textto.message
 import android.content.Context
 import android.net.Uri
 import android.provider.Telephony
+import android.telephony.TelephonyManager
+import android.util.Log
+import com.google.i18n.phonenumbers.PhoneNumberUtil
 import com.moduloapps.textto.api.ApiService
 import com.moduloapps.textto.model.Message
 import com.moduloapps.textto.model.MmsPart
@@ -81,5 +84,16 @@ object MessageController {
             Mms.postParts(parts, apiService, context)
         }
     }
+
+    fun isMyAddress (address: String, context: Context): Boolean {
+        if (address == "insert-address-token") return true
+        val result = PhoneNumberUtil.getInstance().isNumberMatch(getSimNumber(context), address)
+        return (result == PhoneNumberUtil.MatchType.EXACT_MATCH ||
+                result == PhoneNumberUtil.MatchType.NSN_MATCH)
+    }
+
+    fun getSimNumber(context: Context) =
+            (context.getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager).line1Number
+
 
 }

@@ -10,6 +10,7 @@ import android.telephony.TelephonyManager
 import android.text.TextUtils
 import android.util.Log
 import com.crashlytics.android.Crashlytics
+import com.google.i18n.phonenumbers.PhoneNumberUtil
 import com.moduloapps.textto.api.ApiService
 import com.moduloapps.textto.model.Message
 import com.moduloapps.textto.model.MmsPart
@@ -28,8 +29,6 @@ import java.io.InputStreamReader
 object Mms {
 
     private val TAG = "Mms"
-
-    private val ME = "insert-address-token"
     private val MAX_MESSAGES = 400
 
     fun syncMms(date: Long, id: Int, context: Context, apiService: ApiService) {
@@ -95,10 +94,11 @@ object Mms {
             do {
                 val address = cur.getString(cur.getColumnIndex("address"))
                 if (!TextUtils.isEmpty(address)) {
+                    val isMe = MessageController.isMyAddress(address, context)
                     if (sender == null) {
-                        sender = if (isAddressMe(address, context)) "me" else address
+                        sender = if (isMe) "me" else address
                     }
-                    if (!isAddressMe(address, context)) addresses.add(address)
+                    if (!isMe) addresses.add(address)
                 }
             } while (cur.moveToNext())
         }
@@ -264,15 +264,6 @@ object Mms {
                 type == "image/gif"  ||
                 type == "image/jpg"  ||
                 type == "image/png"
-    }
-
-    private fun isAddressMe (address: String, context: Context): Boolean {
-        val myNumber = (context.getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager).line1Number
-        return when (address) {
-            ME -> true
-            myNumber -> true
-            else -> false
-        }
     }
 
 }
