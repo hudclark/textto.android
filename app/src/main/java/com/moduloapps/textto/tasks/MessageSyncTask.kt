@@ -6,6 +6,7 @@ import android.content.SharedPreferences
 import android.telephony.TelephonyManager
 import android.util.Log
 import com.crashlytics.android.Crashlytics
+import com.crashlytics.android.core.CrashlyticsListener
 import com.moduloapps.textto.BaseApplication
 import com.moduloapps.textto.api.ApiService
 import com.moduloapps.textto.message.MessageController
@@ -30,8 +31,8 @@ class MessageSyncTask(val apiService: ApiService,
 
     override fun run() {
         Log.d(TAG, "Starting sync task")
+        var isInitalSync = false
         try {
-
             val status = apiService.getStatusUpdate().execute().body() ?: return
 
             val sms = status.sms
@@ -42,6 +43,8 @@ class MessageSyncTask(val apiService: ApiService,
             if (sms == null && mms == null) {
                 // first sync
                 Log.d(TAG, "Syncing recent threads")
+                isInitalSync = true
+                apiService.startInitialSync().execute()
                 MessageController.syncRecentThreads(context, apiService, 20)
             } else {
                 // We need to make sure to sync anything 'recent' -- however that is defined.
@@ -58,6 +61,15 @@ class MessageSyncTask(val apiService: ApiService,
         } catch (e: Exception) {
             Crashlytics.logException(e)
             Log.e(TAG, "Error updating messages: $e")
+        } finally {
+            if (isInitalSync) {
+                try {
+                    apiService.endInitialSync().execute()
+                } catch (e: Exception) {
+                    Log.e(TAG, "Error ending initial sync", e)
+                    Crashlytics.logException(e)
+                }
+            }
         }
         Log.d(TAG, "Finished sync task")
     }

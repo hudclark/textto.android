@@ -23,7 +23,7 @@ interface ApiService {
     fun createMmsParts(@Body parts: List<MmsPart>): Call<Map<String, List<MmsPart?>>>
 
     @PUT
-    fun putMmsImage(@Url url: String, @Body body: RequestBody): Call<Int>
+    fun putMmsImage(@Url url: String, @Body body: RequestBody): Call<Void>
 
     @GET
     fun getFile(@Url url: String): Call<ResponseBody>

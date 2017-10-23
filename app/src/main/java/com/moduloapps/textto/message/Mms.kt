@@ -6,12 +6,11 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
 import android.provider.Telephony
-import android.telephony.TelephonyManager
 import android.text.TextUtils
 import android.util.Log
 import com.crashlytics.android.Crashlytics
-import com.google.i18n.phonenumbers.PhoneNumberUtil
 import com.moduloapps.textto.api.ApiService
+import com.moduloapps.textto.api.RetryCallback
 import com.moduloapps.textto.model.Message
 import com.moduloapps.textto.model.MmsPart
 import com.moduloapps.textto.utils.ImageUtils
@@ -85,6 +84,8 @@ object Mms {
                 date = date * 1000)
     }
 
+    // TODO could use the threads table to get recipients.
+    // There was a bug where the recipients were incorrect
     private fun getSenderAndRecipients(id: Int, context: Context): Pair<String, List<String>> {
         val uri = Uri.parse("content://mms/$id/addr")
         val cur = context.contentResolver.query(uri, null, "msg_id=$id", null, null)
@@ -240,13 +241,14 @@ object Mms {
 
             // upload image to aws.
             val body = RequestBody.create(MediaType.parse(contentType), bytes)
-            apiService.putMmsImage(imageUrl, body).enqueue(object: retrofit2.Callback<Int> {
-                override fun onFailure(call: Call<Int>?, t: Throwable?) {
-                    Log.e(TAG, "failed to upload mms image")
+            apiService.putMmsImage(imageUrl, body).enqueue(object: RetryCallback<Void>(10, 1000) {
+                override fun onResponse(call: Call<Void>?, response: Response<Void>?) {
+                    Log.d(TAG, "Uploaded mms image")
                 }
 
-                override fun onResponse(call: Call<Int>?, response: Response<Int>?) {
-                    Log.d(TAG, "Uploaded mms image")
+                override fun onFailed(t: Throwable) {
+                    // TODO could put into a queue to run when we have internet again
+                    Log.d(TAG, "Failed to upload mms image", t)
                 }
             })
 
