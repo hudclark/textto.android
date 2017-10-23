@@ -45,7 +45,7 @@ class NotificationListener : NotificationListenerService() {
 
     private fun clearTextNotifications () {
         val defaultApp = Telephony.Sms.getDefaultSmsPackage(applicationContext)
-        activeNotifications.forEach {
+        activeNotifications?.forEach {
             if (it.packageName == defaultApp) {
                 if (Build.VERSION.SDK_INT >= 21) {
                     cancelNotification(it.key)
