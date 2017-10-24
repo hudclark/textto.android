@@ -59,7 +59,7 @@ class ContactSyncService : Service() {
         val pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT)
 
         return NotificationCompat.Builder(this)
-                .setSmallIcon(R.mipmap.ic_launcher)
+                .setSmallIcon(R.drawable.notification)
                 .setContentTitle(this.getString(R.string.syncing_contacts))
                 .setContentIntent(pendingIntent)
                 .build()
