@@ -5,55 +5,37 @@ import android.app.PendingIntent
 import android.app.Service
 import android.content.Intent
 import android.net.Uri
-import android.os.Handler
 import android.support.v7.app.NotificationCompat
-import android.text.TextUtils
 import android.util.Log
 import com.moduloapps.textto.BaseApplication
 import com.moduloapps.textto.R
+import com.moduloapps.textto.api.TimeoutPinger
 import com.moduloapps.textto.home.MainActivity
-import retrofit2.Call
-import retrofit2.Response
+import com.moduloapps.textto.tasks.MessageSyncTask
+import com.moduloapps.textto.utils.ThreadUtils
 
 /**
  * Created by hudson on 9/6/16.
  */
-class SmsObserverService: Service() {
+class SmsObserverService: Service(), TimeoutPinger.OnFailedListener {
 
     companion object {
         val FOREGROUND_EXTRA = "foreground"
         val START_FOREGROUND = "startForeground"
         val STOP_FOREGROUND = "stopForeground"
+        val PING_FOREGROUND = "pingForeground"
+        val PING_TIMESTAMP = "pingTimestamp"
     }
-
-    private val PING_INTERVAL = 60L * 1000L
 
     private var observer: SmsObserver? = null
     private val TAG = "SmsObserverService"
     private var isForeground = false
 
-    private var isPinging = false
-    private var retries = 0
-    private val handler = Handler()
-    private val pingTask = Runnable {
-        (applicationContext as BaseApplication).appComponent.getApiService().ping().enqueue(object : retrofit2.Callback<String> {
-            override fun onResponse(call: Call<String>?, response: Response<String>) {
-                if (!TextUtils.isEmpty(response.body()))
-                    schedulePing()
-                else
-                    onPingFailure()
-            }
-
-            override fun onFailure(call: Call<String>?, t: Throwable?) {
-                onPingFailure()
-            }
-        })
-    }
+    private val pinger = TimeoutPinger(this)
 
     override fun onCreate() {
         super.onCreate()
         observeSms()
-        isPinging = false
     }
 
     override fun onDestroy() {
@@ -62,17 +44,20 @@ class SmsObserverService: Service() {
             contentResolver.unregisterContentObserver(observer)
             observer = null
         }
-        if (isPinging) stopPinging()
+        pinger.stopPinging()
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         super.onStartCommand(intent, flags, startId)
         Log.d(TAG, "onStartCommand")
         intent?.getStringExtra(FOREGROUND_EXTRA)?.let {
-            if (it == START_FOREGROUND && !isForeground) {
-                startForeground()
-            } else if (it == STOP_FOREGROUND && isForeground) {
-                stopForeground()
+            when (it) {
+                START_FOREGROUND -> ensureForegroundStarted()
+                STOP_FOREGROUND -> ensureForegroundStopped()
+                PING_FOREGROUND -> {
+                    ensureForegroundStarted()
+                    pinger.onPingReceived(intent.getLongExtra(PING_TIMESTAMP, 0))
+                }
             }
         }
         return START_STICKY
@@ -87,21 +72,26 @@ class SmsObserverService: Service() {
         }
     }
 
-    private fun startForeground() {
+    private fun ensureForegroundStarted() {
         if (!isForeground) {
             Log.d(TAG, "Starting foreground")
             isForeground = true
             startForeground(1, createNotification())
-            if (!isPinging) startPinging()
+            pinger.startPinging()
+
+            val app = applicationContext as BaseApplication
+
+            ThreadUtils.runSingleThreadTask(MessageSyncTask(app.appComponent.getApiService(),
+                    app, app.appComponent.getSharedPrefs()))
         }
     }
 
-    private fun stopForeground() {
+    private fun ensureForegroundStopped() {
         if (isForeground) {
             Log.d(TAG, "Stopping foreground")
             isForeground = false
             stopForeground(true)
-            if (isPinging) stopPinging()
+            pinger.stopPinging()
         }
     }
 
@@ -117,35 +107,10 @@ class SmsObserverService: Service() {
                 .build()
     }
 
-    private fun startPinging() {
-        retries = 0
-        if (!isPinging) {
-            isPinging = true
-            handler.post(pingTask)
-        }
-    }
-
-    private fun stopPinging() {
-        isPinging = false
-        handler.removeCallbacks(pingTask)
-    }
-
-    private fun schedulePing() {
-        if (!isPinging) return
-        handler.postDelayed(pingTask, PING_INTERVAL)
-    }
-
-    private fun onPingFailure() {
-        if (!isPinging) return
-        if (retries < 3) {
-            retries++
-            schedulePing()
-        } else {
-            stopPinging()
-            stopForeground()
-        }
-    }
-
     override fun onBind(intent: Intent?) = null
+
+    override fun onPingFailed() {
+        ensureForegroundStopped()
+    }
 
 }

@@ -28,6 +28,7 @@ class MessagingService: FirebaseMessagingService() {
     private val TYPE_SYNC_CONTACTS = "syncContacts"
     private val TYPE_START_SESSION = "startSession"
     private val TYPE_STOP_SESSION = "endSession"
+    private val TYPE_PING_SESSION = "pingSession"
 
     override fun onCreate() {
         super.onCreate()
@@ -56,13 +57,19 @@ class MessagingService: FirebaseMessagingService() {
                 val intent = Intent(applicationContext, SmsObserverService::class.java)
                 intent.putExtra(SmsObserverService.FOREGROUND_EXTRA, SmsObserverService.START_FOREGROUND)
                 applicationContext.startService(intent)
-                // On session start, update messages
-                ThreadUtils.runSingleThreadTask(MessageSyncTask(apiService, applicationContext as BaseApplication, prefs))
             }
 
             TYPE_STOP_SESSION -> {
                 val intent = Intent(applicationContext, SmsObserverService::class.java)
                 intent.putExtra(SmsObserverService.FOREGROUND_EXTRA, SmsObserverService.STOP_FOREGROUND)
+                applicationContext.startService(intent)
+            }
+
+            TYPE_PING_SESSION -> {
+                val timestamp = msg.data["timestamp"]?.toLong() ?: return
+                val intent = Intent(applicationContext, SmsObserverService::class.java)
+                intent.putExtra(SmsObserverService.FOREGROUND_EXTRA, SmsObserverService.PING_FOREGROUND)
+                intent.putExtra(SmsObserverService.PING_TIMESTAMP, timestamp)
                 applicationContext.startService(intent)
             }
 
