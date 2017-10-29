@@ -14,6 +14,8 @@ import com.bumptech.glide.Glide
 import com.crashlytics.android.Crashlytics
 import com.crashlytics.android.answers.Answers
 import com.crashlytics.android.answers.CustomEvent
+import com.google.android.gms.auth.api.Auth
+import com.google.android.gms.common.api.GoogleApiClient
 import com.moduloapps.textto.BaseApplication
 import com.moduloapps.textto.R
 import com.moduloapps.textto.api.ApiService
@@ -39,6 +41,7 @@ class MainActivity: AppCompatActivity(),
     @Inject lateinit var sessionController: SessionController
 
     private var presenter: HomePresenter? = null
+    private var googleApiClient: GoogleApiClient? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -59,9 +62,14 @@ class MainActivity: AppCompatActivity(),
         setContentView(R.layout.activity_main)
         initSyncButtons()
 
+        googleApiClient = GoogleApiClient.Builder(this)
+                .addApi(Auth.GOOGLE_SIGN_IN_API)
+                .build()
+        googleApiClient!!.connect()
+
         findViewById(R.id.contact_support).setOnClickListener { presenter?.contactSupport() }
         findViewById(R.id.log_out).setOnClickListener {
-            presenter?.logOut()
+            presenter?.logOut(googleApiClient!!)
             Answers.getInstance().logCustom(CustomEvent("Log Out"))
         }
 
@@ -101,6 +109,7 @@ class MainActivity: AppCompatActivity(),
         presenter?.onTakeView(null)
         if (!isChangingConfigurations)
             presenter = null
+        googleApiClient?.disconnect()
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {

@@ -5,6 +5,9 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.net.Uri
 import android.util.Log
+import com.google.android.gms.auth.api.Auth
+import com.google.android.gms.auth.api.signin.GoogleSignInApi
+import com.google.android.gms.common.api.GoogleApiClient
 import com.moduloapps.textto.BaseApplication
 import com.moduloapps.textto.api.ApiService
 import com.moduloapps.textto.api.SessionController
@@ -85,7 +88,10 @@ class HomePresenter(val apiService: ApiService,
         context.startActivity(Intent.createChooser(intent, "Email Support"))
     }
 
-    fun logOut () {
+    fun logOut (googleApiClient: GoogleApiClient) {
+        if (googleApiClient.isConnected) {
+            Auth.GoogleSignInApi.signOut(googleApiClient)
+        }
         view?.let {
             val refreshToken = sessionController.getRefreshToken()
             apiService.revokeToken(refreshToken)
