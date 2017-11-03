@@ -3,7 +3,9 @@ package com.moduloapps.textto.home;
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
+import android.support.annotation.LayoutRes
 import android.support.design.widget.Snackbar
+import android.support.v4.content.ContextCompat
 import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
@@ -16,6 +18,7 @@ import com.crashlytics.android.answers.Answers
 import com.crashlytics.android.answers.CustomEvent
 import com.google.android.gms.auth.api.Auth
 import com.google.android.gms.common.api.GoogleApiClient
+import com.moduloapps.textto.BaseActivity
 import com.moduloapps.textto.BaseApplication
 import com.moduloapps.textto.R
 import com.moduloapps.textto.api.ApiService
@@ -31,7 +34,7 @@ import io.fabric.sdk.android.Fabric
 import javax.inject.Inject
 
 
-class MainActivity: AppCompatActivity(),
+class MainActivity: BaseActivity(),
         HomePresenter.View, View.OnClickListener {
 
     private val TAG = "MainActivity"
@@ -50,11 +53,11 @@ class MainActivity: AppCompatActivity(),
 
         // check for redirects
         if (!prefs.getBoolean(OnboardingActivity.ONBOARDING_COMPLETED, false)) {
-            redirect(OnboardingActivity::class.java)
+            redirectToActivity(OnboardingActivity::class.java)
             return
         }
         if (sessionController.getRefreshToken() == null) {
-            redirect(LoginActivity::class.java)
+            redirectToActivity(LoginActivity::class.java)
             return
         }
 
@@ -89,7 +92,7 @@ class MainActivity: AppCompatActivity(),
     override fun onResume() {
         super.onResume()
         if (!sessionController.isLoggedIn()) {
-            redirect(LoginActivity::class.java)
+            redirectToActivity(LoginActivity::class.java)
             return
         }
         presenter?.checkPermissions()
@@ -145,6 +148,7 @@ class MainActivity: AppCompatActivity(),
             requestPermissions(this, getNeededPermissions(this@MainActivity))
             snackbar.dismiss()
         })
+        snackbar.setTextColor(R.color.textWhite)
         snackbar.show()
     }
 
@@ -168,13 +172,9 @@ class MainActivity: AppCompatActivity(),
         findViewById(R.id.contacts_loader).setVisible(syncing)
     }
 
-    override fun redirectToLogin() {
-        redirect(LoginActivity::class.java)
-    }
-
     override fun onClick(v: View) {
         if (!sessionController.isLoggedIn()) {
-            redirect(LoginActivity::class.java)
+            redirectToActivity(LoginActivity::class.java)
             return
         }
         when (v.id) {
@@ -207,15 +207,7 @@ class MainActivity: AppCompatActivity(),
         findViewById(R.id.messages_sync).setOnClickListener(this)
     }
 
-    private fun redirect(activity: Class<*>) {
-        Log.d(TAG, "Redirecting to $activity")
-        val intent = Intent(this, activity)
-        intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK
-        startActivity(intent)
-        finish()
-    }
-
-    private fun View.setVisible(visible: Boolean) {
-        visibility = if (visible) View.VISIBLE else View.GONE
+    override fun redirectToLogin() {
+        redirectToActivity(LoginActivity::class.java)
     }
 }

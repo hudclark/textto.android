@@ -13,6 +13,7 @@ import com.google.android.gms.auth.api.Auth
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.SignInButton
 import com.google.android.gms.common.api.GoogleApiClient
+import com.moduloapps.textto.BaseActivity
 import com.moduloapps.textto.BaseApplication
 import com.moduloapps.textto.R
 import com.moduloapps.textto.api.PublicApiService
@@ -21,7 +22,7 @@ import com.moduloapps.textto.home.MainActivity
 import io.fabric.sdk.android.Fabric
 import javax.inject.Inject
 
-class LoginActivity : AppCompatActivity(), View.OnClickListener, LoginPresenter.View {
+class LoginActivity : BaseActivity(), View.OnClickListener, LoginPresenter.View {
 
     private val TAG = "LoginActivity"
 
@@ -94,7 +95,9 @@ class LoginActivity : AppCompatActivity(), View.OnClickListener, LoginPresenter.
     override fun onLoginFailure(error: String) {
         Log.e(TAG, "Log in failure: $error")
         setLoadingViewVisibility(false)
-        Snackbar.make(rootView!!, error, Snackbar.LENGTH_SHORT).show()
+        val snackbar = Snackbar.make(rootView!!, error, Snackbar.LENGTH_SHORT)
+        snackbar.setTextColor(R.color.textWhite)
+        snackbar.show()
 
         Answers.getInstance().logLogin(LoginEvent().putSuccess(false))
         Crashlytics.log(1, TAG, error)
@@ -109,8 +112,8 @@ class LoginActivity : AppCompatActivity(), View.OnClickListener, LoginPresenter.
     override fun getBaseApplication() = applicationContext as BaseApplication
 
     private fun setLoadingViewVisibility(visible: Boolean) {
-        loginLoader?.visibility = if (visible) View.VISIBLE else View.GONE
-        signInButton?.visibility = if (visible) View.GONE else View.VISIBLE
+        loginLoader?.setVisible(visible)
+        signInButton?.setVisible(!visible)
     }
 
     private fun redirectToMainActivity() {
