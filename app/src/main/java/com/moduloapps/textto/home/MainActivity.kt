@@ -158,6 +158,16 @@ class MainActivity: AppCompatActivity(),
         messagesLastSynced.text = message
     }
 
+    override fun setSyncingMessages(syncing: Boolean) {
+        findViewById(R.id.messages_sync).setVisible(!syncing)
+        findViewById(R.id.messages_loader).setVisible(syncing)
+    }
+
+    override fun setSyncingContacts(syncing: Boolean) {
+        findViewById(R.id.contacts_sync).setVisible(!syncing)
+        findViewById(R.id.contacts_loader).setVisible(syncing)
+    }
+
     override fun redirectToLogin() {
         redirect(LoginActivity::class.java)
     }
@@ -203,5 +213,9 @@ class MainActivity: AppCompatActivity(),
         intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK
         startActivity(intent)
         finish()
+    }
+
+    private fun View.setVisible(visible: Boolean) {
+        visibility = if (visible) View.VISIBLE else View.GONE
     }
 }

@@ -1,5 +1,7 @@
 package com.moduloapps.textto.utils
 
+import android.os.Handler
+import android.os.Looper
 import java.util.concurrent.Executors
 
 /**
@@ -8,8 +10,17 @@ import java.util.concurrent.Executors
 object ThreadUtils {
 
     private val singleThreadExecutor = Executors.newSingleThreadExecutor()
+    private val mainThreadHandler = Handler(Looper.getMainLooper())
 
     fun runSingleThreadTask(runnable: Runnable) {
         singleThreadExecutor.execute(runnable)
+    }
+
+    fun runOnMainThread(runnable: Runnable) {
+        mainThreadHandler.post(runnable)
+    }
+
+    fun runOnMainThread(runnable: Runnable, delay: Long) {
+        mainThreadHandler.postDelayed(runnable, delay)
     }
 }

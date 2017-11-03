@@ -4,6 +4,8 @@ import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.net.Uri
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import com.google.android.gms.auth.api.Auth
 import com.google.android.gms.auth.api.signin.GoogleSignInApi
@@ -45,15 +47,30 @@ class HomePresenter(val apiService: ApiService,
 
     fun syncContacts() {
         view?.let {
+            it.setSyncingContacts(true)
             it.getApplicationContext().startService(Intent(it.getApplicationContext(), ContactSyncService::class.java))
-            //ThreadUtils.runSingleThreadTask(TestingClass(it.getApplicationContext(), apiService))
+            ThreadUtils.runOnMainThread(Runnable { view?.setSyncingContacts(false)}, 15000) // completely arbitrary
             it.setContactsLastSynced("Synced less than a minute ago")
         }
     }
 
     fun syncMessages() {
+
+
         view?.let {
-            ThreadUtils.runSingleThreadTask(MessageSyncTask(apiService, it.getApplicationContext() as BaseApplication, prefs))
+            it.setSyncingMessages(true)
+            val syncRunnable = Runnable {
+                val start = System.currentTimeMillis()
+                MessageSyncTask(apiService, it.getApplicationContext() as BaseApplication, prefs).run()
+                // Make sure 'syncing' takes at least 2s
+                val delta = System.currentTimeMillis() - start
+                if (delta < 2000) {
+                    ThreadUtils.runOnMainThread(Runnable { view?.setSyncingMessages(false)}, 2000 - delta)
+                } else {
+                    ThreadUtils.runOnMainThread(Runnable { view?.setSyncingMessages(false)})
+                }
+            }
+            ThreadUtils.runSingleThreadTask(syncRunnable)
             it.setMessagesLastSynced("Synced less than a minute ago")
         }
     }
@@ -150,6 +167,9 @@ class HomePresenter(val apiService: ApiService,
         fun setDisplayName(name: String)
         fun setDisplayEmail(email: String)
         fun setPhotoUrl(url: String)
+
+        fun setSyncingMessages(syncing: Boolean)
+        fun setSyncingContacts(syncing: Boolean)
 
     }
 
