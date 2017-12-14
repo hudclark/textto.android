@@ -24,6 +24,7 @@ import com.moduloapps.textto.R
 import com.moduloapps.textto.api.ApiService
 import com.moduloapps.textto.api.SessionController
 import com.moduloapps.textto.login.LoginActivity
+import com.moduloapps.textto.message.Sms
 import com.moduloapps.textto.onboarding.OnboardingActivity
 import com.moduloapps.textto.service.NotificationListener
 import com.moduloapps.textto.service.SmsObserverService
@@ -49,7 +50,6 @@ class MainActivity: BaseActivity(),
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         (applicationContext as BaseApplication).appComponent.inject(this)
-        Fabric.with(this, Crashlytics())
 
         // check for redirects
         if (!prefs.getBoolean(OnboardingActivity.ONBOARDING_COMPLETED, false)) {

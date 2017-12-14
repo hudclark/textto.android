@@ -8,6 +8,7 @@ import com.moduloapps.textto.di.AppComponent
 import com.moduloapps.textto.di.DaggerAppComponent
 import com.moduloapps.textto.di.PreferencesModule
 import com.squareup.leakcanary.LeakCanary
+import io.fabric.sdk.android.Fabric
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 
@@ -27,6 +28,7 @@ class BaseApplication: Application() {
                 .build()
         if (LeakCanary.isInAnalyzerProcess(this)) return
         LeakCanary.install(this)
+        Fabric.with(this, Crashlytics())
     }
 
     // TODO move this to something else

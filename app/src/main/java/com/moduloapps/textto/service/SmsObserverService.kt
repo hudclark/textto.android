@@ -3,6 +3,7 @@ package com.moduloapps.textto.service
 import android.app.Notification
 import android.app.PendingIntent
 import android.app.Service
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.support.v7.app.NotificationCompat
@@ -87,6 +88,9 @@ class SmsObserverService: Service(), TimeoutPinger.OnFailedListener {
     }
 
     private fun ensureForegroundStopped() {
+        if (!NotificationListener.isRunning) {
+            applicationContext.startService(Intent(applicationContext, NotificationListener::class.java))
+        }
         if (isForeground) {
             Log.d(TAG, "Stopping foreground")
             isForeground = false

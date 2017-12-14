@@ -55,6 +55,7 @@ class MessageSyncTask(val apiService: ApiService,
                 Mms.syncMms(mms?.get("date") ?: withinFive, mms?.get("id")?.toInt() ?: -1, context, apiService)
             }
 
+            Log.d(TAG, status.scheduledMessages.size.toString() + " texts need to be sent")
             syncScheduledMessages(status.scheduledMessages)
 
             prefs.edit().putLong(MESSAGES_LAST_SYNCED, System.currentTimeMillis()).commit()

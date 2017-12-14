@@ -49,7 +49,6 @@ class OnboardingActivity :
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         (applicationContext as BaseApplication).appComponent.inject(this)
-        Fabric.with(this, Crashlytics())
 
         setContentView(R.layout.activity_onboarding)
 

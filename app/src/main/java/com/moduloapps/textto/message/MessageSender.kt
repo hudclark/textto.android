@@ -16,6 +16,7 @@ import com.moduloapps.textto.model.Message
 import com.moduloapps.textto.model.ScheduledMessage
 import com.moduloapps.textto.service.DeliveryBroadcastReceiver
 import com.moduloapps.textto.utils.ImageUtils
+import com.moduloapps.textto.utils.ThreadUtils
 import java.io.File
 import java.io.FileOutputStream
 
@@ -33,7 +34,6 @@ object MessageSender {
     private val VALUE_NO = 0x81
 
     private val MAX_MMS_IMAGE_SIZE = 300 * 1024 // 500kb
-
 
     fun sendMessage(scheduledMessage: ScheduledMessage, context: BaseApplication) {
 
@@ -66,11 +66,11 @@ object MessageSender {
     private fun sendSmsMessage(scheduledMessage: ScheduledMessage, context: Context) {
         val recipient = scheduledMessage.addresses[0]
         Log.d(TAG, "Sending sms message to $recipient...")
-        val manager = SmsManager.getDefault()
         val intent = Intent(context, DeliveryBroadcastReceiver::class.java)
         intent.putExtra(DeliveryBroadcastReceiver.MESSAGE_ID, scheduledMessage._id)
         val pendingIntent = PendingIntent.getBroadcast(context, scheduledMessage._id.toInt(), intent, 0)
-        manager.sendTextMessage(recipient, null, scheduledMessage.body, pendingIntent, null)
+
+        SmsManager.getDefault().sendTextMessage(recipient, null, scheduledMessage.body, pendingIntent, null)
     }
 
     private fun sendMmsMessage(scheduledMessage: ScheduledMessage, context: BaseApplication) {

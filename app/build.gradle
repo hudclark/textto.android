@@ -5,13 +5,13 @@ apply plugin: 'io.fabric'
 
 ext {
     supportLibs = '25.3.0'
-    firebase = '9.4.0'
-    playServices = '9.4.0'
+    firebase = '11.4.2'
+    playServices = '11.4.2'
 }
 
 android {
     compileSdkVersion 26
-    buildToolsVersion "26.0.0"
+    buildToolsVersion '26.0.2'
 
     defaultConfig {
         applicationId "com.moduloapps.textto"

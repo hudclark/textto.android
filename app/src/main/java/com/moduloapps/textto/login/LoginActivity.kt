@@ -3,7 +3,6 @@ package com.moduloapps.textto.login
 import android.content.Intent
 import android.os.Bundle
 import android.support.design.widget.Snackbar
-import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import android.view.View
 import com.crashlytics.android.Crashlytics
@@ -19,7 +18,6 @@ import com.moduloapps.textto.R
 import com.moduloapps.textto.api.PublicApiService
 import com.moduloapps.textto.api.SessionController
 import com.moduloapps.textto.home.MainActivity
-import io.fabric.sdk.android.Fabric
 import javax.inject.Inject
 
 class LoginActivity : BaseActivity(), View.OnClickListener, LoginPresenter.View {
@@ -44,7 +42,6 @@ class LoginActivity : BaseActivity(), View.OnClickListener, LoginPresenter.View 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         (applicationContext as BaseApplication).appComponent.inject(this)
-        Fabric.with(this, Crashlytics())
 
         if (sessionController.isLoggedIn()) {
             redirectToMainActivity()
