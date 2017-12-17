@@ -1,12 +1,9 @@
 package com.moduloapps.textto.tasks
 
-import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
-import android.telephony.TelephonyManager
 import android.util.Log
 import com.crashlytics.android.Crashlytics
-import com.crashlytics.android.core.CrashlyticsListener
 import com.moduloapps.textto.BaseApplication
 import com.moduloapps.textto.api.ApiService
 import com.moduloapps.textto.message.MessageController

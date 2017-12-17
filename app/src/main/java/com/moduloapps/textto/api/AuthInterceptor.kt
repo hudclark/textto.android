@@ -27,8 +27,10 @@ class AuthInterceptor(val sessionController: SessionController): Interceptor {
                     .header(sessionController.TOKEN_HEADER, newToken)
                     .method(org.method(), org.body())
                     .build()
+            origResponse.close() // close old request
             return chain.proceed(newReq)
+        } else {
+            return origResponse
         }
-        return origResponse
     }
 }
