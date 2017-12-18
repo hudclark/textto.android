@@ -2,6 +2,7 @@ package com.moduloapps.textto.message
 
 import android.content.Context
 import android.net.Uri
+import android.provider.Telephony
 import android.text.TextUtils
 
 /**
@@ -10,36 +11,37 @@ import android.text.TextUtils
 object Thread {
 
     fun getAddresses(threadId: Int, context: Context): List<String> {
-        val uri = Uri.parse("content://mms-sms/conversations/$threadId/recipients")
-        val cur = context.contentResolver.query(uri, arrayOf("recipient_ids"), "_id=$threadId", null, null)
-
-        val addresses = ArrayList<String>()
-
-        if (cur != null && cur.moveToFirst()) {
-            val recipientIds = cur.getString(cur.getColumnIndex("recipient_ids")).split(" ")
-            recipientIds.forEach {
-                addresses.add(getRecipientAddress(it.toInt(), context))
-            }
-        }
-
-        addresses.filter {
-            (!TextUtils.isEmpty(it) && !MessageController.isMyAddress(it, context))
-        }
-
-        cur?.close()
-        return addresses
+        return getRecipientIds(threadId, context)
+                .map { getRecipientAddress(it, context) }
+                .filter { (!TextUtils.isEmpty(it) && !MessageController.isMyAddress(it, context)) }
     }
 
-    // TODO could do a _id IN (ids..) statement instead of this.
     private fun getRecipientAddress(recipientId: Int, context: Context): String {
         val uri = Uri.parse("content://mms-sms/canonical-address/$recipientId")
-        val cur = context.contentResolver.query(uri, arrayOf("address"), "_id=$recipientId", null, null)
+        val cur = context.contentResolver.query(uri, arrayOf(Telephony.TextBasedSmsColumns.ADDRESS), "${Telephony.BaseMmsColumns._ID}=$recipientId", null, null)
 
+        val address: String
         if (cur != null && cur.moveToFirst()) {
-            return cur.getString(cur.getColumnIndex("address"))
+            address = cur.getString(cur.getColumnIndex("address"))
+            cur.close()
+        } else {
+            address = ""
         }
-        cur?.close()
-        return ""
+        return address
+    }
+
+    private fun getRecipientIds(threadId: Int, context: Context): List<Int> {
+        val uri = Uri.parse("content://mms-sms/conversations/$threadId/recipients")
+        val cur = context.contentResolver.query(uri, arrayOf(Telephony.Threads.RECIPIENT_IDS), "${Telephony.Threads._ID}=$threadId", null, null)
+
+        val ids: List<Int>
+        if (cur != null && cur.moveToFirst()) {
+            ids = cur.getString(cur.getColumnIndex(Telephony.Threads.RECIPIENT_IDS)).split(" ").map { it.toInt()}
+            cur.close()
+        } else {
+            ids = ArrayList()
+        }
+        return ids
     }
 
 }

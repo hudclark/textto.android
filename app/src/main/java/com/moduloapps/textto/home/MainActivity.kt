@@ -181,10 +181,8 @@ class MainActivity: BaseActivity(),
         }
         when (v.id) {
             R.id.messages_sync -> {
-                /*
-                presenter?.syncMessages()
-                Answers.getInstance().logCustom(CustomEvent("Sync Messages Click"))
-                */
+//                presenter?.syncMessages()
+//                Answers.getInstance().logCustom(CustomEvent("Sync Messages Click"))
                 ThreadUtils.runSingleThreadTask(TestingClass(this, apiService))
             }
 
