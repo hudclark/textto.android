@@ -28,7 +28,7 @@ class MessageSyncTask(val apiService: ApiService,
 
     override fun run() {
         Log.d(TAG, "Starting sync task")
-        var isInitalSync = false
+        var isInitialSync = false
         try {
             val status = apiService.getStatusUpdate().execute().body() ?: return
 
@@ -40,7 +40,7 @@ class MessageSyncTask(val apiService: ApiService,
             if (sms == null && mms == null) {
                 // first sync
                 Log.d(TAG, "Syncing recent threads")
-                isInitalSync = true
+                isInitialSync = true
                 apiService.startInitialSync().execute()
                 MessageController.syncRecentThreads(context, apiService, 20)
             } else {
@@ -60,7 +60,7 @@ class MessageSyncTask(val apiService: ApiService,
             Crashlytics.logException(e)
             Log.e(TAG, "Error updating messages: $e")
         } finally {
-            if (isInitalSync) {
+            if (isInitialSync) {
                 try {
                     apiService.endInitialSync().execute()
                 } catch (e: Exception) {

@@ -48,7 +48,7 @@ class ImageUtils {
             return outStream.toByteArray()
         }
 
-        fun compressImage(inStream: InputStream, format: Bitmap.CompressFormat, quality: Int = 70): ByteArray {
+        fun compressImage(inStream: InputStream, format: Bitmap.CompressFormat, quality: Int = 65): ByteArray {
             val bitmap = BitmapFactory.decodeStream(inStream)
             val outStream = ByteArrayOutputStream()
             bitmap.compress(format, quality, outStream)

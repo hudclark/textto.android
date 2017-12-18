@@ -73,38 +73,34 @@ object Mms {
         val id = cur.getInt(cur.getColumnIndex("_id"))
         val threadId = cur.getInt(cur.getColumnIndex(Telephony.BaseMmsColumns.THREAD_ID))
         val date = cur.getLong(cur.getColumnIndex(Telephony.BaseMmsColumns.DATE))
-        val recipients = getSenderAndRecipients(id, context)
+        val sender = getSender(id, context)
+        val addresses = Thread.getAddresses(threadId, context)
         return Message(
                 type = "mms",
                 androidId = id,
                 threadId = threadId,
                 body = null,
-                sender = recipients.first,
-                addresses = recipients.second,
+                sender = sender,
+                addresses = addresses,
                 date = date * 1000)
     }
 
-    // TODO could use the threads table to get recipients.
-    // There was a bug where the recipients were incorrect
-    private fun getSenderAndRecipients(id: Int, context: Context): Pair<String, List<String>> {
+    private fun getSender(id: Int, context: Context): String {
         val uri = Uri.parse("content://mms/$id/addr")
         val cur = context.contentResolver.query(uri, null, "msg_id=$id", null, null)
-        val addresses = ArrayList<String>()
         var sender: String? = null
         if (cur.moveToFirst()) {
             do {
                 val address = cur.getString(cur.getColumnIndex("address"))
                 if (!TextUtils.isEmpty(address)) {
                     val isMe = MessageController.isMyAddress(address, context)
-                    if (sender == null) {
-                        sender = if (isMe) "me" else address
-                    }
-                    if (!isMe) addresses.add(address)
+                    sender = if (isMe) "me" else address
+                    break
                 }
             } while (cur.moveToNext())
         }
         cur.close()
-        return Pair(sender ?: "", addresses)
+        return sender ?: throw RuntimeException("Unable to find sender for mms " + id)
     }
 
     fun postParts(parts: List<MmsPart>, apiService: ApiService, context: Context) {

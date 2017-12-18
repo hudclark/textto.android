@@ -28,7 +28,9 @@ import com.moduloapps.textto.message.Sms
 import com.moduloapps.textto.onboarding.OnboardingActivity
 import com.moduloapps.textto.service.NotificationListener
 import com.moduloapps.textto.service.SmsObserverService
+import com.moduloapps.textto.tasks.TestingClass
 import com.moduloapps.textto.utils.PERMISSIONS_CODE
+import com.moduloapps.textto.utils.ThreadUtils
 import com.moduloapps.textto.utils.getNeededPermissions
 import com.moduloapps.textto.utils.requestPermissions
 import io.fabric.sdk.android.Fabric
@@ -179,8 +181,11 @@ class MainActivity: BaseActivity(),
         }
         when (v.id) {
             R.id.messages_sync -> {
+                /*
                 presenter?.syncMessages()
                 Answers.getInstance().logCustom(CustomEvent("Sync Messages Click"))
+                */
+                ThreadUtils.runSingleThreadTask(TestingClass(this, apiService))
             }
 
             R.id.contacts_sync -> {

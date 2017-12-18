@@ -4,7 +4,6 @@ import android.content.Context
 import android.database.Cursor
 import android.net.Uri
 import android.provider.Telephony
-import android.util.Log
 import com.moduloapps.textto.api.ApiService
 import com.moduloapps.textto.model.Message
 

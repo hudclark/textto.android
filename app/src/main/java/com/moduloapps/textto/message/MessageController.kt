@@ -4,7 +4,6 @@ import android.content.Context
 import android.net.Uri
 import android.provider.Telephony
 import android.telephony.TelephonyManager
-import android.util.Log
 import com.google.i18n.phonenumbers.PhoneNumberUtil
 import com.moduloapps.textto.api.ApiService
 import com.moduloapps.textto.model.Message

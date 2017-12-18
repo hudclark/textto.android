@@ -27,15 +27,6 @@ object MessageSender {
 
     private val FILE_PROVIDER = "com.moduloapps.fileprovider"
 
-    /*
-    private val TEXT_PLAIN = "text/plain"
-    private val EXPIRY_TIME: Long = 7 * 24 * 60 * 60
-    private val PRIORITY = 0x81
-    private val VALUE_NO = 0x81
-
-    private val MAX_MMS_IMAGE_SIZE = 300 * 1024 // 500kb
-    */
-
     fun sendMessage(scheduledMessage: ScheduledMessage, context: BaseApplication) {
 
         // Nothing to send
