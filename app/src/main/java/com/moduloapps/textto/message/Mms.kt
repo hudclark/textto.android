@@ -2,22 +2,15 @@ package com.moduloapps.textto.message
 
 import android.content.Context
 import android.database.Cursor
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.net.Uri
 import android.provider.Telephony
 import android.text.TextUtils
 import android.util.Log
 import com.crashlytics.android.Crashlytics
 import com.moduloapps.textto.api.ApiService
-import com.moduloapps.textto.api.RetryCallback
 import com.moduloapps.textto.model.Message
 import com.moduloapps.textto.model.MmsPart
 import com.moduloapps.textto.utils.ImageUtils
-import okhttp3.MediaType
-import okhttp3.RequestBody
-import retrofit2.Call
-import retrofit2.Response
 import java.io.BufferedReader
 import java.io.InputStream
 import java.io.InputStreamReader
@@ -85,24 +78,6 @@ object Mms {
                 date = date * 1000)
     }
 
-    private fun getSender(id: Int, context: Context): String {
-        val uri = Uri.parse("content://mms/$id/addr")
-        val cur = context.contentResolver.query(uri, null, "msg_id=$id", null, null)
-        var sender: String? = null
-        if (cur.moveToFirst()) {
-            do {
-                val address = cur.getString(cur.getColumnIndex("address"))
-                if (!TextUtils.isEmpty(address)) {
-                    val isMe = MessageController.isMyAddress(address, context)
-                    sender = if (isMe) "me" else address
-                    break
-                }
-            } while (cur.moveToNext())
-        }
-        cur.close()
-        return sender ?: throw RuntimeException("Unable to find sender for mms " + id)
-    }
-
     fun postParts(parts: List<MmsPart>, apiService: ApiService, context: Context) {
         val postedParts = apiService.createMmsParts(parts).execute().body()["mmsParts"]
         postedParts?.forEach {
@@ -114,14 +89,14 @@ object Mms {
 
     fun getPartsForMms(mmsId: Int, context: Context): List<MmsPart> {
         val uri = Uri.parse("content://mms/part")
-        val cur = context.contentResolver.query(uri, null, "mid=${mms.androidId}", null, null)
+        val cur = context.contentResolver.query(uri, null, "mid=${mmsId}", null, null)
         val parts = ArrayList<MmsPart>()
 
         cur.tryForEach {
             val partId = cur.getInt(cur.getColumnIndex(Telephony.Mms.Part._ID))
             val contentType = cur.getString(cur.getColumnIndex(Telephony.Mms.Part.CONTENT_TYPE))
             val data = if (isTextPart(contentType)) getMmsText(cur, context) else ""
-            val thumbnail = if (isImagePart(contentType)) getThumbnail(partId, context) else null
+            val thumbnail = if (isImagePart(contentType)) getMmsImageThumbnail(partId, context) else null
 
             parts.add(MmsPart(
                     androidId = partId,
@@ -160,65 +135,37 @@ object Mms {
         return builder.toString()
     }
 
-    private fun getThumbnail(partId: Int, context: Context): String? {
-        val uri = Uri.parse("content://mms/part/$partId")
-        var inputStream = context.contentResolver.openInputStream(uri)
+    private fun getSender(id: Int, context: Context): String {
+        val uri = Uri.parse("content://mms/$id/addr")
+        val cur = context.contentResolver.query(uri, null, "msg_id=$id", null, null)
 
-        val options = BitmapFactory.Options()
-        options.inJustDecodeBounds = true
-        BitmapFactory.decodeStream(inputStream, null, options)
-        inputStream.close()
+        val sender = cur.find {
+            val address = cur.getString(cur.getColumnIndex("address"))
+            if (!TextUtils.isEmpty(address)) {
+                val isMe = MessageController.isMyAddress(address, context)
+                return@find if (isMe) "me" else address
+            }
+            return@find null
+        }
 
-        if ((options.outWidth == -1) || (options.outHeight == -1)) return null
-
-        val originalSize = if (options.outHeight > options.outWidth) options.outHeight else options.outWidth
-        val ratio = (originalSize / 25).toDouble()
-
-        val outOptions = BitmapFactory.Options()
-        outOptions.inSampleSize = ImageUtils.getSampleRatio(ratio)
-        inputStream = context.contentResolver.openInputStream(uri)
-        val bitmap = BitmapFactory.decodeStream(inputStream, null, outOptions)
-        inputStream.close()
-        val imageString = ImageUtils.imageToBase64(bitmap)
-        bitmap.recycle()
-        return imageString
+        cur.close()
+        return sender ?: throw RuntimeException("Unable to find sender for mms " + id)
     }
-
 
     private fun uploadFullImage(contentType: String, imageUrl: String, partId: Int, context: Context, apiService: ApiService) {
         try {
             val uri = Uri.parse("content://mms/part/$partId")
-
             val stream: InputStream = context.contentResolver.openInputStream(uri)
-            val bytes: ByteArray
-
-            when (contentType) {
-                "image/gif" -> {
-                    bytes = ByteArray(stream.available())
-                    while (stream.read(bytes) != -1);
-                    stream.close()
-                }
-                "image/png" -> bytes = ImageUtils.compressImage(stream, Bitmap.CompressFormat.PNG)
-                else -> bytes = ImageUtils.compressImage(stream, Bitmap.CompressFormat.JPEG)
-            }
-
-            // upload image to aws.
-            val body = RequestBody.create(MediaType.parse(contentType), bytes)
-            apiService.putMmsImage(imageUrl, body).enqueue(object: RetryCallback<Void>(10, 1000) {
-                override fun onResponse(call: Call<Void>?, response: Response<Void>?) {
-                    Log.d(TAG, "Uploaded mms image")
-                }
-
-                override fun onFailed(t: Throwable) {
-                    // TODO could put into a queue to run when we have internet again
-                    Log.d(TAG, "Failed to upload mms image", t)
-                }
-            })
-
+            ImageUtils.uploadImage(stream, contentType, imageUrl, apiService)
         } catch (e: Exception) {
             Crashlytics.logException(e)
             Log.e(TAG, "Error uploading full size image", e)
         }
+    }
+
+    private fun getMmsImageThumbnail(partId: Int, context: Context): String? {
+        val uri = Uri.parse("content://mms/part/$partId")
+        return ImageUtils.createThumbnail(uri, context)
     }
 
     private fun isTextPart(type: String) = ("text/plain" == (type))
@@ -229,6 +176,16 @@ object Mms {
                 type == "image/gif"  ||
                 type == "image/jpg"  ||
                 type == "image/png"
+    }
+
+    private fun <T> Cursor.find(fn: (Cursor) -> T?): T? {
+        if (moveToFirst()) {
+            do {
+                val result = fn(this)
+                if (result != null) return result
+            } while (moveToNext())
+        }
+        return null
     }
 
     private fun Cursor.tryForEach(fn: (Cursor) -> Unit) {

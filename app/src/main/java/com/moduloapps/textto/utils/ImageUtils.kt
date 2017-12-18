@@ -1,9 +1,17 @@
 package com.moduloapps.textto.utils
 
+import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.net.Uri
 import android.util.Base64
 import android.util.Log
+import com.moduloapps.textto.api.ApiService
+import com.moduloapps.textto.api.RetryCallback
+import okhttp3.MediaType
+import okhttp3.RequestBody
+import retrofit2.Call
+import retrofit2.Response
 import java.io.ByteArrayOutputStream
 import java.io.InputStream
 
@@ -55,6 +63,58 @@ class ImageUtils {
             bitmap.recycle()
             outStream.close()
             return outStream.toByteArray()
+        }
+
+        fun createThumbnail(uri: Uri, context: Context): String? {
+            var inStream = context.contentResolver.openInputStream(uri)
+            val inOptions = BitmapFactory.Options()
+            inOptions.inJustDecodeBounds = true
+            BitmapFactory.decodeStream(inStream, null, inOptions)
+            inStream.close()
+
+            if ((inOptions.outWidth == -1) || (inOptions.outHeight == -1)) return null
+
+            val originalSize = if (inOptions.outHeight > inOptions.outWidth) inOptions.outHeight
+                               else inOptions.outWidth
+            val ratio = (originalSize / 25).toDouble()
+
+            val outOptions = BitmapFactory.Options()
+            outOptions.inSampleSize = getSampleRatio(ratio)
+
+            inStream = context.contentResolver.openInputStream(uri)
+
+            val bitmap = BitmapFactory.decodeStream(inStream, null, outOptions)
+            inStream.close()
+            val imageString = imageToBase64(bitmap)
+            bitmap.recycle()
+
+            return imageString
+        }
+
+        fun uploadImage(inputStream: InputStream, contentType: String, imageUrl: String, apiService: ApiService) {
+            val bytes: ByteArray = when (contentType) {
+                "image/gif" -> {
+                    val byteArray = ByteArray(inputStream.available())
+                    while (inputStream.read(byteArray) != -1);
+                    byteArray
+                }
+                "image/png" -> compressImage(inputStream, Bitmap.CompressFormat.PNG)
+                else -> compressImage(inputStream, Bitmap.CompressFormat.JPEG)
+            }
+
+            inputStream.close()
+
+            val body = RequestBody.create(MediaType.parse(contentType), bytes)
+            apiService.uploadImage(imageUrl, body).enqueue(object: RetryCallback<Void>(10, 1000) {
+                override fun onResponse(call: Call<Void>?, response: Response<Void>?) {
+                    Log.d(TAG, "Uploaded mms image")
+                }
+
+                override fun onFailed(t: Throwable) {
+                    // TODO could put into a queue to run when we have internet again
+                    Log.d(TAG, "Failed to upload mms image", t)
+                }
+            })
         }
 
         fun imageToBase64(image: Bitmap): String {

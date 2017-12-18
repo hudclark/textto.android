@@ -25,6 +25,9 @@ interface ApiService {
     @PUT
     fun putMmsImage(@Url url: String, @Body body: RequestBody): Call<Void>
 
+    @PUT
+    fun uploadImage(@Url url: String, @Body body: RequestBody): Call<Void>
+
     @GET
     fun getFile(@Url url: String): Call<ResponseBody>
 
