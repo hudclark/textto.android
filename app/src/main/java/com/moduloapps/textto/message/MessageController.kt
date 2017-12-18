@@ -72,7 +72,7 @@ object MessageController {
         val parts = ArrayList<MmsPart>()
         messages.forEach {
             if (it.type == "mms") {
-                parts.addAll(Mms.getPartsForMessage(it, context))
+                parts.addAll(Mms.getPartsForMms(it.androidId, context))
                 if (parts.size > 10) {
                     Mms.postParts(parts, apiService, context)
                     parts.clear()

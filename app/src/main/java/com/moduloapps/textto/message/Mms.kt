@@ -112,81 +112,52 @@ object Mms {
         }
     }
 
-    fun getPartsForMessage(mms: Message, context: Context): List<MmsPart> {
+    fun getPartsForMms(mmsId: Int, context: Context): List<MmsPart> {
         val uri = Uri.parse("content://mms/part")
-        val selection = "mid=${mms.androidId}"
-        val cur = context.contentResolver.query(uri, null, selection, null, null)
+        val cur = context.contentResolver.query(uri, null, "mid=${mms.androidId}", null, null)
         val parts = ArrayList<MmsPart>()
-        if (cur.moveToFirst()) {
-            do {
-                try {
-                    val partId = cur.getInt(cur.getColumnIndex("_id"))
-                    val type = cur.getString(cur.getColumnIndex("ct"))
-                    Log.d(TAG, "Part from " + mms.sender + ": " + type)
-                    if (isTextPart(type)) {
-                        val data =  cur.getString(cur.getColumnIndex("_data"))
-                        val textPart =
-                            if (data != null) {
-                                readTextData(partId, context)
-                            } else {
-                                cur.getString(cur.getColumnIndex("text"))
-                            }
-                        val part = MmsPart(
-                                androidId = partId,
-                                data = textPart,
-                                contentType = "text/plain",
-                                messageId = mms.androidId,
-                                imageUrl = null,
-                                thumbnail = null)
-                        parts.add(part)
-                    } else if (isImagePart(type)) {
-                        parts.add(createImagePart(mms, partId, type, context))
-                    }
-                } catch (e: Exception) {
-                    Log.e(TAG, "Error creating mms part", e)
-                    Crashlytics.logException(e)
-                }
 
-            } while (cur.moveToNext())
+        cur.tryForEach {
+            val partId = cur.getInt(cur.getColumnIndex(Telephony.Mms.Part._ID))
+            val contentType = cur.getString(cur.getColumnIndex(Telephony.Mms.Part.CONTENT_TYPE))
+            val data = if (isTextPart(contentType)) getMmsText(cur, context) else ""
+            val thumbnail = if (isImagePart(contentType)) getThumbnail(partId, context) else null
+
+            parts.add(MmsPart(
+                    androidId = partId,
+                    data = data,
+                    contentType = contentType,
+                    messageId = mmsId,
+                    imageUrl = null,
+                    thumbnail = thumbnail
+            ))
         }
+
         cur.close()
         return parts
     }
 
-    private fun readTextData(id: Int, context: Context): String {
-        val uri = Uri.parse("content://mms/part/" + id)
-        val builder = StringBuffer()
-        var stream: InputStream? = null
-        try {
-            stream = context.contentResolver.openInputStream(uri)
-            stream?.let {
-                val streadReader = InputStreamReader(it, "UTF-8")
-                val bufferedReader = BufferedReader(streadReader)
-                var line = bufferedReader.readLine()
-                while (line != null) {
-                    builder.append(line)
-                    line = bufferedReader.readLine()
-                }
-            }
-        } catch (e: Exception) {
-            Log.e(TAG, "Error reading mms text", e)
-            Crashlytics.logException(e)
-        } finally {
-            stream?.close()
-        }
-        return builder.toString()
+    private fun getMmsText(cur: Cursor, context: Context): String {
+        val data = cur.getString(cur.getColumnIndex(Telephony.Mms.Part._DATA))
+        val id = cur.getInt(cur.getColumnIndex(Telephony.Mms.Part._ID))
+        return  if (data != null) readTextData(id, context)
+                else cur.getString(cur.getColumnIndex(Telephony.Mms.Part.TEXT))
     }
 
-    private fun createImagePart(mms: Message, partId: Int, contentType: String, context: Context): MmsPart {
-        // create the thumbnail for the image
-        val thumbnail = getThumbnail(partId, context) ?: ""
-        return MmsPart(
-                androidId = partId,
-                data = "",
-                thumbnail = thumbnail,
-                contentType = contentType,
-                messageId = mms.androidId,
-                imageUrl = null)
+    private fun readTextData(id: Int, context: Context): String {
+        val uri = Uri.parse("content://mms/part/" + id)
+        val stream = context.contentResolver.openInputStream(uri)
+        val builder = StringBuffer()
+        stream?.let {
+            val bufferedReader = BufferedReader(InputStreamReader(it, "UTF-8"))
+            var line = bufferedReader.readLine()
+            while (line != null) {
+                builder.append(line)
+                line = bufferedReader.readLine()
+            }
+            stream.close()
+        }
+        return builder.toString()
     }
 
     private fun getThumbnail(partId: Int, context: Context): String? {
@@ -204,7 +175,7 @@ object Mms {
         val ratio = (originalSize / 25).toDouble()
 
         val outOptions = BitmapFactory.Options()
-        outOptions.inSampleSize = getSampleRatio(ratio)
+        outOptions.inSampleSize = ImageUtils.getSampleRatio(ratio)
         inputStream = context.contentResolver.openInputStream(uri)
         val bitmap = BitmapFactory.decodeStream(inputStream, null, outOptions)
         inputStream.close()
@@ -213,10 +184,6 @@ object Mms {
         return imageString
     }
 
-    private fun getSampleRatio(ratio: Double): Int {
-        val i = Integer.highestOneBit(Math.floor(ratio).toInt())
-        return if (i == 0) 1 else i
-    }
 
     private fun uploadFullImage(contentType: String, imageUrl: String, partId: Int, context: Context, apiService: ApiService) {
         try {
@@ -262,6 +229,19 @@ object Mms {
                 type == "image/gif"  ||
                 type == "image/jpg"  ||
                 type == "image/png"
+    }
+
+    private fun Cursor.tryForEach(fn: (Cursor) -> Unit) {
+        if (moveToFirst()) {
+            do {
+                try {
+                    fn(this)
+                } catch (e: Exception) {
+                    Log.e(TAG, e.toString())
+                    Crashlytics.logException(e)
+                }
+            } while (moveToNext())
+        }
     }
 
 }
