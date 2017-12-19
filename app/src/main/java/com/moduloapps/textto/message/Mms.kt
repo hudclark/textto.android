@@ -11,6 +11,8 @@ import com.moduloapps.textto.api.ApiService
 import com.moduloapps.textto.model.Message
 import com.moduloapps.textto.model.MmsPart
 import com.moduloapps.textto.utils.ImageUtils
+import com.moduloapps.textto.utils.find
+import com.moduloapps.textto.utils.tryForEach
 import java.io.BufferedReader
 import java.io.InputStream
 import java.io.InputStreamReader
@@ -89,7 +91,7 @@ object Mms {
 
     fun getPartsForMms(mmsId: Int, context: Context): List<MmsPart> {
         val uri = Uri.parse("content://mms/part")
-        val cur = context.contentResolver.query(uri, null, "mid=${mmsId}", null, null)
+        val cur = context.contentResolver.query(uri, null, "mid=$mmsId", null, null)
         val parts = ArrayList<MmsPart>()
 
         cur.tryForEach {
@@ -176,29 +178,6 @@ object Mms {
                 type == "image/gif"  ||
                 type == "image/jpg"  ||
                 type == "image/png"
-    }
-
-    private fun <T> Cursor.find(fn: (Cursor) -> T?): T? {
-        if (moveToFirst()) {
-            do {
-                val result = fn(this)
-                if (result != null) return result
-            } while (moveToNext())
-        }
-        return null
-    }
-
-    private fun Cursor.tryForEach(fn: (Cursor) -> Unit) {
-        if (moveToFirst()) {
-            do {
-                try {
-                    fn(this)
-                } catch (e: Exception) {
-                    Log.e(TAG, e.toString())
-                    Crashlytics.logException(e)
-                }
-            } while (moveToNext())
-        }
     }
 
 }

@@ -34,8 +34,6 @@ class MessageSyncTask(val apiService: ApiService,
 
             val sms = status.sms
             val mms = status.mms
-            Log.d(TAG, sms.toString())
-            Log.d(TAG, mms.toString())
 
             if (sms == null && mms == null) {
                 // first sync
@@ -64,8 +62,8 @@ class MessageSyncTask(val apiService: ApiService,
                 try {
                     apiService.endInitialSync().execute()
                 } catch (e: Exception) {
-                    Log.e(TAG, "Error ending initial sync", e)
                     Crashlytics.logException(e)
+                    Log.e(TAG, "Error ending initial sync", e)
                 }
             }
         }

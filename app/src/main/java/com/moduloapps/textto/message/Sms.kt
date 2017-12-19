@@ -6,6 +6,7 @@ import android.net.Uri
 import android.provider.Telephony
 import com.moduloapps.textto.api.ApiService
 import com.moduloapps.textto.model.Message
+import com.moduloapps.textto.utils.withFirst
 
 /**
  * Created by hudson on 8/6/17.
@@ -46,7 +47,7 @@ object Sms {
     fun getSmsForId(context: Context, id: Int): Message? {
         var message: Message? = null
         val cur = context.contentResolver.query(Uri.parse("content://sms"), null, "_id=$id", null, null)
-        if (cur.moveToFirst()) {
+        cur.withFirst {
             message = getSmsForCursor(cur)
         }
         cur.close()

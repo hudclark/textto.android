@@ -4,6 +4,7 @@ import android.content.Context
 import android.net.Uri
 import android.provider.Telephony
 import android.text.TextUtils
+import com.moduloapps.textto.utils.withFirst
 
 /**
  * Created by hudson on 12/17/17.
@@ -20,28 +21,26 @@ object Thread {
         val uri = Uri.parse("content://mms-sms/canonical-address/$recipientId")
         val cur = context.contentResolver.query(uri, arrayOf(Telephony.TextBasedSmsColumns.ADDRESS), "${Telephony.BaseMmsColumns._ID}=$recipientId", null, null)
 
-        val address: String
-        if (cur != null && cur.moveToFirst()) {
-            address = cur.getString(cur.getColumnIndex("address"))
-            cur.close()
-        } else {
-            address = ""
+        var address: String? = null
+        cur.withFirst {
+            address = it.getString(it.getColumnIndex(Telephony.TextBasedSmsColumns.ADDRESS))
         }
-        return address
+        cur.close()
+        return address ?: ""
     }
 
     private fun getRecipientIds(threadId: Int, context: Context): List<Int> {
         val uri = Uri.parse("content://mms-sms/conversations/$threadId/recipients")
         val cur = context.contentResolver.query(uri, arrayOf(Telephony.Threads.RECIPIENT_IDS), "${Telephony.Threads._ID}=$threadId", null, null)
 
-        val ids: List<Int>
-        if (cur != null && cur.moveToFirst()) {
-            ids = cur.getString(cur.getColumnIndex(Telephony.Threads.RECIPIENT_IDS)).split(" ").map { it.toInt()}
-            cur.close()
-        } else {
-            ids = ArrayList()
+        var ids: List<Int>? = null
+        cur.withFirst {
+            ids = it.getString(it.getColumnIndex(Telephony.Threads.RECIPIENT_IDS))
+                    .split(" ")
+                    .map { num -> num.toInt() }
         }
-        return ids
+        cur.close()
+        return ids ?: ArrayList()
     }
 
 }

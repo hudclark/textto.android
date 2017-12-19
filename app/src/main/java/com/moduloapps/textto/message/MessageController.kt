@@ -8,6 +8,7 @@ import com.google.i18n.phonenumbers.PhoneNumberUtil
 import com.moduloapps.textto.api.ApiService
 import com.moduloapps.textto.model.Message
 import com.moduloapps.textto.model.MmsPart
+import com.moduloapps.textto.utils.forEach
 import java.util.*
 
 /**
@@ -29,20 +30,20 @@ object MessageController {
         val projection = arrayOf("_id", "type", "date")
         val cur = context.contentResolver.query(uri, projection, null, null, "date DESC LIMIT $limit")
         val messages = ArrayList<Message>()
-        if (cur.moveToFirst()) {
-            do {
-                val contentType = cur.getString(cur.getColumnIndex("type"))
-                val id = cur.getInt(cur.getColumnIndex("_id"))
-                if (contentType == null) {
-                    Mms.getMmsForId(context, id)?.let { messages.add(it) }
-                } else {
-                    Sms.getSmsForId(context, id)?.let { messages.add(it) }
-                }
-                if (messages.size > 100) {
-                    postMessages(messages, context, apiService)
-                }
-            } while (cur.moveToNext())
+
+        cur.forEach {
+            val contentType = cur.getString(cur.getColumnIndex("type"))
+            val id = cur.getInt(cur.getColumnIndex("_id"))
+            if (contentType == null) {
+                Mms.getMmsForId(context, id)?.let { messages.add(it) }
+            } else {
+                Sms.getSmsForId(context, id)?.let { messages.add(it) }
+            }
+            if (messages.size > 100) {
+                postMessages(messages, context, apiService)
+            }
         }
+
         cur.close()
 
         if (messages.isNotEmpty()) {
@@ -63,6 +64,7 @@ object MessageController {
                 counter++
             } while (cur.moveToNext() && counter < 15)
         }
+
         cur.close()
         return threads
     }
@@ -91,6 +93,7 @@ object MessageController {
                 result == PhoneNumberUtil.MatchType.NSN_MATCH)
     }
 
+    // TODO
     fun getSimNumber(context: Context) =
             (context.getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager).line1Number
 
