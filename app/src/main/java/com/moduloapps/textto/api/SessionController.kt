@@ -11,14 +11,18 @@ import com.google.gson.JsonObject
  */
 class SessionController(var apiService: PublicApiService, val prefs: SharedPreferences) {
 
-    private val TAG = "Session Manager"
 
-    private val AUTH_TOKEN = "AUTH_TOKEN"
-    private val REFRESH_TOKEN = "REFRESH_TOKEN"
+    companion object {
+        private const val TAG = "Session Manager"
 
-    private val PROFILE_IMAGE = "PROFILE_IMAGE"
-    private val DISPLAY_NAME = "DISPLAY_NAME"
-    private val DISPLAY_EMAIL = "DISPLAY_EMAIL"
+        private const val AUTH_TOKEN = "AUTH_TOKEN"
+        private const val REFRESH_TOKEN = "REFRESH_TOKEN"
+
+        private const val PROFILE_IMAGE = "PROFILE_IMAGE"
+        private const val DISPLAY_NAME = "DISPLAY_NAME"
+        private const val DISPLAY_EMAIL = "DISPLAY_EMAIL"
+
+    }
 
     val TOKEN_HEADER = "x-access-token"
 

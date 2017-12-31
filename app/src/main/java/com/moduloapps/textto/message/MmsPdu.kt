@@ -182,8 +182,6 @@ class MmsPdu(private val to: Array<String>) {
                     "<par dur=\"8000ms\">" +
                     "<text src=\"text_0.txt\" region=\"Text\"/>"
 
-
-
     interface MmsImage {
         fun getContentType(): String
         fun getByteStream(): InputStream

@@ -170,8 +170,7 @@ object Mms {
         return ImageUtils.createThumbnail(uri, context)
     }
 
-    private fun isTextPart(type: String) = ("text/plain" == (type))
-
+    private fun isTextPart(type: String) = "text/plain" == (type)
     private fun isImagePart(type: String): Boolean {
         return  type == "image/jpeg" ||
                 type == "image/bmp"  ||

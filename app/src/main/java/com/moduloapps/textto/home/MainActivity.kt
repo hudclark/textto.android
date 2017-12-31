@@ -3,17 +3,12 @@ package com.moduloapps.textto.home;
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
-import android.support.annotation.LayoutRes
 import android.support.design.widget.Snackbar
-import android.support.v4.content.ContextCompat
 import android.support.v7.app.AlertDialog
-import android.support.v7.app.AppCompatActivity
-import android.util.Log
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
 import com.bumptech.glide.Glide
-import com.crashlytics.android.Crashlytics
 import com.crashlytics.android.answers.Answers
 import com.crashlytics.android.answers.CustomEvent
 import com.google.android.gms.auth.api.Auth
@@ -24,16 +19,12 @@ import com.moduloapps.textto.R
 import com.moduloapps.textto.api.ApiService
 import com.moduloapps.textto.api.SessionController
 import com.moduloapps.textto.login.LoginActivity
-import com.moduloapps.textto.message.Sms
 import com.moduloapps.textto.onboarding.OnboardingActivity
 import com.moduloapps.textto.service.NotificationListener
 import com.moduloapps.textto.service.SmsObserverService
-import com.moduloapps.textto.tasks.TestingClass
 import com.moduloapps.textto.utils.PERMISSIONS_CODE
-import com.moduloapps.textto.utils.ThreadUtils
 import com.moduloapps.textto.utils.getNeededPermissions
 import com.moduloapps.textto.utils.requestPermissions
-import io.fabric.sdk.android.Fabric
 import javax.inject.Inject
 
 
@@ -81,14 +72,19 @@ class MainActivity: BaseActivity(),
         // init presenter
         if (presenter == null)
             presenter = HomePresenter(apiService, sessionController, prefs)
-        presenter!!.onTakeView(this)
-        presenter!!.loadUser()
 
-        if (intent.getBooleanExtra(LoginActivity.DID_LOG_IN, false)) {
-            startService(Intent(this, SmsObserverService::class.java))
-            presenter?.syncMessages()
-            presenter?.syncContacts()
+        with (presenter!!) {
+            onTakeView(this@MainActivity)
+            loadUser()
+
+            // On login start services and sync up
+            if (intent.getBooleanExtra(LoginActivity.DID_LOG_IN, false)) {
+                startService(Intent(this@MainActivity, SmsObserverService::class.java))
+                syncMessages()
+                syncContacts()
+            }
         }
+
     }
 
     override fun onResume() {
@@ -102,6 +98,7 @@ class MainActivity: BaseActivity(),
             presenter?.loadSyncTimes()
         }
 
+        // show/hide notification card
         val notificationsEnabled = NotificationListener.isEnabled(this)
         findViewById(R.id.notification_card).visibility = if (notificationsEnabled) View.GONE else View.VISIBLE
         if (!notificationsEnabled) {
@@ -181,9 +178,9 @@ class MainActivity: BaseActivity(),
         }
         when (v.id) {
             R.id.messages_sync -> {
-//                presenter?.syncMessages()
-//                Answers.getInstance().logCustom(CustomEvent("Sync Messages Click"))
-                ThreadUtils.runSingleThreadTask(TestingClass(this, apiService))
+                presenter?.syncMessages()
+                Answers.getInstance().logCustom(CustomEvent("Sync Messages Click"))
+                //ThreadUtils.runSingleThreadTask(TestingClass(this, apiService))
             }
 
             R.id.contacts_sync -> {

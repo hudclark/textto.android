@@ -15,7 +15,7 @@ android {
 
     defaultConfig {
         applicationId "com.moduloapps.textto"
-        minSdkVersion 19
+        minSdkVersion 21
         targetSdkVersion 23
         versionCode 1
         versionName "1.0"
@@ -44,7 +44,6 @@ dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
 
     task coreDependencies {
-        compile "com.google.firebase:firebase-core:$firebase"
         compile "com.google.firebase:firebase-messaging:$firebase"
 
         compile "com.android.support:appcompat-v7:$supportLibs"

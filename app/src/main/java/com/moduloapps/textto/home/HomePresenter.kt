@@ -4,11 +4,8 @@ import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.net.Uri
-import android.os.Handler
-import android.os.Looper
 import android.util.Log
 import com.google.android.gms.auth.api.Auth
-import com.google.android.gms.auth.api.signin.GoogleSignInApi
 import com.google.android.gms.common.api.GoogleApiClient
 import com.moduloapps.textto.BaseApplication
 import com.moduloapps.textto.api.ApiService
@@ -41,7 +38,7 @@ class HomePresenter(val apiService: ApiService,
         val contactsLastSynced = prefs.getLong(ContactSyncService.CONTACTS_LAST_SYNCED, 0)
         view?.let {
             it.setMessagesLastSynced(formatSyncTime(messagesLastSynced))
-            it.setContactsLastSynced(formatSyncTime(contactsLastSynced)) // todo
+            it.setContactsLastSynced(formatSyncTime(contactsLastSynced))
         }
     }
 

@@ -1,8 +1,10 @@
 package com.moduloapps.textto.message
 
 import android.content.Context
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.provider.Telephony
+import android.support.v4.content.ContextCompat
 import android.telephony.TelephonyManager
 import com.google.i18n.phonenumbers.PhoneNumberUtil
 import com.moduloapps.textto.api.ApiService
@@ -93,9 +95,12 @@ object MessageController {
                 result == PhoneNumberUtil.MatchType.NSN_MATCH)
     }
 
-    // TODO
-    fun getSimNumber(context: Context) =
-            (context.getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager).line1Number
+    fun getSimNumber(context: Context): String? {
+        if (ContextCompat.checkSelfPermission(context, Context.TELECOM_SERVICE) == PackageManager.PERMISSION_GRANTED) {
+            return (context.getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager).line1Number
+        }
+        return null
+    }
 
 
 }
