@@ -37,7 +37,8 @@ class LoginPresenter(val apiService: PublicApiService, val sessionController: Se
                 return
             }
         }
-        view?.onLoginFailure("Unable to sign in")
+        Crashlytics.log(1, "invalidSignInResult", result.status.toString())
+        view?.onLoginFailure("Unable to sign in ${result.status}")
     }
 
     private fun logIn(token: String, account: GoogleSignInAccount?) {
