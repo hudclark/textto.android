@@ -11,7 +11,7 @@
     <LinearLayout
         android:id="@+id/permission_title"
         android:orientation="vertical"
-        android:layout_marginTop="100dp"
+        android:layout_marginTop="96dp"
         android:layout_gravity="center_horizontal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
@@ -35,16 +35,17 @@
     </LinearLayout>
 
     <LinearLayout
+        android:paddingTop="16dp"
         android:layout_centerHorizontal="true"
         android:id="@+id/permission_items"
-        android:layout_centerInParent="true"
+        android:layout_below="@id/permission_title"
         android:orientation="vertical"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content">
 
         <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="76dp"
+            android:layout_height="wrap_content"
             android:padding="16dp">
 
             <ImageView
@@ -68,7 +69,7 @@
                 android:textColor="@color/textWhite"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignParentBottom="true"
+                android:layout_below="@id/permission_item_title"
                 android:layout_marginLeft="16dp"
                 android:layout_toRightOf="@id/permission_item_image"
                 android:gravity="bottom"
@@ -101,7 +102,7 @@
                 android:textColor="@color/textWhite"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignParentBottom="true"
+                android:layout_below="@id/permission_item_title_1"
                 android:layout_marginLeft="16dp"
                 android:layout_toRightOf="@id/permission_item_image_1"
                 android:gravity="bottom"
