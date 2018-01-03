@@ -10,6 +10,7 @@ import android.net.Uri
 import android.os.Looper
 import android.provider.ContactsContract
 import android.support.v4.app.NotificationCompat
+import android.support.v4.content.ContextCompat
 import android.util.Base64
 import android.util.Log
 import com.crashlytics.android.Crashlytics
@@ -18,6 +19,8 @@ import com.moduloapps.textto.R
 import com.moduloapps.textto.api.ApiService
 import com.moduloapps.textto.home.MainActivity
 import com.moduloapps.textto.model.Contact
+import io.fabric.sdk.android.services.common.Crash
+import java.security.Permissions
 import javax.inject.Inject
 
 /**
@@ -37,9 +40,14 @@ class ContactSyncService : Service() {
     override fun onCreate() {
         super.onCreate()
         (applicationContext as BaseApplication).appComponent.inject(this)
+
         val runnable = Runnable {
             startForeground(2, createNotification())
-            syncContacts()
+            try {
+                syncContacts()
+            } catch (e: Exception) {
+                Crashlytics.logException(e)
+            }
             Looper.getMainLooper().run {
                 Log.d(TAG, "Finished sync")
                 stopSelf()

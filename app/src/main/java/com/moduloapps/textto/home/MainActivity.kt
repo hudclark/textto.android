@@ -93,13 +93,17 @@ class MainActivity: BaseActivity(),
             redirectToActivity(LoginActivity::class.java)
             return
         }
+
+        val notificationsEnabled = NotificationListener.isEnabled(this)
+
         presenter?.checkPermissions()
         if (!intent.getBooleanExtra(LoginActivity.DID_LOG_IN, false)) {
             presenter?.loadSyncTimes()
+        } else if (!notificationsEnabled) {
+            openNotificationSettings()
         }
 
         // show/hide notification card
-        val notificationsEnabled = NotificationListener.isEnabled(this)
         findViewById(R.id.notification_card).visibility = if (notificationsEnabled) View.GONE else View.VISIBLE
         if (!notificationsEnabled) {
             findViewById(R.id.enable_notifications).setOnClickListener { openNotificationSettings() }
