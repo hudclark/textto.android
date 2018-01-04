@@ -4,7 +4,6 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.support.design.widget.Snackbar
-import android.support.v7.app.AlertDialog
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
@@ -18,6 +17,7 @@ import com.moduloapps.textto.BaseApplication
 import com.moduloapps.textto.R
 import com.moduloapps.textto.api.ApiService
 import com.moduloapps.textto.api.SessionController
+import com.moduloapps.textto.dialog.EnableNotificationsDialog
 import com.moduloapps.textto.login.LoginActivity
 import com.moduloapps.textto.onboarding.OnboardingActivity
 import com.moduloapps.textto.service.NotificationListener
@@ -195,15 +195,7 @@ class MainActivity: BaseActivity(),
     }
 
     private fun openNotificationSettings() {
-        AlertDialog.Builder(this)
-                .setTitle(R.string.enable_notification_access)
-                .setMessage(R.string.enable_notification_message)
-                .setPositiveButton(R.string.enable, { d, _ ->
-                    startActivity(Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS"))
-                    Answers.getInstance().logCustom(CustomEvent("Enable Notifications"))
-                    d.dismiss()
-                })
-                .show()
+        EnableNotificationsDialog(this).show()
     }
 
     private fun initSyncButtons() {

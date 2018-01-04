@@ -13,6 +13,7 @@
     <color name="textWhite">#ffffffff</color>
     <color name="textSecondary">#a5ffffff</color>
     <color name="divider">#1affffff</color>
+    <color name="gray">#555</color>
 
     <color name="textDark">#454545</color>
 

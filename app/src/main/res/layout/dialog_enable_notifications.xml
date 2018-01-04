@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  ~ Copyright (c) 2018. Modulo Apps LLC
+  -->
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center"
+    android:background="@color/white">
+
+    <FrameLayout
+        android:id="@+id/dialog_header"
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:background="@drawable/home_gradient"/>
+
+    <ImageView
+        android:id="@+id/dialog_image"
+        android:layout_width="128dp"
+        android:layout_height="128dp"
+        android:layout_below="@id/dialog_header"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="-72dp"
+        android:src="@drawable/ic_notification" />
+
+    <LinearLayout
+        android:id="@+id/dialog_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/dialog_image"
+        android:layout_marginTop="16dp"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:text="@string/enable_notification_access"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/enable_notification_message" />
+
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/btn_enable"
+        style="@style/Widget.AppCompat.Button.Borderless.Colored"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_below="@id/dialog_text"
+        android:layout_marginBottom="16dp"
+        android:layout_marginRight="16dp"
+        android:text="@string/enable"
+        android:textColor="@color/blue" />
+
+    <Button
+        android:id="@+id/btn_dismiss"
+        style="@style/Widget.AppCompat.Button.Borderless.Colored"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/dialog_text"
+        android:layout_toLeftOf="@id/btn_enable"
+        android:text="@string/dismiss"
+        android:textColor="@color/gray" />
+
+</RelativeLayout>
