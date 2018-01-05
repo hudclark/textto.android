@@ -75,12 +75,7 @@ class HomePresenter(val apiService: ApiService,
     // TODO could refresh from server
     fun loadUser() {
         view?.let {
-            val photoUrl = sessionController.getProfileImage()
-            val displayName = sessionController.getDisplayName()
             val displayEmail = sessionController.getDisplayEmail()
-
-            it.setPhotoUrl(photoUrl)
-            it.setDisplayName(displayName)
             it.setDisplayEmail(displayEmail)
         }
     }
@@ -161,9 +156,7 @@ class HomePresenter(val apiService: ApiService,
         fun showRequestPermissions()
         fun redirectToLogin()
 
-        fun setDisplayName(name: String)
         fun setDisplayEmail(email: String)
-        fun setPhotoUrl(url: String)
 
         fun setSyncingMessages(syncing: Boolean)
         fun setSyncingContacts(syncing: Boolean)

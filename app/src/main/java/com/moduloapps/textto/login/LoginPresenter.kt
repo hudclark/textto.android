@@ -14,6 +14,7 @@ import com.moduloapps.textto.api.SessionController
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import java.util.*
 
 /**
  * Created by hudson on 11/29/16.
@@ -47,6 +48,7 @@ class LoginPresenter(val apiService: PublicApiService, val sessionController: Se
         data.addProperty("token", token)
         data.addProperty("platform", android.os.Build.MODEL)
         data.addProperty("deviceId", getDeviceId(context))
+        data.addProperty("countryCode", getCountryCode())
         apiService.googleAuth(data).enqueue(object: Callback<JsonObject> {
             override fun onFailure(call: Call<JsonObject>?, t: Throwable?) {
                 Log.e(TAG, "Unable to authenticate: $t")
@@ -77,6 +79,7 @@ class LoginPresenter(val apiService: PublicApiService, val sessionController: Se
     }
 
     private fun getDeviceId(context: Context) = Settings.Secure.getString(context.contentResolver, Settings.Secure.ANDROID_ID)
+    private fun getCountryCode() = Locale.getDefault().country
 
     interface View {
         fun onLoginSuccess()

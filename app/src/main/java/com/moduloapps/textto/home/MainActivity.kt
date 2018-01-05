@@ -4,10 +4,9 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.support.design.widget.Snackbar
+import android.util.Log
 import android.view.View
-import android.widget.ImageView
 import android.widget.TextView
-import com.bumptech.glide.Glide
 import com.crashlytics.android.answers.Answers
 import com.crashlytics.android.answers.CustomEvent
 import com.google.android.gms.auth.api.Auth
@@ -95,6 +94,7 @@ class MainActivity: BaseActivity(),
         }
 
         val notificationsEnabled = NotificationListener.isEnabled(this)
+        Log.d(TAG, "Notifications enabled: $notificationsEnabled")
 
         presenter?.checkPermissions()
         if (!intent.getBooleanExtra(LoginActivity.DID_LOG_IN, false)) {
@@ -104,7 +104,7 @@ class MainActivity: BaseActivity(),
         }
 
         // show/hide notification card
-        findViewById(R.id.notification_card).visibility = if (notificationsEnabled) View.GONE else View.VISIBLE
+        findViewById(R.id.notifications_card).visibility = if (notificationsEnabled) View.GONE else View.VISIBLE
         if (!notificationsEnabled) {
             findViewById(R.id.enable_notifications).setOnClickListener { openNotificationSettings() }
         }
@@ -125,23 +125,9 @@ class MainActivity: BaseActivity(),
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
     }
 
-    override fun setDisplayName(name: String) {
-        val displayName = findViewById(R.id.user_name) as TextView
-        displayName.text = name
-    }
-
     override fun setDisplayEmail(email: String) {
         val displayEmail = findViewById(R.id.user_email) as TextView
         displayEmail.text = email
-    }
-
-    override fun setPhotoUrl(url: String) {
-        val profilePicture = findViewById(R.id.profile_picture) as ImageView
-        if (url.isNotEmpty()) {
-            Glide.with(this)
-                    .load(url)
-                    .into(profilePicture)
-        }
     }
 
     override fun showRequestPermissions() {

@@ -1,3 +1,7 @@
 <component name="CopyrightManager">
-  <settings default="" />
+  <settings default="Modulo Apps LLC">
+    <module2copyright>
+      <element module="Project Files" copyright="Modulo Apps LLC" />
+    </module2copyright>
+  </settings>
 </component>
