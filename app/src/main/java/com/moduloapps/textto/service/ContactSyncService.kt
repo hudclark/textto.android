@@ -78,7 +78,7 @@ class ContactSyncService : Service() {
         val contacts = readContacts()
         val postContent = ArrayList<Contact>(20)
         contacts.forEach {
-            if (postContent.size == 80) {
+            if (postContent.size == 200) {
                 postContacts(postContent)
                 postContent.clear()
             } else {

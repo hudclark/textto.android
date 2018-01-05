@@ -6,6 +6,7 @@ import android.net.Uri
 import android.provider.Telephony
 import android.support.v4.content.ContextCompat
 import android.telephony.TelephonyManager
+import android.util.Log
 import com.google.i18n.phonenumbers.PhoneNumberUtil
 import com.moduloapps.textto.api.ApiService
 import com.moduloapps.textto.model.Message
@@ -19,15 +20,48 @@ import java.util.*
 object MessageController {
 
     private val TAG = "MessageController"
+    private val MAX_MESSAGES_FOR_REQUEST = 400
+    private val MAX_PARTS_FOR_REQUEST = 150
 
     fun syncRecentThreads(context: Context, apiService: ApiService, messagesPerThread: Int) {
         val threads = getTwentyRecentThreads(context)
+
+        val messages = ArrayList<Message>()
+        val parts = ArrayList<MmsPart>()
+
         threads.forEach {
-            syncMessagesForThread(context, apiService, it, messagesPerThread)
+            val threadMessages = getMessagesForThread(context, apiService, it, messagesPerThread)
+            messages.filter { it.type == "mms" }
+                    .forEach {
+                        parts.addAll(Mms.getPartsForMms(it.androidId, context))
+                    }
+
+            messages.addAll(threadMessages)
+
+            if (messages.size > MAX_MESSAGES_FOR_REQUEST) {
+                apiService.createMessages(messages).execute()
+                messages.clear()
+            }
+
+            if (parts.size > MAX_PARTS_FOR_REQUEST) {
+                Log.e(TAG, parts.toString())
+                Mms.postParts(parts, apiService, context)
+                parts.clear()
+            }
         }
+
+        if (messages.isNotEmpty()) {
+            apiService.createMessages(messages).execute()
+        }
+
+        if (parts.isNotEmpty()) {
+            Log.e(TAG, parts.toString())
+            Mms.postParts(parts, apiService, context)
+        }
+
     }
 
-    private fun syncMessagesForThread(context: Context, apiService: ApiService, threadId: Int, limit: Int) {
+    private fun getMessagesForThread(context: Context, apiService: ApiService, threadId: Int, limit: Int): ArrayList<Message> {
         val uri = Uri.parse("content://mms-sms/conversations/$threadId?simple=true")
         val projection = arrayOf("_id", "type", "date")
         val cur = context.contentResolver.query(uri, projection, null, null, "date DESC LIMIT $limit")
@@ -48,9 +82,7 @@ object MessageController {
 
         cur.close()
 
-        if (messages.isNotEmpty()) {
-            postMessages(messages, context, apiService)
-        }
+        return messages
     }
 
     private fun getTwentyRecentThreads(context: Context): List<Int> {
