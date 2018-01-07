@@ -31,9 +31,9 @@ class EnableNotificationsDialog(private val activity: Activity) {
                 .create()
 
         view.findViewById<View>(R.id.btn_enable).setOnClickListener {
+            dialog.dismiss()
             activity.startActivity(Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS"))
             Answers.getInstance().logCustom(CustomEvent("Enable Notifications"))
-
         }
 
         view.findViewById<View>(R.id.btn_dismiss).setOnClickListener {
