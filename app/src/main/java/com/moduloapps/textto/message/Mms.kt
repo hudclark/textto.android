@@ -97,17 +97,19 @@ object Mms {
         cur.tryForEach {
             val partId = cur.getInt(cur.getColumnIndex(Telephony.Mms.Part._ID))
             val contentType = cur.getString(cur.getColumnIndex(Telephony.Mms.Part.CONTENT_TYPE))
-            val data = if (isTextPart(contentType)) getMmsText(cur, context) else ""
-            val thumbnail = if (isImagePart(contentType)) getMmsImageThumbnail(partId, context) else null
+            if (contentType != "application/smil") {
+                val data = if (isTextPart(contentType)) getMmsText(cur, context) else ""
+                val thumbnail = if (isImagePart(contentType)) getMmsImageThumbnail(partId, context) else null
 
-            parts.add(MmsPart(
-                    androidId = partId,
-                    data = data,
-                    contentType = contentType,
-                    messageId = mmsId,
-                    imageUrl = null,
-                    thumbnail = thumbnail
-            ))
+                parts.add(MmsPart(
+                        androidId = partId,
+                        data = data,
+                        contentType = contentType,
+                        messageId = mmsId,
+                        imageUrl = null,
+                        thumbnail = thumbnail
+                ))
+            }
         }
 
         cur.close()
@@ -139,9 +141,11 @@ object Mms {
 
     private fun getSender(id: Int, context: Context): String {
         val uri = Uri.parse("content://mms/$id/addr")
-        val cur = context.contentResolver.query(uri, null, "msg_id=$id", null, null)
+        // TODO test and make sure that this works correctly
+        val selection = "type=137 AND msg_id=$id"
+        val cur = context.contentResolver.query(uri, arrayOf("address"), selection, null, null)
 
-        val sender = cur.find {
+        val sender = cur?.find {
             val address = cur.getString(cur.getColumnIndex("address"))
             if (!TextUtils.isEmpty(address)) {
                 val isMe = MessageController.isMyAddress(address, context)
@@ -150,7 +154,7 @@ object Mms {
             return@find null
         }
 
-        cur.close()
+        cur?.close()
         return sender ?: throw RuntimeException("Unable to find sender for mms " + id)
     }
 

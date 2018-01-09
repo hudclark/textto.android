@@ -30,8 +30,8 @@ object MessageController {
         val parts = ArrayList<MmsPart>()
 
         threads.forEach {
-            val threadMessages = getMessagesForThread(context, apiService, it, messagesPerThread)
-            messages.filter { it.type == "mms" }
+            val threadMessages = getMessagesForThread(context, it, messagesPerThread)
+            threadMessages.filter { it.type == "mms" }
                     .forEach {
                         parts.addAll(Mms.getPartsForMms(it.androidId, context))
                     }
@@ -44,7 +44,6 @@ object MessageController {
             }
 
             if (parts.size > MAX_PARTS_FOR_REQUEST) {
-                Log.e(TAG, parts.toString())
                 Mms.postParts(parts, apiService, context)
                 parts.clear()
             }
@@ -55,13 +54,12 @@ object MessageController {
         }
 
         if (parts.isNotEmpty()) {
-            Log.e(TAG, parts.toString())
             Mms.postParts(parts, apiService, context)
         }
 
     }
 
-    private fun getMessagesForThread(context: Context, apiService: ApiService, threadId: Int, limit: Int): ArrayList<Message> {
+    private fun getMessagesForThread(context: Context, threadId: Int, limit: Int): ArrayList<Message> {
         val uri = Uri.parse("content://mms-sms/conversations/$threadId?simple=true")
         val projection = arrayOf("_id", "type", "date")
         val cur = context.contentResolver.query(uri, projection, null, null, "date DESC LIMIT $limit")
@@ -70,13 +68,11 @@ object MessageController {
         cur.forEach {
             val contentType = cur.getString(cur.getColumnIndex("type"))
             val id = cur.getInt(cur.getColumnIndex("_id"))
+            Log.e("TEST", "Found message with id $id")
             if (contentType == null) {
                 Mms.getMmsForId(context, id)?.let { messages.add(it) }
             } else {
                 Sms.getSmsForId(context, id)?.let { messages.add(it) }
-            }
-            if (messages.size > 100) {
-                postMessages(messages, context, apiService)
             }
         }
 
