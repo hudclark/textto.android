@@ -8,6 +8,8 @@ import android.support.v4.content.ContextCompat
 import android.telephony.TelephonyManager
 import com.google.i18n.phonenumbers.PhoneNumberUtil
 import com.moduloapps.textto.api.ApiService
+import com.moduloapps.textto.api.MAX_MESSAGES_PER_REQUEST
+import com.moduloapps.textto.api.MAX_MMS_PARTS_PER_REQUEST
 import com.moduloapps.textto.model.Message
 import com.moduloapps.textto.model.MmsPart
 import com.moduloapps.textto.utils.forEach
@@ -20,8 +22,6 @@ import java.util.*
 object MessageController {
 
     private val TAG = "MessageController"
-    private val MAX_MESSAGES_FOR_REQUEST = 400
-    private val MAX_PARTS_FOR_REQUEST = 150
 
     fun syncRecentThreads(context: Context, apiService: ApiService, messagesPerThread: Int) {
         val threads = getTwentyRecentThreads(context)
@@ -38,12 +38,12 @@ object MessageController {
             messages.addAll(threadMessages)
             parts.addAll(threadParts)
 
-            if (messages.size > MAX_MESSAGES_FOR_REQUEST) {
+            if (messages.size > MAX_MESSAGES_PER_REQUEST) {
                 apiService.createMessages(messages).execute()
                 messages.clear()
             }
 
-            if (parts.size > MAX_PARTS_FOR_REQUEST) {
+            if (parts.size > MAX_MMS_PARTS_PER_REQUEST) {
                 Mms.postParts(parts, apiService, context)
                 parts.clear()
             }
@@ -104,7 +104,7 @@ object MessageController {
         // post mms parts
         messages.filter { it.type == "mms" }
                 .flatMap { Mms.getPartsForMms(it.androidId, context) }
-                .chunked(50) // TODO can converge on the 'best' value here.
+                .chunked(MAX_MMS_PARTS_PER_REQUEST)
                 .forEach { Mms.postParts(it, apiService, context) }
     }
 

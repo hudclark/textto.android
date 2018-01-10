@@ -8,6 +8,7 @@ import android.text.TextUtils
 import android.util.Log
 import com.crashlytics.android.Crashlytics
 import com.moduloapps.textto.api.ApiService
+import com.moduloapps.textto.api.MAX_MESSAGES_PER_REQUEST
 import com.moduloapps.textto.model.Message
 import com.moduloapps.textto.model.MmsPart
 import com.moduloapps.textto.utils.*
@@ -21,7 +22,6 @@ import java.io.InputStreamReader
 object Mms {
 
     private val TAG = "Mms"
-    private val MAX_MESSAGES = 400
 
     fun syncMms(date: Long, id: Int, context: Context, apiService: ApiService) {
         // mms date bug
@@ -35,7 +35,7 @@ object Mms {
         cur.whileUnder(messageCount, {
             val message = getMmsForCursor(it, context)
             messages.add(message)
-            if (messages.size > MAX_MESSAGES) {
+            if (messages.size > MAX_MESSAGES_PER_REQUEST) {
                 MessageController.postMessages(messages, context, apiService)
                 messages.clear()
             }

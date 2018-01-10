@@ -17,6 +17,7 @@ import com.crashlytics.android.Crashlytics
 import com.moduloapps.textto.BaseApplication
 import com.moduloapps.textto.R
 import com.moduloapps.textto.api.ApiService
+import com.moduloapps.textto.api.MAX_CONTACTS_PER_REQUEST
 import com.moduloapps.textto.home.MainActivity
 import com.moduloapps.textto.model.Contact
 import com.moduloapps.textto.utils.tryForEach
@@ -35,7 +36,6 @@ class ContactSyncService : Service() {
 
     companion object {
         val CONTACTS_LAST_SYNCED = "contacts_last_synced"
-        const val MAX_CONTACS_PER_REQUEST = 100
     }
 
     override fun onCreate() {
@@ -78,7 +78,7 @@ class ContactSyncService : Service() {
     private fun syncContacts() {
         Log.d(TAG, "Start contacts sync")
         readContacts()
-                .chunked(MAX_CONTACS_PER_REQUEST)
+                .chunked(MAX_CONTACTS_PER_REQUEST)
                 .forEach { postContacts(it) }
     }
 

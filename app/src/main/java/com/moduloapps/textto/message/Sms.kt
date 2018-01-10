@@ -5,6 +5,7 @@ import android.database.Cursor
 import android.net.Uri
 import android.provider.Telephony
 import com.moduloapps.textto.api.ApiService
+import com.moduloapps.textto.api.MAX_MESSAGES_PER_REQUEST
 import com.moduloapps.textto.model.Message
 import com.moduloapps.textto.utils.whileUnder
 import com.moduloapps.textto.utils.withFirst
@@ -13,8 +14,6 @@ import com.moduloapps.textto.utils.withFirst
  * Created by hudson on 8/6/17.
  */
 object Sms {
-
-    private val MAX_MESSAGES = 400
 
     /**
      * Will push sms up to last id to server
@@ -28,7 +27,7 @@ object Sms {
         cur.whileUnder(messageCount, {
             getSmsForCursor(it)?.let { sms ->
                 messages.add(sms)
-                if (messages.size > MAX_MESSAGES) {
+                if (messages.size > MAX_MESSAGES_PER_REQUEST) {
                     MessageController.postMessages(messages, context, apiService)
                     messages.clear()
                 }
