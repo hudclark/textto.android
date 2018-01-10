@@ -23,9 +23,9 @@ android {
     buildTypes {
         debug {
             minifyEnabled true
-            buildConfigField "String", "API_URL", '"https://api.textto.io"'
+            //buildConfigField "String", "API_URL", '"https://api.textto.io"'
             //buildConfigField "String", "API_URL", '"http://10.0.2.2:5000"'
-            //buildConfigField "String", "API_URL", '"http://35.1.91.219:8000"'
+            buildConfigField "String", "API_URL", '"http://192.168.0.24:8000"'
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
         release {

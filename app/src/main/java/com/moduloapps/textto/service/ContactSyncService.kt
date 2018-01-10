@@ -19,6 +19,9 @@ import com.moduloapps.textto.R
 import com.moduloapps.textto.api.ApiService
 import com.moduloapps.textto.home.MainActivity
 import com.moduloapps.textto.model.Contact
+import com.moduloapps.textto.utils.forEach
+import com.moduloapps.textto.utils.tryForEach
+import com.moduloapps.textto.utils.withFirst
 import io.fabric.sdk.android.services.common.Crash
 import java.security.Permissions
 import javax.inject.Inject
@@ -75,18 +78,9 @@ class ContactSyncService : Service() {
 
     private fun syncContacts() {
         Log.d(TAG, "Start contacts sync")
-        val contacts = readContacts()
-        val postContent = ArrayList<Contact>(20)
-        contacts.forEach {
-            if (postContent.size == 200) {
-                postContacts(postContent)
-                postContent.clear()
-            } else {
-                postContent.add(it)
-            }
-        }
-        if (postContent.isNotEmpty())
-            postContacts(postContent)
+        readContacts()
+                .chunked(200)
+                .forEach { postContacts(it) }
     }
 
     private fun postContacts(contacts: List<Contact>) {
@@ -110,39 +104,34 @@ class ContactSyncService : Service() {
                         ContactsContract.CommonDataKinds.Phone.NUMBER),
                 null, null, null)
         if (cur == null || cur.count == 0) return contacts
-        try {
-            while (cur.moveToNext()) {
-                val contactId = cur.getInt(cur.getColumnIndex(ContactsContract.CommonDataKinds.Phone.CONTACT_ID))
-                val address = cur.getString(cur.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER))
-                val thumbnail = getContactThumbnail(contactId)
-                val name = cur.getString(cur.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME))
-                val contact = Contact(contactId, name, address, thumbnail)
-                contacts.add(contact)
-            }
-        } catch (e: Exception) {
-            Crashlytics.logException(e)
-        } finally {
-            cur.close()
-            return contacts
+
+        cur.tryForEach {
+            val contactId = it.getInt(it.getColumnIndex(ContactsContract.CommonDataKinds.Phone.CONTACT_ID))
+            val address = it.getString(it.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER))
+            val thumbnail = getContactThumbnail(contactId)
+            val name = it.getString(it.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME))
+            val contact = Contact(contactId, name, address, thumbnail)
+            contacts.add(contact)
         }
+
+        cur.close()
+        return contacts
     }
 
     private fun getContactThumbnail(id: Int): String? {
-
         val contactUri = ContentUris.withAppendedId(ContactsContract.Contacts.CONTENT_URI, id.toLong())
         val photoUri = Uri.withAppendedPath(contactUri, ContactsContract.Contacts.Photo.CONTENT_DIRECTORY)
         val cur = contentResolver.query(photoUri, arrayOf(ContactsContract.Contacts.Photo.PHOTO), null, null, null)
-        try {
-            if (cur.moveToFirst()) {
-                val data = cur.getBlob(0)
-                if (data != null)
-                    return Base64.encodeToString(data, Base64.DEFAULT)
+
+        var data: String? = null
+        cur.withFirst {
+            val image = it.getBlob(0)
+            if (image != null) {
+                data = Base64.encodeToString(image, Base64.DEFAULT)
             }
-        } catch (e: Exception) {
-            Crashlytics.logException(e)
-        } finally {
-            cur.close()
         }
-        return null
+
+        cur.close()
+        return data
     }
 }
