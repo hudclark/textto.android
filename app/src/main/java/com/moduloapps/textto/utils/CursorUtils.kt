@@ -32,6 +32,16 @@ inline fun Cursor.forEach(fn: (Cursor) -> Unit) {
     }
 }
 
+inline fun Cursor.whileUnder(maxIterations: Int, fn: (Cursor) -> Unit) {
+    if (moveToFirst()) {
+        var counter = 0
+        do {
+            fn(this)
+            counter++
+        } while (counter < maxIterations && moveToNext())
+    }
+}
+
 inline fun Cursor.tryForEach(fn: (Cursor) -> Unit) {
     if (moveToFirst()) {
         do {

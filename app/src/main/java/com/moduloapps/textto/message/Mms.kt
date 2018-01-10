@@ -10,9 +10,7 @@ import com.crashlytics.android.Crashlytics
 import com.moduloapps.textto.api.ApiService
 import com.moduloapps.textto.model.Message
 import com.moduloapps.textto.model.MmsPart
-import com.moduloapps.textto.utils.ImageUtils
-import com.moduloapps.textto.utils.find
-import com.moduloapps.textto.utils.tryForEach
+import com.moduloapps.textto.utils.*
 import java.io.BufferedReader
 import java.io.InputStream
 import java.io.InputStreamReader
@@ -31,22 +29,18 @@ object Mms {
         val selection = "date > $mmsDate AND _id > $id"
         val uri = Uri.parse("content://mms")
         val cur = context.contentResolver.query(uri, null, selection, null, null)
-        var counter = 0
         val messageCount = Math.min(cur.count, 1000)
         val messages = ArrayList<Message>()
-        if (cur.moveToFirst()) {
-            while (counter < messageCount) {
-                val message = getMmsForCursor(cur, context)
-                if (messages.size > MAX_MESSAGES) {
-                    MessageController.postMessages(messages, context, apiService)
-                    messages.clear()
-                }
-                messages.add(message)
 
-                counter++
-                cur.moveToNext()
+        cur.whileUnder(messageCount, {
+            val message = getMmsForCursor(it, context)
+            messages.add(message)
+            if (messages.size > MAX_MESSAGES) {
+                MessageController.postMessages(messages, context, apiService)
+                messages.clear()
             }
-        }
+        })
+
         cur.close()
 
         if (messages.isNotEmpty()) {
@@ -57,8 +51,8 @@ object Mms {
     fun getMmsForId(context: Context, id: Int): Message? {
         var message: Message? = null
         val cur = context.contentResolver.query(Uri.parse("content://mms"), null, "_id=$id", null, null)
-        if (cur.moveToFirst()) {
-            message = getMmsForCursor(cur, context)
+        cur.withFirst {
+            message = getMmsForCursor(it, context)
         }
         cur.close()
         return message
@@ -119,7 +113,7 @@ object Mms {
     private fun getMmsText(cur: Cursor, context: Context): String {
         val data = cur.getString(cur.getColumnIndex(Telephony.Mms.Part._DATA))
         val id = cur.getInt(cur.getColumnIndex(Telephony.Mms.Part._ID))
-        return  if (data != null) readTextData(id, context)
+        return if (data != null) readTextData(id, context)
                 else cur.getString(cur.getColumnIndex(Telephony.Mms.Part.TEXT))
     }
 

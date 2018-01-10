@@ -6,12 +6,12 @@ import android.net.Uri
 import android.provider.Telephony
 import android.support.v4.content.ContextCompat
 import android.telephony.TelephonyManager
-import android.util.Log
 import com.google.i18n.phonenumbers.PhoneNumberUtil
 import com.moduloapps.textto.api.ApiService
 import com.moduloapps.textto.model.Message
 import com.moduloapps.textto.model.MmsPart
 import com.moduloapps.textto.utils.forEach
+import com.moduloapps.textto.utils.whileUnder
 import java.util.*
 
 /**
@@ -31,12 +31,12 @@ object MessageController {
 
         threads.forEach {
             val threadMessages = getMessagesForThread(context, it, messagesPerThread)
-            threadMessages.filter { it.type == "mms" }
-                    .forEach {
-                        parts.addAll(Mms.getPartsForMms(it.androidId, context))
-                    }
+            val threadParts = threadMessages
+                    .filter { it.type == "mms"}
+                    .flatMap { Mms.getPartsForMms(it.androidId, context) }
 
             messages.addAll(threadMessages)
+            parts.addAll(threadParts)
 
             if (messages.size > MAX_MESSAGES_FOR_REQUEST) {
                 apiService.createMessages(messages).execute()
@@ -49,6 +49,7 @@ object MessageController {
             }
         }
 
+        // Leftovers.
         if (messages.isNotEmpty()) {
             apiService.createMessages(messages).execute()
         }
@@ -68,7 +69,6 @@ object MessageController {
         cur.forEach {
             val contentType = cur.getString(cur.getColumnIndex("type"))
             val id = cur.getInt(cur.getColumnIndex("_id"))
-            Log.e("TEST", "Found message with id $id")
             if (contentType == null) {
                 Mms.getMmsForId(context, id)?.let { messages.add(it) }
             } else {
@@ -86,34 +86,26 @@ object MessageController {
         val uri = Uri.parse("content://mms-sms/conversations?simple=true")
         val cur = context.contentResolver.query(uri, threadIdProjection, null, null, null)
         val threads = ArrayList<Int>(15)
-        var counter = 0
-        if (cur.moveToFirst()) {
-            do {
-                val id = cur.getInt(cur.getColumnIndex("_id"))
-                threads.add(id)
-                counter++
-            } while (cur.moveToNext() && counter < 15)
-        }
+
+        cur.whileUnder(15, {
+            val id = it.getInt(it.getColumnIndex("_id"))
+            threads.add(id)
+        })
 
         cur.close()
         return threads
     }
 
     fun postMessages(messages: List<Message>, context: Context, apiService: ApiService) {
+
+        // post messages
         apiService.createMessages(messages).execute()
-        val parts = ArrayList<MmsPart>()
-        messages.forEach {
-            if (it.type == "mms") {
-                parts.addAll(Mms.getPartsForMms(it.androidId, context))
-                if (parts.size > 10) {
-                    Mms.postParts(parts, apiService, context)
-                    parts.clear()
-                }
-            }
-        }
-        if (parts.isNotEmpty()) {
-            Mms.postParts(parts, apiService, context)
-        }
+
+        // post mms parts
+        messages.filter { it.type == "mms" }
+                .flatMap { Mms.getPartsForMms(it.androidId, context) }
+                .chunked(50) // TODO can converge on the 'best' value here.
+                .forEach { Mms.postParts(it, apiService, context) }
     }
 
     fun isMyAddress (address: String, context: Context): Boolean {

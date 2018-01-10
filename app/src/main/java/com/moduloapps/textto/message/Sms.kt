@@ -6,6 +6,7 @@ import android.net.Uri
 import android.provider.Telephony
 import com.moduloapps.textto.api.ApiService
 import com.moduloapps.textto.model.Message
+import com.moduloapps.textto.utils.whileUnder
 import com.moduloapps.textto.utils.withFirst
 
 /**
@@ -21,22 +22,19 @@ object Sms {
     fun syncSms(date: Long, id: Int, context: Context, apiService: ApiService) {
         val selection = "_id > $id"
         val cur = context.contentResolver.query(Uri.parse("content://sms"), null, selection, null, null)
-        var counter = 0
         val messageCount = Math.min(cur.count, 1000)
         val messages = ArrayList<Message>()
-        if (cur.moveToFirst()) {
-            while (counter < messageCount) {
-                getSmsForCursor(cur)?.let {
-                    if (messages.size > MAX_MESSAGES) {
-                        MessageController.postMessages(messages, context, apiService)
-                        messages.clear()
-                    }
-                    messages.add(it)
+
+        cur.whileUnder(messageCount, {
+            getSmsForCursor(it)?.let { sms ->
+                messages.add(sms)
+                if (messages.size > MAX_MESSAGES) {
+                    MessageController.postMessages(messages, context, apiService)
+                    messages.clear()
                 }
-                counter++
-                cur.moveToNext()
             }
-        }
+        })
+
         cur.close()
 
         if (messages.isNotEmpty()) {
