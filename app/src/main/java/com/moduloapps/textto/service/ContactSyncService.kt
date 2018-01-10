@@ -19,11 +19,8 @@ import com.moduloapps.textto.R
 import com.moduloapps.textto.api.ApiService
 import com.moduloapps.textto.home.MainActivity
 import com.moduloapps.textto.model.Contact
-import com.moduloapps.textto.utils.forEach
 import com.moduloapps.textto.utils.tryForEach
 import com.moduloapps.textto.utils.withFirst
-import io.fabric.sdk.android.services.common.Crash
-import java.security.Permissions
 import javax.inject.Inject
 
 /**
@@ -38,6 +35,7 @@ class ContactSyncService : Service() {
 
     companion object {
         val CONTACTS_LAST_SYNCED = "contacts_last_synced"
+        const val MAX_CONTACS_PER_REQUEST = 100
     }
 
     override fun onCreate() {
@@ -73,13 +71,14 @@ class ContactSyncService : Service() {
                 .setSmallIcon(R.drawable.notification)
                 .setContentTitle(this.getString(R.string.syncing_contacts))
                 .setContentIntent(pendingIntent)
+                .setColor(ContextCompat.getColor(applicationContext, R.color.blue))
                 .build()
     }
 
     private fun syncContacts() {
         Log.d(TAG, "Start contacts sync")
         readContacts()
-                .chunked(200)
+                .chunked(MAX_CONTACS_PER_REQUEST)
                 .forEach { postContacts(it) }
     }
 

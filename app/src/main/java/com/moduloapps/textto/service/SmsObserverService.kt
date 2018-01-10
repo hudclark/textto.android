@@ -3,9 +3,9 @@ package com.moduloapps.textto.service
 import android.app.Notification
 import android.app.PendingIntent
 import android.app.Service
-import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.support.v4.content.ContextCompat
 import android.support.v7.app.NotificationCompat
 import android.util.Log
 import com.moduloapps.textto.BaseApplication
@@ -106,6 +106,7 @@ class SmsObserverService: Service(), TimeoutPinger.OnFailedListener {
                 .setSmallIcon(R.drawable.notification)
                 .setContentTitle(this.getString(R.string.connected))
                 .setContentIntent(pendingIntent)
+                .setColor(ContextCompat.getColor(applicationContext, R.color.blue))
                 .setPriority(NotificationCompat.PRIORITY_MIN)
                 .setShowWhen(false)
                 .build()

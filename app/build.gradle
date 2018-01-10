@@ -22,7 +22,7 @@ android {
     }
     buildTypes {
         debug {
-            minifyEnabled true
+            minifyEnabled false
             //buildConfigField "String", "API_URL", '"https://api.textto.io"'
             //buildConfigField "String", "API_URL", '"http://10.0.2.2:5000"'
             buildConfigField "String", "API_URL", '"http://192.168.0.24:8000"'
