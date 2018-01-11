@@ -59,7 +59,7 @@ object MessageSender {
         Log.d(TAG, "Sending sms message to $recipient...")
         val intent = Intent(context, MessageSentReceiver::class.java)
         intent.putExtra(MessageSentReceiver.MESSAGE_ID, scheduledMessage._id)
-        val pendingIntent = PendingIntent.getBroadcast(context, scheduledMessage._id.toInt(), intent, 0)
+        val pendingIntent = PendingIntent.getBroadcast(context, getUniqueRequestCode(scheduledMessage), intent, 0)
 
         SmsManager.getDefault().sendTextMessage(recipient, null, scheduledMessage.body, pendingIntent, null)
     }
@@ -94,7 +94,7 @@ object MessageSender {
             val intent = Intent(context, MessageSentReceiver::class.java)
             intent.putExtra(MessageSentReceiver.MESSAGE_ID, scheduledMessage._id)
             intent.putExtra(MessageSentReceiver.FILENAME, filename)
-            val pendingIntent = PendingIntent.getBroadcast(context, scheduledMessage._id.toInt(), intent, 0)
+            val pendingIntent = PendingIntent.getBroadcast(context, getUniqueRequestCode(scheduledMessage), intent, 0)
 
             SmsManager.getDefault().sendMultimediaMessage(context, uri, null, null, pendingIntent)
         } catch (e: Exception) {
@@ -108,6 +108,11 @@ object MessageSender {
         val response = context.appComponent.getApiService().getFile(url).execute().body()
         Log.d(TAG, "Successfully fetched file")
         return ResponseBodyMmsImage(response)
+    }
+
+    private fun getUniqueRequestCode(scheduledMessage: ScheduledMessage): Int {
+        val retries = scheduledMessage.retries ?: 0
+        return scheduledMessage._id.toInt() + retries
     }
 
     class ResponseBodyMmsImage(val response: ResponseBody) : MmsPdu.MmsImage {

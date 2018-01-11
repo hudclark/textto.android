@@ -36,17 +36,19 @@ class BaseApplication: Application() {
 
     // TODO move this to something else
     fun setFirebaseToken(token: String) {
-        val data = JsonObject()
-        data.addProperty("firebaseId", token)
-        appComponent.getApiService().updateFirebaseId(data)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe({
-                    Log.d(TAG, "Set firebase id")
-                }, {
-                    Log.e(TAG, "Error setting firebase id: $it")
-                    Crashlytics.log(1, TAG, it.toString())
-                })
+        if (appComponent.getSessionController().isLoggedIn()) {
+            val data = JsonObject()
+            data.addProperty("firebaseId", token)
+            appComponent.getApiService().updateFirebaseId(data)
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe({
+                        Log.d(TAG, "Set firebase id")
+                    }, {
+                        Log.e(TAG, "Error setting firebase id: $it")
+                        Crashlytics.log(1, TAG, it.toString())
+                    })
+            }
         }
 
 }
