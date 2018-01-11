@@ -62,8 +62,8 @@ class MainActivity: BaseActivity(),
                 .build()
         googleApiClient!!.connect()
 
-        findViewById(R.id.contact_support).setOnClickListener { presenter?.contactSupport() }
-        findViewById(R.id.log_out).setOnClickListener {
+        findViewById<View>(R.id.contact_support).setOnClickListener { presenter?.contactSupport() }
+        findViewById<View>(R.id.log_out).setOnClickListener {
             presenter?.logOut(googleApiClient!!)
             Answers.getInstance().logCustom(CustomEvent("Log Out"))
         }
@@ -104,9 +104,9 @@ class MainActivity: BaseActivity(),
         }
 
         // show/hide notification card
-        findViewById(R.id.notifications_card).visibility = if (notificationsEnabled) View.GONE else View.VISIBLE
+        findViewById<View>(R.id.notifications_card).visibility = if (notificationsEnabled) View.GONE else View.VISIBLE
         if (!notificationsEnabled) {
-            findViewById(R.id.enable_notifications).setOnClickListener { openNotificationSettings() }
+            findViewById<View>(R.id.enable_notifications).setOnClickListener { openNotificationSettings() }
         }
     }
 
@@ -152,13 +152,13 @@ class MainActivity: BaseActivity(),
     }
 
     override fun setSyncingMessages(syncing: Boolean) {
-        findViewById(R.id.messages_sync).setVisible(!syncing)
-        findViewById(R.id.messages_loader).setVisible(syncing)
+        findViewById<View>(R.id.messages_sync).setVisible(!syncing)
+        findViewById<View>(R.id.messages_loader).setVisible(syncing)
     }
 
     override fun setSyncingContacts(syncing: Boolean) {
-        findViewById(R.id.contacts_sync).setVisible(!syncing)
-        findViewById(R.id.contacts_loader).setVisible(syncing)
+        findViewById<View>(R.id.contacts_sync).setVisible(!syncing)
+        findViewById<View>(R.id.contacts_loader).setVisible(syncing)
     }
 
     override fun onClick(v: View) {
@@ -185,8 +185,8 @@ class MainActivity: BaseActivity(),
     }
 
     private fun initSyncButtons() {
-        findViewById(R.id.contacts_sync).setOnClickListener(this)
-        findViewById(R.id.messages_sync).setOnClickListener(this)
+        findViewById<View>(R.id.contacts_sync).setOnClickListener(this)
+        findViewById<View>(R.id.messages_sync).setOnClickListener(this)
     }
 
     override fun redirectToLogin() {

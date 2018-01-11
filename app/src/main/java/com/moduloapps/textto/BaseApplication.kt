@@ -1,12 +1,14 @@
 package com.moduloapps.textto
 
 import android.app.Application
+import android.os.Build
 import android.util.Log
 import com.crashlytics.android.Crashlytics
 import com.google.gson.JsonObject
 import com.moduloapps.textto.di.AppComponent
 import com.moduloapps.textto.di.DaggerAppComponent
 import com.moduloapps.textto.di.PreferencesModule
+import com.moduloapps.textto.utils.createSyncChannel
 import com.squareup.leakcanary.LeakCanary
 import io.fabric.sdk.android.Fabric
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -27,6 +29,7 @@ class BaseApplication: Application() {
                 .preferencesModule(PreferencesModule(applicationContext))
                 .build()
         if (LeakCanary.isInAnalyzerProcess(this)) return
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) createSyncChannel(this)
         LeakCanary.install(this)
         Fabric.with(this, Crashlytics())
     }

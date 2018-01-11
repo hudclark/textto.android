@@ -83,6 +83,7 @@ class MessageSyncTask(val apiService: ApiService,
                 apiService.updateScheduledMessage(it._id, it).execute()
                 MessageSender.sendMessage(it, context)
             } catch (e: Exception) {
+                throw e
                 Log.d(TAG, "Error deleting scheduled message ${it._id}")
                 Crashlytics.logException(e)
             }

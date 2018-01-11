@@ -20,6 +20,7 @@ import com.moduloapps.textto.api.ApiService
 import com.moduloapps.textto.api.MAX_CONTACTS_PER_REQUEST
 import com.moduloapps.textto.home.MainActivity
 import com.moduloapps.textto.model.Contact
+import com.moduloapps.textto.utils.SYNC_CHANNEL_ID
 import com.moduloapps.textto.utils.tryForEach
 import com.moduloapps.textto.utils.withFirst
 import javax.inject.Inject
@@ -67,7 +68,7 @@ class ContactSyncService : Service() {
         val notificationIntent = Intent(this, MainActivity::class.java)
         val pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT)
 
-        return NotificationCompat.Builder(this)
+        return NotificationCompat.Builder(this, SYNC_CHANNEL_ID)
                 .setSmallIcon(R.drawable.notification)
                 .setContentTitle(this.getString(R.string.syncing_contacts))
                 .setContentIntent(pendingIntent)
@@ -94,7 +95,7 @@ class ContactSyncService : Service() {
 
     override fun onBind(intent: Intent?) = null
 
-    private fun readContacts(): List<Contact> {
+    private fun readContacts(): ArrayList<Contact> {
         val contacts = ArrayList<Contact>()
         val cur = contentResolver.query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
                 arrayOf(ContactsContract.Contacts._ID,

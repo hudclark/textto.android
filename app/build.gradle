@@ -4,7 +4,7 @@ apply plugin: 'kotlin-kapt'
 apply plugin: 'io.fabric'
 
 ext {
-    supportLibs = '25.3.0'
+    supportLibs = '27.0.0'
     firebase = '11.4.2'
     playServices = '11.4.2'
 }
@@ -16,7 +16,7 @@ android {
     defaultConfig {
         applicationId "com.moduloapps.textto"
         minSdkVersion 21
-        targetSdkVersion 23
+        targetSdkVersion 25
         versionCode 7
         versionName "1.07"
     }

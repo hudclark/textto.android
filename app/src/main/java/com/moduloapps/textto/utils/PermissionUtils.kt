@@ -14,7 +14,8 @@ val BASE_PERMISSIONS = arrayOf(
         android.Manifest.permission.RECEIVE_SMS,
         android.Manifest.permission.SEND_SMS,
         android.Manifest.permission.READ_SMS,
-        android.Manifest.permission.READ_CONTACTS
+        android.Manifest.permission.READ_CONTACTS,
+        android.Manifest.permission.READ_PHONE_STATE
 )
 
 val PERMISSIONS_CODE = 0

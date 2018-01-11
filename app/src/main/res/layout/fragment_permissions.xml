@@ -109,6 +109,40 @@
                 android:text="@string/contacts_permission_message" />
 
         </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="76dp"
+            android:padding="16dp">
+
+            <ImageView
+                android:id="@+id/permission_item_image_2"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:src="@drawable/ic_phone" />
+
+            <TextView
+                android:textColor="@color/textWhite"
+                android:id="@+id/permission_item_title_2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="16dp"
+                android:layout_toRightOf="@id/permission_item_image_2"
+                android:text="@string/phone_permission_title"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:textColor="@color/textWhite"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/permission_item_title_2"
+                android:layout_marginLeft="16dp"
+                android:layout_toRightOf="@id/permission_item_image_2"
+                android:gravity="bottom"
+                android:text="@string/phone_permission_message" />
+
+        </RelativeLayout>
     </LinearLayout>
 
     <Button

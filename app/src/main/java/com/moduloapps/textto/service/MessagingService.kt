@@ -2,7 +2,9 @@ package com.moduloapps.textto.service
 
 import android.content.Intent
 import android.content.SharedPreferences
+import android.os.Build
 import android.util.Log
+import com.crashlytics.android.Crashlytics
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import com.moduloapps.textto.BaseApplication
@@ -45,24 +47,25 @@ class MessagingService: FirebaseMessagingService() {
                 // just want to ensure started
                 val intent = Intent(applicationContext, SmsObserverService::class.java)
                 intent.putExtra(SmsObserverService.FOREGROUND_EXTRA, SmsObserverService.START_FOREGROUND)
-                applicationContext.startService(intent)
+                startServiceCompat(intent)
                 ThreadUtils.runSingleThreadTask(MessageSyncTask(apiService, applicationContext as BaseApplication, prefs))
             }
 
             TYPE_SYNC_CONTACTS -> {
-                applicationContext.startService(Intent(applicationContext, ContactSyncService::class.java))
+                val intent = Intent(applicationContext, ContactSyncService::class.java)
+                startServiceCompat(intent)
             }
 
             TYPE_START_SESSION -> {
                 val intent = Intent(applicationContext, SmsObserverService::class.java)
                 intent.putExtra(SmsObserverService.FOREGROUND_EXTRA, SmsObserverService.START_FOREGROUND)
-                applicationContext.startService(intent)
+                startServiceCompat(intent)
             }
 
             TYPE_STOP_SESSION -> {
                 val intent = Intent(applicationContext, SmsObserverService::class.java)
                 intent.putExtra(SmsObserverService.FOREGROUND_EXTRA, SmsObserverService.STOP_FOREGROUND)
-                applicationContext.startService(intent)
+                startServiceCompat(intent)
             }
 
             TYPE_PING_SESSION -> {
@@ -70,10 +73,23 @@ class MessagingService: FirebaseMessagingService() {
                 val intent = Intent(applicationContext, SmsObserverService::class.java)
                 intent.putExtra(SmsObserverService.FOREGROUND_EXTRA, SmsObserverService.PING_FOREGROUND)
                 intent.putExtra(SmsObserverService.PING_TIMESTAMP, timestamp)
-                applicationContext.startService(intent)
+                startServiceCompat(intent)
             }
 
         }
+    }
 
+    private fun isOreo() = Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
+
+    private fun startServiceCompat(service: Intent) {
+        try {
+            if (isOreo()) {
+                applicationContext.startForegroundService(service)
+            } else {
+                applicationContext.startService(service)
+            }
+        } catch (e: Exception) {
+            Crashlytics.logException(e)
+        }
     }
 }

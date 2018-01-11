@@ -6,6 +6,8 @@
     <uses-permission android:name="android.permission.SEND_SMS" />
     <uses-permission android:name="android.permission.READ_SMS" />
     <uses-permission android:name="android.permission.READ_CONTACTS" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.Manifest.permission.READ_PHONE_STATE" />
 
     <application
         android:name="com.moduloapps.textto.BaseApplication"
@@ -30,7 +32,9 @@
             </intent-filter>
         </service>
 
-        <service android:name="com.moduloapps.textto.service.MessagingService">
+        <service android:name="com.moduloapps.textto.service.MessagingService"
+            android:enabled="true"
+            android:exported="true" >
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>

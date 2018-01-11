@@ -152,7 +152,7 @@ class OnboardingActivity :
             val messageView = rootView.findViewById<View>(R.id.onboarding_message) as TextView
             val imageView = rootView.findViewById<View>(R.id.onboarding_image) as ImageView
 
-            val position = arguments.get(ARG_SECTION_NUMBER) as Int
+            val position = arguments?.get(ARG_SECTION_NUMBER) as Int
             titleView.text = getTitleForPosition(position)
             messageView.text = getMessageForPosition(position)
             imageView.setImageResource(getImageForPosition(position))

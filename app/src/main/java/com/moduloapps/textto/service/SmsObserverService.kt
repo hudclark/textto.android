@@ -5,14 +5,15 @@ import android.app.PendingIntent
 import android.app.Service
 import android.content.Intent
 import android.net.Uri
+import android.support.v4.app.NotificationCompat
 import android.support.v4.content.ContextCompat
-import android.support.v7.app.NotificationCompat
 import android.util.Log
 import com.moduloapps.textto.BaseApplication
 import com.moduloapps.textto.R
 import com.moduloapps.textto.api.TimeoutPinger
 import com.moduloapps.textto.home.MainActivity
 import com.moduloapps.textto.tasks.MessageSyncTask
+import com.moduloapps.textto.utils.SYNC_CHANNEL_ID
 import com.moduloapps.textto.utils.ThreadUtils
 
 /**
@@ -102,12 +103,16 @@ class SmsObserverService: Service(), TimeoutPinger.OnFailedListener {
     private fun createNotification(): Notification {
         val notificationIntent = Intent(this, MainActivity::class.java)
         val pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT)
-        return NotificationCompat.Builder(this)
+
+        return NotificationCompat.Builder(this, SYNC_CHANNEL_ID)
                 .setSmallIcon(R.drawable.notification)
                 .setContentTitle(this.getString(R.string.connected))
+                //.setContentText(this.getString(R.string.dont_want_to_see))
+                .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
                 .setContentIntent(pendingIntent)
                 .setColor(ContextCompat.getColor(applicationContext, R.color.blue))
                 .setPriority(NotificationCompat.PRIORITY_MIN)
+                .setChannelId(SYNC_CHANNEL_ID)
                 .setShowWhen(false)
                 .build()
     }
