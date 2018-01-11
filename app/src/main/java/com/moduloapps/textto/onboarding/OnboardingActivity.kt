@@ -20,6 +20,7 @@ import android.widget.TextView
 import com.crashlytics.android.Crashlytics
 import com.crashlytics.android.answers.Answers
 import com.crashlytics.android.answers.CustomEvent
+import com.moduloapps.textto.BaseActivity
 import com.moduloapps.textto.BaseApplication
 
 import com.moduloapps.textto.R
@@ -29,7 +30,7 @@ import io.fabric.sdk.android.Fabric
 import javax.inject.Inject
 
 class OnboardingActivity :
-        AppCompatActivity(), ViewPager.OnPageChangeListener, PermissionsFragment.RequestPermissionsListener {
+        BaseActivity(), ViewPager.OnPageChangeListener, PermissionsFragment.RequestPermissionsListener {
 
     companion object {
         val ONBOARDING_COMPLETED = "has_onboarded"
@@ -78,10 +79,13 @@ class OnboardingActivity :
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         if (requestCode == PERMISSIONS_CODE) {
             val neededPermissions = getNeededPermissions(this)
-            if (!neededPermissions.isEmpty())
-                Snackbar.make(rootView, R.string.need_permissions, Snackbar.LENGTH_SHORT).show()
-            else
+            if (!neededPermissions.isEmpty()) {
+                val snackbar = Snackbar.make(rootView, R.string.need_permissions, Snackbar.LENGTH_SHORT)
+                snackbar.setTextColor(R.color.textWhite)
+                snackbar.show(
+            } else {
                 finishOnboarding()
+            }
         }
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
     }
