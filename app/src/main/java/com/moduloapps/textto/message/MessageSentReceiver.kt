@@ -11,6 +11,8 @@ import android.content.Intent
 import android.text.TextUtils
 import android.util.Log
 import com.crashlytics.android.Crashlytics
+import com.crashlytics.android.answers.Answers
+import com.crashlytics.android.answers.CustomEvent
 import com.google.gson.JsonObject
 import com.moduloapps.textto.BaseApplication
 import com.moduloapps.textto.utils.ThreadUtils
@@ -45,6 +47,9 @@ class MessageSentReceiver: BroadcastReceiver () {
                     apiService.deleteScheduledMessage(id).execute()
                 } else {
                     Log.d(TAG, "Message failed with code $resultCode")
+                    Answers.getInstance().logCustom(
+                            CustomEvent("Send Failure").putCustomAttribute("failureCode", resultCode)
+                    )
                     val body = JsonObject()
                     body.addProperty("failureCode", resultCode)
                     apiService.reportFailed(id, body).execute()

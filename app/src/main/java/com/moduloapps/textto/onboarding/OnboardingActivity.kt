@@ -82,7 +82,7 @@ class OnboardingActivity :
             if (!neededPermissions.isEmpty()) {
                 val snackbar = Snackbar.make(rootView, R.string.need_permissions, Snackbar.LENGTH_SHORT)
                 snackbar.setTextColor(R.color.textWhite)
-                snackbar.show(
+                snackbar.show()
             } else {
                 finishOnboarding()
             }
