@@ -57,8 +57,8 @@ object MessageSender {
     private fun sendSmsMessage(scheduledMessage: ScheduledMessage, context: Context) {
         val recipient = scheduledMessage.addresses[0]
         Log.d(TAG, "Sending sms message to $recipient...")
-        val intent = Intent(context, DeliveryBroadcastReceiver::class.java)
-        intent.putExtra(DeliveryBroadcastReceiver.MESSAGE_ID, scheduledMessage._id)
+        val intent = Intent(context, MessageSentReceiver::class.java)
+        intent.putExtra(MessageSentReceiver.MESSAGE_ID, scheduledMessage._id)
         val pendingIntent = PendingIntent.getBroadcast(context, scheduledMessage._id.toInt(), intent, 0)
 
         SmsManager.getDefault().sendTextMessage(recipient, null, scheduledMessage.body, pendingIntent, null)
@@ -91,9 +91,9 @@ object MessageSender {
             stream.close()
             val uri = FileProvider.getUriForFile(context, FILE_PROVIDER, file)
 
-            val intent = Intent(context, DeliveryBroadcastReceiver::class.java)
-            intent.putExtra(DeliveryBroadcastReceiver.MESSAGE_ID, scheduledMessage._id)
-            intent.putExtra(DeliveryBroadcastReceiver.FILENAME, filename)
+            val intent = Intent(context, MessageSentReceiver::class.java)
+            intent.putExtra(MessageSentReceiver.MESSAGE_ID, scheduledMessage._id)
+            intent.putExtra(MessageSentReceiver.FILENAME, filename)
             val pendingIntent = PendingIntent.getBroadcast(context, scheduledMessage._id.toInt(), intent, 0)
 
             SmsManager.getDefault().sendMultimediaMessage(context, uri, null, null, pendingIntent)

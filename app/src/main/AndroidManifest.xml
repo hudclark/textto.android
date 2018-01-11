@@ -58,6 +58,7 @@
         </service>
 
         <receiver android:name="com.moduloapps.textto.service.DeliveryBroadcastReceiver" />
+        <receiver android:name="com.moduloapps.textto.message.MessageSentReceiver" />
 
         <activity
             android:name="com.moduloapps.textto.onboarding.OnboardingActivity"

@@ -41,6 +41,9 @@ interface ApiService {
     @DELETE("scheduledMessages/{id}")
     fun deleteScheduledMessage(@Path("id") id: String): Call<Void>
 
+    @POST("scheduledMessages/{id}/reportFailure")
+    fun reportFailed(@Path("id") id: String, @Body body: JsonObject): Call<String>
+
     @POST("user/firebase-id")
     fun updateFirebaseId(@Body token: JsonObject): Observable<Map<String, String>>
 
