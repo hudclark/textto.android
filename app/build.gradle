@@ -26,7 +26,7 @@ android {
             minifyEnabled false
             //buildConfigField "String", "API_URL", '"https://api.textto.io"'
             //buildConfigField "String", "API_URL", '"http://10.0.2.2:5000"'
-            buildConfigField "String", "API_URL", '"http://35.1.51.4:8000"'
+            buildConfigField "String", "API_URL", '"http://35.1.9.177:8000"'
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
         release {

@@ -65,7 +65,7 @@ class MessagingService: FirebaseMessagingService() {
             TYPE_STOP_SESSION -> {
                 val intent = Intent(applicationContext, SmsObserverService::class.java)
                 intent.putExtra(SmsObserverService.FOREGROUND_EXTRA, SmsObserverService.STOP_FOREGROUND)
-                startServiceCompat(intent)
+                startService(intent)
             }
 
             TYPE_PING_SESSION -> {

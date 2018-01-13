@@ -75,10 +75,10 @@ class SmsObserverService: Service(), TimeoutPinger.OnFailedListener {
     }
 
     private fun ensureForegroundStarted() {
+        startForeground(1, createNotification()) // Fix for oreo. NEED to call if going to start in background
         if (!isForeground) {
             Log.d(TAG, "Starting foreground")
             isForeground = true
-            startForeground(1, createNotification())
             pinger.startPinging()
 
             val app = applicationContext as BaseApplication
