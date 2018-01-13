@@ -28,12 +28,12 @@
 
     <string name="dont_want_to_see">Don\'t want to see this? Press and hold to block.</string>
 
-    <string name="visit">Visit <a href="http://textto.io">Textto.io</a> to text from your computer</string>
+    <string name="visit">Visit <a href="https://textto.io">Textto.io</a> to text from your computer</string>
 
     <string name="welcome">Welcome</string>
     <string name="logout">Log Out</string>
 
-    <string name="terms">By signing in you agree to the <a href="textto.io/legal/terms">terms and conditions</a> and <a href="textto.io/legal/privacy">privacy policy</a>.</string>
+    <string name="terms">By signing in you agree to the <a href="https://textto.io/legal/terms">terms and conditions</a> and <a href="https://textto.io/legal/privacy">privacy policy</a>.</string>
 
     <string name="messages">Messages</string>
     <string name="sync">Sync Now</string>

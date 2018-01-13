@@ -3,8 +3,10 @@ package com.moduloapps.textto.login
 import android.content.Intent
 import android.os.Bundle
 import android.support.design.widget.Snackbar
+import android.text.method.LinkMovementMethod
 import android.util.Log
 import android.view.View
+import android.widget.TextView
 import com.crashlytics.android.Crashlytics
 import com.crashlytics.android.answers.Answers
 import com.crashlytics.android.answers.LoginEvent
@@ -57,12 +59,16 @@ class LoginActivity : BaseActivity(), View.OnClickListener, LoginPresenter.View 
 
         loginLoader = findViewById(R.id.login_loader)
 
+        val text = findViewById<TextView>(R.id.terms_conditions)
+        text.movementMethod = LinkMovementMethod.getInstance()
+
         val options = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestIdToken(getString(R.string.client_id))
                 .requestEmail()
                 .build()
         googleClient = GoogleApiClient.Builder(this).addApi(Auth.GOOGLE_SIGN_IN_API, options)
                 .build()
+
 
         if (presenter == null)
             presenter = LoginPresenter(apiService, sessionController)
