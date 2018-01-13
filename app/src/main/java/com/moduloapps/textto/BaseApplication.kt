@@ -4,6 +4,7 @@ import android.app.Application
 import android.os.Build
 import android.util.Log
 import com.crashlytics.android.Crashlytics
+import com.crashlytics.android.core.CrashlyticsCore
 import com.google.gson.JsonObject
 import com.moduloapps.textto.di.AppComponent
 import com.moduloapps.textto.di.DaggerAppComponent
@@ -31,7 +32,11 @@ class BaseApplication: Application() {
         if (LeakCanary.isInAnalyzerProcess(this)) return
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) createSyncChannel(this)
         LeakCanary.install(this)
-        Fabric.with(this, Crashlytics())
+
+        val kit = Crashlytics.Builder()
+                .core(CrashlyticsCore.Builder().disabled(BuildConfig.DEBUG).build())
+                .build()
+        Fabric.with(this, kit)
     }
 
     // TODO move this to something else

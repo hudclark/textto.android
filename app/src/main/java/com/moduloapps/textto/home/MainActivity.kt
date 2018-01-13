@@ -21,7 +21,9 @@ import com.moduloapps.textto.login.LoginActivity
 import com.moduloapps.textto.onboarding.OnboardingActivity
 import com.moduloapps.textto.service.NotificationListener
 import com.moduloapps.textto.service.SmsObserverService
+import com.moduloapps.textto.tasks.TestingClass
 import com.moduloapps.textto.utils.PERMISSIONS_CODE
+import com.moduloapps.textto.utils.ThreadUtils
 import com.moduloapps.textto.utils.getNeededPermissions
 import com.moduloapps.textto.utils.requestPermissions
 import javax.inject.Inject

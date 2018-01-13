@@ -76,7 +76,7 @@ class ImageUtils {
 
             val originalSize = if (inOptions.outHeight > inOptions.outWidth) inOptions.outHeight
                                else inOptions.outWidth
-            val ratio = (originalSize / 25).toDouble()
+            val ratio = (originalSize / 50).toDouble()
 
             val outOptions = BitmapFactory.Options()
             outOptions.inSampleSize = getSampleRatio(ratio)

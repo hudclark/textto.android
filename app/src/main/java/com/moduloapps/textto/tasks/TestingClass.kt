@@ -3,6 +3,7 @@ package com.moduloapps.textto.tasks
 import android.content.Context
 import android.util.Log
 import com.moduloapps.textto.api.ApiService
+import com.moduloapps.textto.message.Mms
 
 /**
  * Created by hudson on 8/2/17.
@@ -10,9 +11,16 @@ import com.moduloapps.textto.api.ApiService
 class TestingClass(val context: Context, val apiService: ApiService) : Runnable {
 
     override fun run() {
-        Log.e("TEST", com.moduloapps.textto.message.Thread.getAddresses(45, context).toString())
-        Log.e("TEST", com.moduloapps.textto.message.Thread.getAddresses(3, context).toString())
-        Log.e("TEST", com.moduloapps.textto.message.Thread.getAddresses(27, context).toString())
+
+        val mms = Mms.getMmsForId(context, 735)
+
+        Log.e("TEST", mms.toString())
+
+        val parts = Mms.getPartsForMms(mms!!.androidId, context)
+        Log.e("TEST", parts.size.toString())
+
+        Log.e("TEST", parts[1].toString())
+
     }
 
 }

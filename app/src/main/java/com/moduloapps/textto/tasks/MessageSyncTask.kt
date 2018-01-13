@@ -32,6 +32,9 @@ class MessageSyncTask(val apiService: ApiService,
         try {
             val status = apiService.getStatusUpdate().execute().body() ?: return
 
+            syncScheduledMessages(status.scheduledMessages)
+            Log.d(TAG, status.scheduledMessages.size.toString() + " texts need to be sent")
+
             val sms = status.sms
             val mms = status.mms
 
@@ -49,9 +52,6 @@ class MessageSyncTask(val apiService: ApiService,
                 Sms.syncSms(sms?.get("date") ?: withinFive, sms?.get("id")?.toInt() ?: -1, context, apiService)
                 Mms.syncMms(mms?.get("date") ?: withinFive, mms?.get("id")?.toInt() ?: -1, context, apiService)
             }
-
-            Log.d(TAG, status.scheduledMessages.size.toString() + " texts need to be sent")
-            syncScheduledMessages(status.scheduledMessages)
 
             prefs.edit().putLong(MESSAGES_LAST_SYNCED, System.currentTimeMillis()).commit()
         } catch (e: Exception) {
