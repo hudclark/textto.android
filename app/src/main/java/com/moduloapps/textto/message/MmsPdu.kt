@@ -20,6 +20,10 @@ class MmsPdu(private val to: Array<String>) {
         private val EXPIRY_TIME: Long = 7 * 24 * 60 * 60
         private val PRIORITY = 0x81
         private val VALUE_NO = 0x81
+
+        val PDU_FROM by lazy {
+            Class.forName("com.google.android.mms.pdu.PduHeaders").getField("FROM").get(null) as Int
+        }
     }
 
     // reflected classes used

@@ -3,6 +3,7 @@ package com.moduloapps.textto.utils
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.media.ThumbnailUtils
 import android.net.Uri
 import android.util.Base64
 import android.util.Log
@@ -74,21 +75,15 @@ class ImageUtils {
 
             if ((inOptions.outWidth == -1) || (inOptions.outHeight == -1)) return null
 
-            val originalSize = if (inOptions.outHeight > inOptions.outWidth) inOptions.outHeight
-                               else inOptions.outWidth
-            val ratio = (originalSize / 50).toDouble()
+            val scale = Math.min(10.0 / inOptions.outWidth, 10.0 / inOptions.outHeight)
 
-            val outOptions = BitmapFactory.Options()
-            outOptions.inSampleSize = getSampleRatio(ratio)
+            val width = inOptions.outWidth * scale
+            val height = inOptions.outHeight * scale
 
             inStream = context.contentResolver.openInputStream(uri)
 
-            val bitmap = BitmapFactory.decodeStream(inStream, null, outOptions)
-            inStream.close()
-            val imageString = imageToBase64(bitmap)
-            bitmap.recycle()
-
-            return imageString
+            val thumb =  ThumbnailUtils.extractThumbnail(BitmapFactory.decodeStream(inStream), width.toInt(), height.toInt())
+            return imageToBase64(thumb)
         }
 
         fun uploadImage(inputStream: InputStream, contentType: String, imageUrl: String, apiService: ApiService) {

@@ -105,7 +105,6 @@ object Mms {
                 ))
             }
         }
-
         cur.close()
         return parts
     }
@@ -133,23 +132,24 @@ object Mms {
         return builder.toString()
     }
 
+
+    //https://github.com/aosp-mirror/platform_packages_apps_mms/blob/master/src/com/android/mms/util/AddressUtils.java
     private fun getSender(id: Int, context: Context): String {
         val uri = Uri.parse("content://mms/$id/addr")
-        // TODO test and make sure that this works correctly
-        val selection = "type=137 AND msg_id=$id"
-        val cur = context.contentResolver.query(uri, arrayOf("address"), selection, null, null)
-
-        val sender = cur?.find {
-            val address = cur.getString(cur.getColumnIndex("address"))
+        val selection = "${Telephony.Mms.Addr.TYPE}=${MmsPdu.PDU_FROM}"
+        val cur = context.contentResolver.query(uri, arrayOf(Telephony.Mms.Addr.ADDRESS), selection, null, null)
+        var sender: String? = null
+        cur?.withFirst {
+            val address = cur.getString(0)
             if (!TextUtils.isEmpty(address)) {
                 val isMe = MessageController.isMyAddress(address, context)
-                return@find if (isMe) "me" else address
+                sender = if (isMe) "me" else address
             }
-            return@find null
         }
 
         cur?.close()
-        return sender ?: throw RuntimeException("Unable to find sender for mms " + id)
+
+        return sender ?: "unknown"
     }
 
     private fun uploadFullImage(contentType: String, imageUrl: String, partId: Int, context: Context, apiService: ApiService) {
