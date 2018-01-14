@@ -64,8 +64,8 @@ class MainActivity: BaseActivity(),
                 .build()
         googleApiClient!!.connect()
 
-        findViewById<View>(R.id.contact_support).setOnClickListener { presenter?.contactSupport() }
-        findViewById<View>(R.id.log_out).setOnClickListener {
+        findViewById<View>(R.id.contact_support)?.setOnClickListener { presenter?.contactSupport() }
+        findViewById<View>(R.id.log_out)?.setOnClickListener {
             presenter?.logOut(googleApiClient!!)
             Answers.getInstance().logCustom(CustomEvent("Log Out"))
         }
@@ -106,9 +106,9 @@ class MainActivity: BaseActivity(),
         }
 
         // show/hide notification card
-        findViewById<View>(R.id.notifications_card).visibility = if (notificationsEnabled) View.GONE else View.VISIBLE
+        findViewById<View>(R.id.notifications_card)?.visibility = if (notificationsEnabled) View.GONE else View.VISIBLE
         if (!notificationsEnabled) {
-            findViewById<View>(R.id.enable_notifications).setOnClickListener { openNotificationSettings() }
+            findViewById<View>(R.id.enable_notifications)?.setOnClickListener { openNotificationSettings() }
         }
     }
 
@@ -129,7 +129,7 @@ class MainActivity: BaseActivity(),
 
     override fun setDisplayEmail(email: String) {
         val displayEmail = findViewById(R.id.user_email) as TextView
-        displayEmail.text = email
+        displayEmail?.text = email
     }
 
     override fun showRequestPermissions() {
@@ -144,23 +144,23 @@ class MainActivity: BaseActivity(),
     }
 
     override fun setContactsLastSynced(message: String) {
-        val contactsLastSynced = findViewById(R.id.contacts_last_synced) as TextView
-        contactsLastSynced.text = message
+        val contactsLastSynced = findViewById(R.id.contacts_last_synced) as TextView?
+        contactsLastSynced?.text = message
     }
 
     override fun setMessagesLastSynced(message: String) {
-        val messagesLastSynced = findViewById(R.id.messages_last_synced) as TextView
-        messagesLastSynced.text = message
+        val messagesLastSynced = findViewById(R.id.messages_last_synced) as TextView?
+        messagesLastSynced?.text = message
     }
 
     override fun setSyncingMessages(syncing: Boolean) {
-        findViewById<View>(R.id.messages_sync).setVisible(!syncing)
-        findViewById<View>(R.id.messages_loader).setVisible(syncing)
+        findViewById<View>(R.id.messages_sync)?.setVisible(!syncing)
+        findViewById<View>(R.id.messages_loader)?.setVisible(syncing)
     }
 
     override fun setSyncingContacts(syncing: Boolean) {
-        findViewById<View>(R.id.contacts_sync).setVisible(!syncing)
-        findViewById<View>(R.id.contacts_loader).setVisible(syncing)
+        findViewById<View>(R.id.contacts_sync)?.setVisible(!syncing)
+        findViewById<View>(R.id.contacts_loader)?.setVisible(syncing)
     }
 
     override fun onClick(v: View) {
@@ -187,8 +187,8 @@ class MainActivity: BaseActivity(),
     }
 
     private fun initSyncButtons() {
-        findViewById<View>(R.id.contacts_sync).setOnClickListener(this)
-        findViewById<View>(R.id.messages_sync).setOnClickListener(this)
+        findViewById<View>(R.id.contacts_sync)?.setOnClickListener(this)
+        findViewById<View>(R.id.messages_sync)?.setOnClickListener(this)
     }
 
     override fun redirectToLogin() {

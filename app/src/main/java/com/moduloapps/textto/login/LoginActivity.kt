@@ -60,7 +60,7 @@ class LoginActivity : BaseActivity(), View.OnClickListener, LoginPresenter.View 
         loginLoader = findViewById(R.id.login_loader)
 
         val text = findViewById<TextView>(R.id.terms_conditions)
-        text.movementMethod = LinkMovementMethod.getInstance()
+        text?.movementMethod = LinkMovementMethod.getInstance()
 
         val options = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestIdToken(getString(R.string.client_id))
