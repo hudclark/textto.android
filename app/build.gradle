@@ -17,8 +17,8 @@ android {
         applicationId "com.moduloapps.textto"
         minSdkVersion 21
         targetSdkVersion 25
-        versionCode 11
-        versionName "1.11"
+        versionCode 12
+        versionName "1.12"
     }
     buildTypes {
         debug {
@@ -26,7 +26,7 @@ android {
             minifyEnabled false
             //buildConfigField "String", "API_URL", '"https://api.textto.io"'
             //buildConfigField "String", "API_URL", '"http://10.0.2.2:5000"'
-            buildConfigField "String", "API_URL", '"http://192.168.0.24:8000"'
+            buildConfigField "String", "API_URL", '"http://35.1.98.252:8000"'
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
         release {
@@ -75,12 +75,6 @@ dependencies {
         compile 'com.google.dagger:dagger:2.4'
         kapt 'com.google.dagger:dagger-compiler:2.4'
         provided 'org.glassfish:javax.annotation:10.0-b28'
-
-        // glide
-        compile 'com.github.bumptech.glide:glide:4.0.0-RC1'
-
-        // circle image view
-        compile 'de.hdodenhof:circleimageview:2.1.0'
 
         // leak canary
         debugCompile 'com.squareup.leakcanary:leakcanary-android:1.5.4'

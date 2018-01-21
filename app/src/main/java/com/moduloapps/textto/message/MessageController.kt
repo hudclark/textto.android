@@ -63,7 +63,7 @@ object MessageController {
     private fun getMessagesForThread(context: Context, threadId: Int, limit: Int): ArrayList<Message> {
         val uri = Uri.parse("content://mms-sms/conversations/$threadId?simple=true")
         val projection = arrayOf("_id", "type", "date")
-        val cur = context.contentResolver.query(uri, projection, null, null, "date DESC LIMIT $limit")
+        val cur = context.contentResolver.query(uri, projection, null, null, "_id DESC LIMIT $limit")
         val messages = ArrayList<Message>()
 
         cur.forEach {
@@ -84,7 +84,7 @@ object MessageController {
     private fun getTwentyRecentThreads(context: Context): List<Int> {
         val threadIdProjection = arrayOf(Telephony.Threads._ID, Telephony.Threads.DATE)
         val uri = Uri.parse("content://mms-sms/conversations?simple=true")
-        val cur = context.contentResolver.query(uri, threadIdProjection, null, null, null)
+        val cur = context.contentResolver.query(uri, threadIdProjection, null, null, "${Telephony.Threads.DATE} desc")
         val threads = ArrayList<Int>(15)
 
         cur.whileUnder(15, {

@@ -21,7 +21,7 @@ const val SYNC_CHANNEL_DESCRIPTION = "Notification Channel for Sync"
 @RequiresApi(Build.VERSION_CODES.O)
 fun createSyncChannel(context: Context) {
     // TODO hmmm what importance. What's worse - 'This app is using battery' or constantly notification?
-    val channel = NotificationChannel(SYNC_CHANNEL_ID, SYNC_CHANNEL_NAME, NotificationManager.IMPORTANCE_DEFAULT)
+    val channel = NotificationChannel(SYNC_CHANNEL_ID, SYNC_CHANNEL_NAME, NotificationManager.IMPORTANCE_LOW)
     channel.description = SYNC_CHANNEL_DESCRIPTION
 
     val manager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager

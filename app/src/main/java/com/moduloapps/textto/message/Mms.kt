@@ -28,7 +28,8 @@ object Mms {
         val mmsDate = date / 1000
         val selection = "date > $mmsDate AND _id > $id"
         val uri = Uri.parse("content://mms")
-        val cur = context.contentResolver.query(uri, null, selection, null, null)
+        val ordering = "${Telephony.Mms._ID} desc"
+        val cur = context.contentResolver.query(uri, null, selection, null, ordering)
         val messageCount = Math.min(cur.count, 1000)
         val messages = ArrayList<Message>()
 

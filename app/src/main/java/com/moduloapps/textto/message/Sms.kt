@@ -20,7 +20,8 @@ object Sms {
      */
     fun syncSms(date: Long, id: Int, context: Context, apiService: ApiService) {
         val selection = "_id > $id"
-        val cur = context.contentResolver.query(Uri.parse("content://sms"), null, selection, null, null)
+        val ordering = "${Telephony.Sms._ID} desc"
+        val cur = context.contentResolver.query(Uri.parse("content://sms"), null, selection, null, ordering)
         val messageCount = Math.min(cur.count, 1000)
         val messages = ArrayList<Message>()
 

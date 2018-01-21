@@ -26,7 +26,9 @@
             </intent-filter>
         </activity>
 
-        <service android:name="com.moduloapps.textto.service.FirebaseIdService">
+        <service android:name="com.moduloapps.textto.service.FirebaseIdService"
+            android:enabled="true"
+            android:exported="true" >
             <intent-filter>
                 <action android:name="com.google.firebase.INSTANCE_ID_EVENT" />
             </intent-filter>
@@ -72,13 +74,11 @@
             android:exported="false"
             android:grantUriPermissions="true">
 
-
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/file_paths" />
 
         </provider>
-
 
         <meta-data
             android:name="io.fabric.ApiKey"
