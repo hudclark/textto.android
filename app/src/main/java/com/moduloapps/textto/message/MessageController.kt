@@ -27,36 +27,44 @@ object MessageController {
         val threads = getTwentyRecentThreads(context)
 
         val messages = ArrayList<Message>()
-        val parts = ArrayList<MmsPart>()
+        //val parts = ArrayList<MmsPart>()
 
         threads.forEach {
             val threadMessages = getMessagesForThread(context, it, messagesPerThread)
+            /*
             val threadParts = threadMessages
                     .filter { it.type == "mms"}
                     .flatMap { Mms.getPartsForMms(it.androidId, context) }
+            parts.addAll(threadParts)
+            */
 
             messages.addAll(threadMessages)
-            parts.addAll(threadParts)
 
             if (messages.size > MAX_MESSAGES_PER_REQUEST) {
-                apiService.createMessages(messages).execute()
+                postMessages(messages, context, apiService)
                 messages.clear()
+                //apiService.createMessages(messages).execute()
+                //messages.clear()
             }
 
+            /*
             if (parts.size > MAX_MMS_PARTS_PER_REQUEST) {
                 Mms.postParts(parts, apiService, context)
                 parts.clear()
             }
+            */
         }
 
         // Leftovers.
         if (messages.isNotEmpty()) {
-            apiService.createMessages(messages).execute()
+            postMessages(messages, context, apiService)
         }
 
+        /*
         if (parts.isNotEmpty()) {
             Mms.postParts(parts, apiService, context)
         }
+        */
 
     }
 
