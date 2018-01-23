@@ -17,6 +17,8 @@ import com.moduloapps.textto.utils.ThreadUtils
 import com.moduloapps.textto.utils.getNeededPermissions
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
+import retrofit2.Call
+import retrofit2.Response
 
 /**
  * Created by hudson on 7/16/17.
@@ -45,8 +47,18 @@ class HomePresenter(val apiService: ApiService,
     fun syncContacts() {
         view?.let {
             it.setSyncingContacts(true)
-            it.getApplicationContext().startService(Intent(it.getApplicationContext(), ContactSyncService::class.java))
-            ThreadUtils.runOnMainThread(Runnable { view?.setSyncingContacts(false)}, 15000) // completely arbitrary
+
+            apiService.syncContacts().enqueue(object: retrofit2.Callback<String> {
+                override fun onFailure(call: Call<String>?, t: Throwable?) {
+                    Log.d(TAG, "Failed to sync contacts.")
+                }
+
+                override fun onResponse(call: Call<String>?, response: Response<String>?) {
+                    Log.d(TAG, "Send contact sync request.")
+                }
+            })
+
+            ThreadUtils.runOnMainThread(Runnable { view?.setSyncingContacts(false)}, 20000) // completely arbitrary
             it.setContactsLastSynced("Synced less than a minute ago")
         }
     }

@@ -119,6 +119,10 @@ class ImageUtils {
             return Base64.encodeToString(bytes, Base64.NO_WRAP)
         }
 
+        fun byteArrayToBase64(bytes: ByteArray): String {
+            return Base64.encodeToString(bytes, Base64.NO_WRAP)
+        }
+
         fun getSampleRatio(ratio: Double): Int {
             val i = Integer.highestOneBit(Math.floor(ratio).toInt())
             return if (i == 0) 1 else i

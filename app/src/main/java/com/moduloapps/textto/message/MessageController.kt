@@ -11,7 +11,6 @@ import com.moduloapps.textto.api.ApiService
 import com.moduloapps.textto.api.MAX_MESSAGES_PER_REQUEST
 import com.moduloapps.textto.api.MAX_MMS_PARTS_PER_REQUEST
 import com.moduloapps.textto.model.Message
-import com.moduloapps.textto.model.MmsPart
 import com.moduloapps.textto.utils.forEach
 import com.moduloapps.textto.utils.whileUnder
 import java.util.*
@@ -25,47 +24,21 @@ object MessageController {
 
     fun syncRecentThreads(context: Context, apiService: ApiService, messagesPerThread: Int) {
         val threads = getTwentyRecentThreads(context)
-
         val messages = ArrayList<Message>()
-        //val parts = ArrayList<MmsPart>()
 
         threads.forEach {
-            val threadMessages = getMessagesForThread(context, it, messagesPerThread)
-            /*
-            val threadParts = threadMessages
-                    .filter { it.type == "mms"}
-                    .flatMap { Mms.getPartsForMms(it.androidId, context) }
-            parts.addAll(threadParts)
-            */
-
-            messages.addAll(threadMessages)
-
+            messages.addAll(getMessagesForThread(context, it, messagesPerThread))
             if (messages.size > MAX_MESSAGES_PER_REQUEST) {
                 postMessages(messages, context, apiService)
                 messages.clear()
-                //apiService.createMessages(messages).execute()
-                //messages.clear()
             }
 
-            /*
-            if (parts.size > MAX_MMS_PARTS_PER_REQUEST) {
-                Mms.postParts(parts, apiService, context)
-                parts.clear()
-            }
-            */
         }
 
         // Leftovers.
         if (messages.isNotEmpty()) {
             postMessages(messages, context, apiService)
         }
-
-        /*
-        if (parts.isNotEmpty()) {
-            Mms.postParts(parts, apiService, context)
-        }
-        */
-
     }
 
     private fun getMessagesForThread(context: Context, threadId: Int, limit: Int): ArrayList<Message> {

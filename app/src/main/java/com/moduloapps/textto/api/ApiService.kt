@@ -22,6 +22,9 @@ interface ApiService {
     @POST("mmsparts/bulk")
     fun createMmsParts(@Body parts: List<MmsPart>): Call<Map<String, List<MmsPart?>>>
 
+    @POST("user/sync-contacts")
+    fun syncContacts(): Call<String>
+
     @PUT
     fun putMmsImage(@Url url: String, @Body body: RequestBody): Call<Void>
 
