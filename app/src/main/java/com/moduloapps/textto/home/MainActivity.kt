@@ -19,11 +19,10 @@ import com.moduloapps.textto.api.SessionController
 import com.moduloapps.textto.dialog.EnableNotificationsDialog
 import com.moduloapps.textto.login.LoginActivity
 import com.moduloapps.textto.onboarding.OnboardingActivity
+import com.moduloapps.textto.service.ContactSyncService
 import com.moduloapps.textto.service.NotificationListener
 import com.moduloapps.textto.service.SmsObserverService
-import com.moduloapps.textto.tasks.TestingClass
 import com.moduloapps.textto.utils.PERMISSIONS_CODE
-import com.moduloapps.textto.utils.ThreadUtils
 import com.moduloapps.textto.utils.getNeededPermissions
 import com.moduloapps.textto.utils.requestPermissions
 import javax.inject.Inject
@@ -82,7 +81,10 @@ class MainActivity: BaseActivity(),
             if (intent.getBooleanExtra(LoginActivity.DID_LOG_IN, false)) {
                 startService(Intent(this@MainActivity, SmsObserverService::class.java))
                 syncMessages()
-                syncContacts()
+
+                // Sync contacts immediantly - may not have set firebase id yet.
+                startService(Intent(this@MainActivity, ContactSyncService::class.java))
+                //syncContacts()
             }
         }
 
