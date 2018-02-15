@@ -101,8 +101,7 @@ class HomePresenter(val apiService: ApiService,
         }
     }
 
-    fun contactSupport() {
-        val context = view?.getApplicationContext() ?: return
+    fun contactSupport(context: Context) {
         val intent = Intent(Intent.ACTION_SENDTO)
         intent.data = Uri.parse("mailto:")
         intent.putExtra(Intent.EXTRA_EMAIL, arrayOf("help@textto.io"))

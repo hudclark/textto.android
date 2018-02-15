@@ -63,7 +63,7 @@ class MainActivity: BaseActivity(),
                 .build()
         googleApiClient!!.connect()
 
-        findViewById<View>(R.id.contact_support)?.setOnClickListener { presenter?.contactSupport() }
+        findViewById<View>(R.id.contact_support)?.setOnClickListener { presenter?.contactSupport(this@MainActivity) }
         findViewById<View>(R.id.log_out)?.setOnClickListener {
             presenter?.logOut(googleApiClient!!)
             Answers.getInstance().logCustom(CustomEvent("Log Out"))

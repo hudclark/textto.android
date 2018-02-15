@@ -40,7 +40,8 @@ object MessageSender {
         // Nothing to send
         if (fileUrl == null && textContent == null) return
 
-        val isMms = fileUrl != null || scheduledMessage.addresses.size > 1 || scheduledMessage.body?.length ?: 0 > 159
+        // TODO change this
+        val isMms = fileUrl != null || scheduledMessage.addresses.size > 1 || (SmsManager.getDefault().divideMessage(scheduledMessage.body ?: "").size > 1)
 
         // analytics
         val type = if (isMms) "mms" else "sms"
