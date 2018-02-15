@@ -13,7 +13,7 @@ import retrofit2.http.*
  */
 interface ApiService {
 
-    @POST("contacts/bulk")
+    @POST("v2/contacts/bulk")
     fun postContacts(@Body contacts: List<Contact>): Call<String>
 
     @POST("messages/bulk")

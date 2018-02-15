@@ -1,7 +1,11 @@
+/*
+ * Copyright (c) 2018. Modulo Apps LLC
+ */
+
 package com.moduloapps.textto.model
 
 /**
- * Created by hudson on 12/10/16.
+ * Created by hudson on 2/15/18.
  *
  * Contact v2 format:
  * {
@@ -13,10 +17,8 @@ package com.moduloapps.textto.model
  *          address: string
  *      ]
  * }
- *
  */
-data class Contact(val androidId: Int,
-                   val name: String?,
-                   val image: String?,
-                   val addresses: MutableList<ContactAddress>
+data class ContactAddress(
+        val type: String?,
+        val address: String
 )

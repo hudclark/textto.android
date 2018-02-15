@@ -11,6 +11,7 @@ import android.os.Looper
 import android.provider.ContactsContract
 import android.support.v4.app.NotificationCompat
 import android.support.v4.content.ContextCompat
+import android.text.TextUtils
 import android.util.Log
 import com.crashlytics.android.Crashlytics
 import com.moduloapps.textto.BaseApplication
@@ -19,6 +20,7 @@ import com.moduloapps.textto.api.ApiService
 import com.moduloapps.textto.api.MAX_CONTACTS_PER_REQUEST
 import com.moduloapps.textto.home.MainActivity
 import com.moduloapps.textto.model.Contact
+import com.moduloapps.textto.model.ContactAddress
 import com.moduloapps.textto.utils.ImageUtils
 import com.moduloapps.textto.utils.SYNC_CHANNEL_ID
 import com.moduloapps.textto.utils.tryForEach
@@ -99,25 +101,52 @@ class ContactSyncService : Service() {
                 arrayOf(ContactsContract.Contacts._ID,
                         ContactsContract.CommonDataKinds.Phone.CONTACT_ID,
                         ContactsContract.Contacts.DISPLAY_NAME,
-                        ContactsContract.CommonDataKinds.Phone.NUMBER),
+                        ContactsContract.CommonDataKinds.Phone.NUMBER,
+                        ContactsContract.CommonDataKinds.Phone.TYPE),
                 null, null, null)
         if (cur == null || cur.count == 0) return emptyList()
 
+        // TODO do we need to worry about out of memory error if this gets huge?
         val contactMap = HashMap<Int, Contact>()
 
         cur.tryForEach {
             val contactId = it.getInt(it.getColumnIndex(ContactsContract.CommonDataKinds.Phone.CONTACT_ID))
-            if (!contactMap.containsKey(contactId)) {
-                val address = it.getString(it.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER))
-                val thumbnail = getContactThumbnail(contactId)
-                val name = it.getString(it.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME))
-                val contact = Contact(contactId, name, address, thumbnail)
+            val address = it.getString(it.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER))
+            if (!TextUtils.isEmpty(address)) {
+                val labelType = it.getInt(it.getColumnIndex(ContactsContract.CommonDataKinds.Phone.TYPE))
+                val type = getContactType(labelType)
+
+                // Create contactAddress for this new address. If it is not the first number for a contact, we'll add it.
+                val contactAddress = ContactAddress(type, address)
+
+                // If this is a new contact, add it to the map
+                var contact: Contact? = contactMap[contactId]
+                if (contact == null) {
+                    val thumbnail = getContactThumbnail(contactId)
+                    val name = it.getString(it.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME))
+                    contact = Contact(
+                            androidId = contactId,
+                            name = name,
+                            image = thumbnail,
+                            addresses = arrayListOf(contactAddress) )
+                }
+                // Else add the new number to this contact and save.
+                else {
+                    Log.e("Already had contact $contactId", contactAddress.toString())
+                    contact.addresses.add(contactAddress)
+                }
+
+                // save the updated contact. (either new or added an address to it)
                 contactMap[contactId] = contact
             }
         }
 
         cur.close()
         return contactMap.values.toList()
+    }
+
+    private fun getContactType(type: Int): String {
+        return ContactsContract.CommonDataKinds.Phone.getTypeLabel(application.resources, type, "Mobile").toString()
     }
 
     private fun getContactThumbnail(id: Int): String? {
