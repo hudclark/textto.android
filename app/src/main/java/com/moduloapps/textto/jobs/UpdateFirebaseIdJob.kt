@@ -54,6 +54,6 @@ class UpdateFirebaseIdJob: Job(Params(PRIORITY).requireNetwork().persist()) {
         Log.d(TAG, "Cancelled.")
     }
 
-    override fun getRetryLimit() = 25
+    override fun getRetryLimit() = 50
 
 }
