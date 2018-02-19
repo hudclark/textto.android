@@ -1,19 +1,19 @@
 package com.moduloapps.textto.message
 
+import android.app.Application
 import android.content.Context
 import android.database.Cursor
 import android.net.Uri
 import android.provider.Telephony
 import android.text.TextUtils
-import android.util.Log
-import com.crashlytics.android.Crashlytics
+import com.moduloapps.textto.BaseApplication
 import com.moduloapps.textto.api.ApiService
 import com.moduloapps.textto.api.MAX_MESSAGES_PER_REQUEST
+import com.moduloapps.textto.jobs.UploadMmsJob
 import com.moduloapps.textto.model.Message
 import com.moduloapps.textto.model.MmsPart
 import com.moduloapps.textto.utils.*
 import java.io.BufferedReader
-import java.io.InputStream
 import java.io.InputStreamReader
 
 /**
@@ -23,7 +23,7 @@ object Mms {
 
     private val TAG = "Mms"
 
-    fun syncMms(date: Long, id: Int, context: Context, apiService: ApiService) {
+    fun syncMms(date: Long, id: Int, context: Application, apiService: ApiService) {
         // mms date bug
         val mmsDate = date / 1000
         val selection = "date > $mmsDate AND _id > $id"
@@ -75,11 +75,11 @@ object Mms {
                 date = date * 1000)
     }
 
-    fun postParts(parts: List<MmsPart>, apiService: ApiService, context: Context) {
+    fun postParts(parts: List<MmsPart>, apiService: ApiService, context: Application) {
         val postedParts = apiService.createMmsParts(parts).execute().body()["mmsParts"]
         postedParts?.forEach {
             it?.imageUrl?.let { imageUrl ->
-                uploadFullImage(it.contentType, imageUrl, it.androidId, context, apiService)
+                (context as BaseApplication).addBackgroundJob(UploadMmsJob(it.contentType, imageUrl, it.androidId))
             }
         }
     }
@@ -151,17 +151,6 @@ object Mms {
         cur?.close()
 
         return sender ?: "unknown"
-    }
-
-    private fun uploadFullImage(contentType: String, imageUrl: String, partId: Int, context: Context, apiService: ApiService) {
-        try {
-            val uri = Uri.parse("content://mms/part/$partId")
-            val stream: InputStream = context.contentResolver.openInputStream(uri)
-            ImageUtils.uploadImage(stream, contentType, imageUrl, apiService)
-        } catch (e: Exception) {
-            Crashlytics.logException(e)
-            Log.e(TAG, "Error uploading full size image", e)
-        }
     }
 
     private fun getMmsImageThumbnail(partId: Int, context: Context): String? {

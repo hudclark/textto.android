@@ -66,6 +66,20 @@ class ImageUtils {
             return outStream.toByteArray()
         }
 
+        fun compressImage(inputStream: InputStream, contentType: String): ByteArray {
+            val bytes: ByteArray = when (contentType) {
+                "image/gif" -> {
+                    val byteArray = ByteArray(inputStream.available())
+                    while (inputStream.read(byteArray) != -1);
+                    byteArray
+                }
+                "image/png" -> compressImage(inputStream, Bitmap.CompressFormat.PNG)
+                else -> compressImage(inputStream, Bitmap.CompressFormat.JPEG)
+            }
+            inputStream.close()
+            return bytes
+        }
+
         fun createThumbnail(uri: Uri, context: Context): String? {
             var inStream = context.contentResolver.openInputStream(uri)
             val inOptions = BitmapFactory.Options()
@@ -84,32 +98,6 @@ class ImageUtils {
 
             val thumb =  ThumbnailUtils.extractThumbnail(BitmapFactory.decodeStream(inStream), width.toInt(), height.toInt())
             return imageToBase64(thumb)
-        }
-
-        fun uploadImage(inputStream: InputStream, contentType: String, imageUrl: String, apiService: ApiService) {
-            val bytes: ByteArray = when (contentType) {
-                "image/gif" -> {
-                    val byteArray = ByteArray(inputStream.available())
-                    while (inputStream.read(byteArray) != -1);
-                    byteArray
-                }
-                "image/png" -> compressImage(inputStream, Bitmap.CompressFormat.PNG)
-                else -> compressImage(inputStream, Bitmap.CompressFormat.JPEG)
-            }
-
-            inputStream.close()
-
-            val body = RequestBody.create(MediaType.parse(contentType), bytes)
-            apiService.uploadImage(imageUrl, body).enqueue(object: RetryCallback<Void>(10, 1000) {
-                override fun onResponse(call: Call<Void>?, response: Response<Void>?) {
-                    Log.d(TAG, "Uploaded mms image")
-                }
-
-                override fun onFailed(t: Throwable) {
-                    // TODO could put into a queue to run when we have internet again
-                    Log.d(TAG, "Failed to upload mms image", t)
-                }
-            })
         }
 
         fun imageToBase64(image: Bitmap): String {

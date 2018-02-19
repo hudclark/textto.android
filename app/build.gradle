@@ -24,8 +24,8 @@ android {
         debug {
             ext.enableCrashlytics = false
             minifyEnabled true
-            //buildConfigField "String", "API_URL", '"https://api.textto.io"'
-            buildConfigField "String", "API_URL", '"http://10.0.2.2:8000"'
+            buildConfigField "String", "API_URL", '"https://api.textto.io"'
+            //buildConfigField "String", "API_URL", '"http://10.0.2.2:8000"'
             //buildConfigField "String", "API_URL", '"http://35.1.7.123:8000"'
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }

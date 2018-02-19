@@ -1,5 +1,6 @@
 package com.moduloapps.textto.message
 
+import android.app.Application
 import android.content.Context
 import android.content.pm.PackageManager
 import android.net.Uri
@@ -22,7 +23,7 @@ object MessageController {
 
     private val TAG = "MessageController"
 
-    fun syncRecentThreads(context: Context, apiService: ApiService, messagesPerThread: Int) {
+    fun syncRecentThreads(context: Application, apiService: ApiService, messagesPerThread: Int) {
         val threads = getTwentyRecentThreads(context)
         val messages = ArrayList<Message>()
 
@@ -77,7 +78,7 @@ object MessageController {
         return threads
     }
 
-    fun postMessages(messages: List<Message>, context: Context, apiService: ApiService) {
+    fun postMessages(messages: List<Message>, context: Application, apiService: ApiService) {
 
         // post messages
         apiService.createMessages(messages).execute()

@@ -1,5 +1,6 @@
 package com.moduloapps.textto.message
 
+import android.app.Application
 import android.content.Context
 import android.database.Cursor
 import android.net.Uri
@@ -18,7 +19,7 @@ object Sms {
     /**
      * Will push sms up to last id to server
      */
-    fun syncSms(date: Long, id: Int, context: Context, apiService: ApiService) {
+    fun syncSms(date: Long, id: Int, context: Application, apiService: ApiService) {
         val selection = "_id > $id"
         val ordering = "${Telephony.Sms._ID} desc"
         val cur = context.contentResolver.query(Uri.parse("content://sms"), null, selection, null, ordering)
