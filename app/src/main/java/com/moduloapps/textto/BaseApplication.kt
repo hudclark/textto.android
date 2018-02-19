@@ -2,18 +2,19 @@ package com.moduloapps.textto
 
 import android.app.Application
 import android.os.Build
-import android.util.Log
+import com.birbit.android.jobqueue.Job
+import com.birbit.android.jobqueue.JobManager
+import com.birbit.android.jobqueue.config.Configuration
+import com.birbit.android.jobqueue.scheduling.FrameworkJobSchedulerService
 import com.crashlytics.android.Crashlytics
 import com.crashlytics.android.core.CrashlyticsCore
-import com.google.gson.JsonObject
 import com.moduloapps.textto.di.AppComponent
 import com.moduloapps.textto.di.DaggerAppComponent
 import com.moduloapps.textto.di.PreferencesModule
+import com.moduloapps.textto.service.JobSchedulerService
 import com.moduloapps.textto.utils.createSyncChannel
 import com.squareup.leakcanary.LeakCanary
 import io.fabric.sdk.android.Fabric
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.schedulers.Schedulers
 
 /**
  * Created by hudson on 9/5/16.
@@ -23,12 +24,15 @@ class BaseApplication: Application() {
     private val TAG = "BaseApplication"
 
     lateinit var appComponent: AppComponent
+    lateinit var jobManager: JobManager
 
     override fun onCreate() {
         super.onCreate()
+        initJobManager()
         appComponent = DaggerAppComponent.builder()
                 .preferencesModule(PreferencesModule(applicationContext))
                 .build()
+
         if (LeakCanary.isInAnalyzerProcess(this)) return
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) createSyncChannel(this)
         LeakCanary.install(this)
@@ -39,21 +43,17 @@ class BaseApplication: Application() {
         Fabric.with(this, kit)
     }
 
-    // TODO move this to something else
-    fun setFirebaseToken(token: String) {
-        if (appComponent.getSessionController().isLoggedIn()) {
-            val data = JsonObject()
-            data.addProperty("firebaseId", token)
-            appComponent.getApiService().updateFirebaseId(data)
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe({
-                        Log.d(TAG, "Set firebase id")
-                    }, {
-                        Log.e(TAG, "Error setting firebase id: $it")
-                        Crashlytics.log(1, TAG, it.toString())
-                    })
-            }
+    private fun initJobManager () {
+        val builder = Configuration.Builder(this)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            @Suppress("INACCESSIBLE_TYPE")
+            builder.scheduler(FrameworkJobSchedulerService.createSchedulerFor(this, JobSchedulerService::class.java))
         }
+        jobManager = JobManager(builder.build())
+    }
+
+    fun addBackgroundJob(job: Job) {
+        jobManager.addJobInBackground(job)
+    }
 
 }

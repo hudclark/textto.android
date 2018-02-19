@@ -50,3 +50,4 @@
 }
 
 -keep class com.moduloapps.textto.model.** { *; }
+-keep class com.moduloapps.textto.jobs.** { *; }

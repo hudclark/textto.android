@@ -1,8 +1,8 @@
 package com.moduloapps.textto.service
 
-import com.google.firebase.iid.FirebaseInstanceId
 import com.google.firebase.iid.FirebaseInstanceIdService
 import com.moduloapps.textto.BaseApplication
+import com.moduloapps.textto.jobs.UpdateFirebaseIdJob
 
 /**
  * Created by hudson on 9/5/16.
@@ -11,9 +11,6 @@ import com.moduloapps.textto.BaseApplication
 class FirebaseIdService: FirebaseInstanceIdService() {
 
     override fun onTokenRefresh() {
-        val refreshedToken = FirebaseInstanceId.getInstance().token
-        if (refreshedToken != null) {
-            (applicationContext as BaseApplication).setFirebaseToken(refreshedToken)
-        }
+        (application as BaseApplication).addBackgroundJob(UpdateFirebaseIdJob())
     }
 }

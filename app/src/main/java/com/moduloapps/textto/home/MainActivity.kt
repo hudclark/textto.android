@@ -84,6 +84,7 @@ class MainActivity: BaseActivity(),
 
                 // Sync contacts immediantly - may not have set firebase id yet.
                 startService(Intent(this@MainActivity, ContactSyncService::class.java))
+                this@MainActivity.setContactsLastSynced("Synced less than a minute ago")
                 //syncContacts()
             }
         }

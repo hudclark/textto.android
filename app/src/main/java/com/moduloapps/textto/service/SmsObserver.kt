@@ -24,7 +24,7 @@ class SmsObserver(val context: BaseApplication,
     private val publishSubject: PublishSubject<Any?> = PublishSubject.create()
 
     init {
-        publishSubject.debounce(1000, TimeUnit.MILLISECONDS).subscribe {
+        publishSubject.debounce(800, TimeUnit.MILLISECONDS).subscribe {
             Log.d(TAG, "Starting...")
             ThreadUtils.runSingleThreadTask(MessageSyncTask(apiService, context, sharedPreferences))
         }

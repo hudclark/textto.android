@@ -48,7 +48,7 @@ interface ApiService {
     fun reportFailed(@Path("id") id: String, @Body body: JsonObject): Call<String>
 
     @POST("user/firebase-id")
-    fun updateFirebaseId(@Body token: JsonObject): Observable<Map<String, String>>
+    fun updateFirebaseId(@Body token: JsonObject): Call<Map<String, String>>
 
     @POST("user/startInitialSync")
     fun startInitialSync(): Call<Map<String, String>>

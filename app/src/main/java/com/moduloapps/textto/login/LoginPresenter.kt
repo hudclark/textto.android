@@ -6,11 +6,11 @@ import android.util.Log
 import com.crashlytics.android.Crashlytics
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInResult
-import com.google.firebase.iid.FirebaseInstanceId
 import com.google.gson.JsonObject
 import com.moduloapps.textto.BaseApplication
 import com.moduloapps.textto.api.PublicApiService
 import com.moduloapps.textto.api.SessionController
+import com.moduloapps.textto.jobs.UpdateFirebaseIdJob
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -64,9 +64,8 @@ class LoginPresenter(val apiService: PublicApiService, val sessionController: Se
                     sessionController.setRefreshToken(tokens.get("refresh").asString)
                     sessionController.saveSignInAccount(account)
 
-                    val firebaseToken = FirebaseInstanceId.getInstance().token
-                    if (firebaseToken != null)
-                        view?.getBaseApplication()?.setFirebaseToken(firebaseToken)
+                    // update firebase id
+                    view?.getBaseApplication()?.addBackgroundJob(UpdateFirebaseIdJob())
 
                     // everything was successful
                     view?.onLoginSuccess()
