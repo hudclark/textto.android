@@ -63,8 +63,10 @@ object Mms {
         val id = cur.getInt(cur.getColumnIndex("_id"))
         val threadId = cur.getInt(cur.getColumnIndex(Telephony.BaseMmsColumns.THREAD_ID))
         val date = cur.getLong(cur.getColumnIndex(Telephony.BaseMmsColumns.DATE))
-        val sender = getSender(id, context)
         val addresses = Thread.getAddresses(threadId, context)
+
+        val sender = if (isMe(cur)) "me" else getSender(id, context)
+
         return Message(
                 type = "mms",
                 androidId = id,
@@ -73,6 +75,12 @@ object Mms {
                 sender = sender,
                 addresses = addresses,
                 date = date * 1000)
+    }
+
+    // https://github.com/aosp-mirror/platform_packages_apps_mms/blob/master/src/com/android/mms/ui/MessageItem.java#L225
+    private fun isMe(cur: Cursor): Boolean {
+        val box = cur.getInt(cur.getColumnIndex(Telephony.BaseMmsColumns.MESSAGE_BOX))
+        return !(box == Telephony.Mms.MESSAGE_BOX_INBOX || box == Telephony.Mms.MESSAGE_BOX_ALL)
     }
 
     fun postParts(parts: List<MmsPart>, apiService: ApiService, context: Application) {
