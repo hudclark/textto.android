@@ -14,6 +14,7 @@ import android.support.v4.content.ContextCompat
 import android.text.TextUtils
 import android.util.Log
 import com.crashlytics.android.Crashlytics
+import com.google.i18n.phonenumbers.PhoneNumberUtil
 import com.moduloapps.textto.BaseApplication
 import com.moduloapps.textto.R
 import com.moduloapps.textto.api.ApiService
@@ -109,6 +110,8 @@ class ContactSyncService : Service() {
         // TODO do we need to worry about out of memory error if this gets huge?
         val contactMap = HashMap<Int, Contact>()
 
+        val phoneNumberUtil = PhoneNumberUtil.getInstance()
+
         cur.tryForEach {
             val contactId = it.getInt(it.getColumnIndex(ContactsContract.CommonDataKinds.Phone.CONTACT_ID))
             val address = it.getString(it.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER))
@@ -132,8 +135,19 @@ class ContactSyncService : Service() {
                 }
                 // Else add the new number to this contact and save.
                 else {
-                    Log.e("Already had contact $contactId", contactAddress.toString())
-                    contact.addresses.add(contactAddress)
+
+                    // Make sure that this contactAddress does not already exist
+                    val existing = contact.addresses.find {
+                        val match = phoneNumberUtil.isNumberMatch(it.address, address)
+                        return@find (match == PhoneNumberUtil.MatchType.EXACT_MATCH ||
+                                     match == PhoneNumberUtil.MatchType.NSN_MATCH)
+                    }
+
+                    // did not already exist
+                    if (existing == null) {
+                        contact.addresses.add(contactAddress)
+                    }
+
                 }
 
                 // save the updated contact. (either new or added an address to it)
