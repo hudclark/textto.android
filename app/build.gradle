@@ -17,16 +17,16 @@ android {
         applicationId "com.moduloapps.textto"
         minSdkVersion 21
         targetSdkVersion 25
-        versionCode 20
-        versionName "1.20"
+        versionCode 21
+        versionName "1.21"
     }
     buildTypes {
         debug {
             ext.enableCrashlytics = false
             minifyEnabled true
             //buildConfigField "String", "API_URL", '"https://api.textto.io"'
-            //buildConfigField "String", "API_URL", '"http://10.0.2.2:8000"'
-            buildConfigField "String", "API_URL", '"http://192.168.0.24:8000"'
+            buildConfigField "String", "API_URL", '"http://10.0.2.2:8000"'
+            //buildConfigField "String", "API_URL", '"http://192.168.0.24:8000"'
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
         release {

@@ -41,8 +41,7 @@ class ImageUtils {
                 }
                 Log.d(TAG, "Compressing image to $compressQuality% quality...")
                 // Try losses compression first.
-                val format = if (compressQuality == 100) Bitmap.CompressFormat.PNG else Bitmap.CompressFormat.JPEG
-                bitmap.compress(format, compressQuality, outStream)
+                bitmap.compress(Bitmap.CompressFormat.JPEG, compressQuality, outStream)
                 streamLength = outStream.size()
                 if (compressQuality == 100) {
                     Log.d(TAG, "Original size is ${outStream.size() / 1024}kb")

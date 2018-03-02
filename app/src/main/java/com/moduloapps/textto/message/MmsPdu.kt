@@ -16,7 +16,10 @@ class MmsPdu(private val to: Array<String>) {
     companion object {
         private val TAG = "MmsPdu"
         private val UTF8: Int = 106
-        private val MAX_MMS_IMAGE_SIZE = 300 * 1024 // 500kb
+        /*
+        Lowered to 250kb after errors using 300kb.
+         */
+        private val MAX_MMS_IMAGE_SIZE = 250 * 1024
         private val EXPIRY_TIME: Long = 7 * 24 * 60 * 60
         private val PRIORITY = 0x81
         private val VALUE_NO = 0x81
