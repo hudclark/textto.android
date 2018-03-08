@@ -4,6 +4,7 @@
 
 package com.moduloapps.textto.encryption
 
+import com.moduloapps.textto.persistance.Persistence
 import java.nio.charset.Charset
 import java.security.SecureRandom
 import java.util.*
@@ -17,26 +18,36 @@ import javax.crypto.spec.SecretKeySpec
 /**
  * Created by hudson on 3/7/18.
  */
-class EncryptionHelper() {
+class EncryptionHelper(private val persistence: Persistence) {
 
     companion object {
-        const val ITERATIONS = 943786
+        const val ITERATIONS = 243786
         const val ENCRYPTION_ALG = "AES/CBC/PKCS5Padding"
-        const val KEY_TYPE = "PBKDF2WithHmacSHA256"
+        const val KEY_TYPE = "PBKDF2WithHmacSHA1"
         const val KEY_LENGTH = 128
         const val IV_LENGTH = 16
+
+        const val PREFERENCE_KEY = "eKey"
     }
 
-    private var key: SecretKey? = null
+    private var keySpec: SecretKey? = null
 
     init {
-        /*
-        val savedKey = sharedPrefs.getString(PREFERENCE_KEY, null)
+        val savedKey = persistence.getString(PREFERENCE_KEY, null)
         if (savedKey != null) {
             val keyBytes = savedKey.fromHex()
-            this.key = SecretKeySpec(keyBytes, ENCRYPTION_ALG)
+            this.keySpec = SecretKeySpec(keyBytes, ENCRYPTION_ALG)
         }
-        */
+        else keySpec = null
+    }
+
+    fun enabled() = this.keySpec != null
+
+    fun disable() {
+        synchronized(this) {
+            this.keySpec = null
+            persistence.putString(PREFERENCE_KEY, null)
+        }
     }
 
     /**
@@ -49,31 +60,25 @@ class EncryptionHelper() {
             val key = factory.generateSecret(keySpec)
 
             // Save the key
-            /*
-            val editor = sharedPrefs.edit()
-            editor.putString(PREFERENCE_KEY, key.encoded.toHex())
-            editor.apply()
-            */
+            persistence.putString(PREFERENCE_KEY, key.encoded.toHex())
 
-            // Set the key
-            this.key = key
+            // set the key
+            this.keySpec = SecretKeySpec(key.encoded, "AES")
         }
     }
 
-    fun getKey () = key?.encoded?.toHex()
+    fun getKey () = keySpec?.encoded?.toHex()
 
     /**
      * Encrypted the given plaintext with the current key in the following format:
      * 16-byte IV + ciphertext
      */
     fun encrypt(plaintext: String): String {
-        val encodedKey = this.key?.encoded ?: throw KeyNotSetException()
-        val keySpec = SecretKeySpec(encodedKey, "AES")
 
         val iv = generateIv()
         val ivSpec = IvParameterSpec(iv)
         val cipher = Cipher.getInstance(ENCRYPTION_ALG)
-        cipher.init(Cipher.ENCRYPT_MODE, keySpec, ivSpec)
+        cipher.init(Cipher.ENCRYPT_MODE, this.keySpec, ivSpec)
 
         val cipherText = cipher.doFinal(plaintext.toByteArray(Charset.forName("UTF-8")))
         return iv.toHex() + cipherText.toHex()
@@ -84,8 +89,6 @@ class EncryptionHelper() {
      * 16-byte IV + ciphertext
      */
     fun decrypt(ciphertext: String): String {
-        val encodedKey = this.key?.encoded ?: throw KeyNotSetException()
-        val keySpec = SecretKeySpec(encodedKey, "AES")
 
         // Split ivBytes from cipherBytes
         val ivBytes = ciphertext.substring(0, IV_LENGTH * 2).fromHex()
@@ -93,7 +96,7 @@ class EncryptionHelper() {
 
         val ivSpec = IvParameterSpec(ivBytes)
         val cipher = Cipher.getInstance(ENCRYPTION_ALG)
-        cipher.init(Cipher.DECRYPT_MODE, keySpec, ivSpec)
+        cipher.init(Cipher.DECRYPT_MODE, this.keySpec, ivSpec)
 
         val plainBytes = cipher.doFinal(cipherBytes)
         return plainBytes.toString(Charset.forName("UTF-8"))

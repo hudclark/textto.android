@@ -15,23 +15,24 @@ import static junit.framework.Assert.assertNotSame;
  */
 public class EncryptionTests {
 
+
     @Test
     public void testSetPassword () {
-        EncryptionHelper helper = new EncryptionHelper();
+        EncryptionHelper helper = new EncryptionHelper(new TestPersistence());
 
         helper.setPassword("password", "textto");
-        assertEquals("87bb305c10fe451c6c1bc1363fd5656a", helper.getKey());
+        assertEquals("a58761998a5bc2de205ce411c9338ad4", helper.getKey());
 
         helper.setPassword("password", "texttoo");
-        assertEquals("777cca91781909138d0b16a927fb1c4f", helper.getKey());
+        assertEquals("28046dea17c7dbfe56275b8da7efa5eb", helper.getKey());
 
         helper.setPassword("ēˈmōjē\uD83D\uDE00", "textto");
-        assertEquals("fb85042b72ecc58ee3080792f06e60d0", helper.getKey());
+        assertEquals("642669a4ff81b77cb4ee2c8192d9a985", helper.getKey());
     }
 
     @Test
     public void testEncryptionDecryption () {
-        EncryptionHelper helper = new EncryptionHelper();
+        EncryptionHelper helper = new EncryptionHelper(new TestPersistence());
         helper.setPassword("password", "textto");
 
         String plaintext = "hello world!";

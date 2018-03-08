@@ -22,6 +22,7 @@ import com.moduloapps.textto.onboarding.OnboardingActivity
 import com.moduloapps.textto.service.ContactSyncService
 import com.moduloapps.textto.service.NotificationListener
 import com.moduloapps.textto.service.SmsObserverService
+import com.moduloapps.textto.settings.SettingsActivity
 import com.moduloapps.textto.utils.PERMISSIONS_CODE
 import com.moduloapps.textto.utils.getNeededPermissions
 import com.moduloapps.textto.utils.requestPermissions
@@ -54,7 +55,7 @@ class MainActivity: BaseActivity(),
             return
         }
 
-        // no redirects
+        // no redirect
         setContentView(R.layout.activity_main)
         initSyncButtons()
 
@@ -67,6 +68,11 @@ class MainActivity: BaseActivity(),
         findViewById<View>(R.id.log_out)?.setOnClickListener {
             presenter?.logOut(googleApiClient!!)
             Answers.getInstance().logCustom(CustomEvent("Log Out"))
+        }
+
+        // Init settings button
+        findViewById<View>(R.id.settings_btn)?.setOnClickListener {
+            startActivity(Intent(this, SettingsActivity::class.java))
         }
 
         // init presenter

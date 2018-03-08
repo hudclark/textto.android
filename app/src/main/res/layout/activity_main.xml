@@ -87,11 +87,8 @@
                         android:layout_height="wrap_content"
                         android:layout_alignParentEnd="true"
                         android:layout_centerVertical="true"
-                        android:background="@color/blue"
-                        android:minHeight="32dp"
                         android:text="@string/enable"
-                        android:textAllCaps="false"
-                        android:textColor="@color/white" />
+                        style="@style/PrimaryButton"/>
                 </RelativeLayout>
 
             </android.support.v7.widget.CardView>
@@ -129,11 +126,47 @@
                         android:layout_height="wrap_content"
                         android:layout_alignParentEnd="true"
                         android:layout_centerVertical="true"
-                        android:background="@color/blue"
-                        android:minHeight="32dp"
                         android:text="@string/logout"
-                        android:textAllCaps="false"
-                        android:textColor="@color/white" />
+                        style="@style/PrimaryButton"/>
+                </RelativeLayout>
+
+            </android.support.v7.widget.CardView>
+
+            <android.support.v7.widget.CardView
+                android:id="@+id/settings_card"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="16dp"
+                android:layout_marginRight="16dp"
+                android:layout_marginTop="16dp">
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="76dp"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/settings"
+                        android:textSize="16sp" />
+
+                    <TextView
+                        android:text="@string/update_settings"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentBottom="true"
+                        android:gravity="bottom"
+                        android:textSize="12sp" />
+
+                    <Button
+                        style="@style/PrimaryButton"
+                        android:id="@+id/settings_btn"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentEnd="true"
+                        android:layout_centerVertical="true"
+                        android:text="@string/open"/>
                 </RelativeLayout>
 
             </android.support.v7.widget.CardView>
@@ -168,14 +201,11 @@
                     <Button
                         android:id="@+id/messages_sync"
                         android:layout_width="wrap_content"
+                        style="@style/PrimaryButton"
                         android:layout_height="wrap_content"
                         android:layout_alignParentEnd="true"
                         android:layout_centerVertical="true"
-                        android:background="@color/blue"
-                        android:minHeight="32dp"
-                        android:text="@string/sync"
-                        android:textAllCaps="false"
-                        android:textColor="@color/textWhite" />
+                        android:text="@string/sync"/>
 
                     <ProgressBar
                         android:id="@+id/messages_loader"
@@ -223,11 +253,8 @@
                         android:layout_height="wrap_content"
                         android:layout_alignParentEnd="true"
                         android:layout_centerVertical="true"
-                        android:background="@color/blue"
-                        android:minHeight="32dp"
-                        android:text="@string/sync"
-                        android:textAllCaps="false"
-                        android:textColor="@color/textWhite" />
+                        style="@style/PrimaryButton"
+                        android:text="@string/sync"/>
 
                     <ProgressBar
                         android:id="@+id/contacts_loader"

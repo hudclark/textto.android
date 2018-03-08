@@ -49,4 +49,35 @@
 
     <string name="syncing_contacts">Syncing Contacts</string>
     <string name="connected">Connected to Textto.io</string>
+
+
+    <!-- Settings -->
+    <string name="settings">Settings</string>
+    <string name="update_settings">Update your settings.</string>
+    <string name="open">Open</string>
+
+
+
+    <!-- Encryption strings -->
+
+    <string name="encryption">Encryption</string>
+
+    <string name="encryption_title_0">Set a Master Password.</string>
+    <string name="encryption_title_1">Important Information!</string>
+    <string name="encryption_title_2">Enter Master Password.</string>
+    <string name="encryption_title_3">You\'re Set!</string>
+
+    <string name="encryption_description_0">Setting a master password will enable end-to-end encryption. For more information, visit <a href="https://textto.io/e2e">https://textto.io/e2e</a>.</string>
+    <string name="encryption_description_1">You <i><strong>must</strong></i> also enter the same master password on your computer</string>
+    <string name="encryption_description_3">The content of your messages will now be encrypted.</string>
+
+    <string name="next">Next</string>
+    <string name="back">Back</string>
+    <string name="set">Set</string>
+    <string name="disable">Disable</string>
+    <string name="change">Change</string>
+    <string name="password">Password</string>
+
+    <string name="empty"></string>
+
 </resources>
