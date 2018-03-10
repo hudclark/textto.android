@@ -185,6 +185,7 @@ class EncryptionSetupFragment: Fragment() {
             2 -> setStage(1)
             3 -> {
                 encryptionHelper.disable()
+                onFinishedListener?.onFinishedSettingPassword()
                 setStage(0)
             }
         }
