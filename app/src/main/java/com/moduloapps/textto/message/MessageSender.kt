@@ -3,7 +3,6 @@ package com.moduloapps.textto.message
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import android.os.Build
 import android.support.v4.content.FileProvider
 import android.telephony.SmsManager
 import android.text.TextUtils
@@ -12,9 +11,9 @@ import com.crashlytics.android.Crashlytics
 import com.crashlytics.android.answers.Answers
 import com.crashlytics.android.answers.CustomEvent
 import com.moduloapps.textto.BaseApplication
+import com.moduloapps.textto.message.MmsPdu.Companion.MAX_MMS_IMAGE_SIZE
 import com.moduloapps.textto.model.ScheduledMessage
-import com.moduloapps.textto.service.DeliveryBroadcastReceiver
-import okhttp3.ResponseBody
+import com.moduloapps.textto.utils.ImageUtils
 import java.io.File
 import java.io.FileOutputStream
 
@@ -66,7 +65,6 @@ object MessageSender {
     }
 
     private fun sendMmsMessage(scheduledMessage: ScheduledMessage, context: BaseApplication) {
-        if (Build.VERSION.SDK_INT < 21) return
         Log.d(TAG, "Sending mms message to ${scheduledMessage.addresses.joinToString(",")}...")
         val filename = "text_${scheduledMessage._id}.txt"
         try {
@@ -79,7 +77,7 @@ object MessageSender {
             }
             // Add file. NOTE: cannot currently send multi part messages
             else if (!TextUtils.isEmpty(scheduledMessage.fileUrl)) {
-                val image = getMmsImage(scheduledMessage.fileUrl as String, context)
+                val image = getMmsImage(scheduledMessage.fileUrl as String, context, scheduledMessage.encrypted)
                 pdu.addImage(image)
             }
 
@@ -104,11 +102,24 @@ object MessageSender {
         }
     }
 
-    private fun getMmsImage(url: String, context: BaseApplication): MmsPdu.MmsImage {
+    private fun getMmsImage(url: String, context: BaseApplication, encrypted: Boolean): MmsPdu.MmsImage {
         Log.d(TAG, "Fetching file...")
         val response = context.appComponent.getApiService().getFile(url).execute().body()
         Log.d(TAG, "Successfully fetched file")
-        return ResponseBodyMmsImage(response)
+
+        var imageBytes =
+                if (response.contentType().toString() === "image/gif")
+                    response.bytes()
+                else
+                    ImageUtils.compressImage(response.byteStream(), MAX_MMS_IMAGE_SIZE)
+
+        // Decrypt the image if it was encrypted
+        if (encrypted) {
+            val encryptionHelper = context.appComponent.getEncryptionHelper()
+            imageBytes = encryptionHelper.decrypt(imageBytes)
+        }
+
+        return MmsPdu.MmsImage(response.contentType().toString(), imageBytes)
     }
 
     private fun getUniqueRequestCode(scheduledMessage: ScheduledMessage): Int {
@@ -116,11 +127,4 @@ object MessageSender {
         return scheduledMessage._id.toInt() + retries
     }
 
-    class ResponseBodyMmsImage(val response: ResponseBody) : MmsPdu.MmsImage {
-
-        override fun getContentType() = response.contentType().toString()
-        override fun getByteStream() = response.byteStream()
-        override fun getBytes() = response.bytes()
-
-    }
 }

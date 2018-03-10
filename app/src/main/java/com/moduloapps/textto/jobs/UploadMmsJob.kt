@@ -31,7 +31,6 @@ class UploadMmsJob(private val contentType: String, private val imageUrl: String
     }
 
     override fun onRun() {
-
         val component = (applicationContext as BaseApplication).appComponent
 
         if (!component.getSessionController().isLoggedIn()) return
@@ -40,7 +39,18 @@ class UploadMmsJob(private val contentType: String, private val imageUrl: String
 
         val uri = Uri.parse("content://mms/part/$partId")
         val stream: InputStream = applicationContext.contentResolver.openInputStream(uri)
-        val bytes = ImageUtils.compressImage(stream, contentType)
+        var bytes = ImageUtils.compressImage(stream, contentType)
+
+        // Are we able to encrypt the image?
+        val encryptionHelper = component.getEncryptionHelper()
+        if (encryptionHelper.enabled()) {
+            try {
+                bytes = encryptionHelper.encrypt(bytes)
+            } catch (e: Exception) {
+                Log.e(TAG, "Error encrypting image")
+                return
+            }
+        }
 
         val body = RequestBody.create(MediaType.parse(contentType), bytes)
 

@@ -4,6 +4,7 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.util.Log
 import com.crashlytics.android.Crashlytics
+import com.google.gson.JsonObject
 import com.moduloapps.textto.BaseApplication
 import com.moduloapps.textto.api.ApiService
 import com.moduloapps.textto.message.MessageController
@@ -77,16 +78,41 @@ class MessageSyncTask(val apiService: ApiService,
             intent.putExtra(NotificationListener.CLEAR_TEXT_NOTIFICATIONS, true)
             context.startService(intent)
         }
+
+        val encryptionHelper = context.appComponent.getEncryptionHelper()
+
         scheduledMessages.forEach {
             try {
-                it.sent = true
-                apiService.updateScheduledMessage(it._id, it).execute()
-                MessageSender.sendMessage(it, context)
+                var errorDecrypting = false
+
+                // Attempt to decrypt
+                if (it.encrypted) {
+                    try {
+                        Log.e(TAG, "Decrypting message...")
+                        it.decrypt(encryptionHelper)
+                    } catch (e: Exception) {
+                        Log.e(TAG, "Error decrypting $e")
+                        postEncryptionError(it._id)
+                        errorDecrypting = true
+                    }
+                }
+
+                if (!errorDecrypting) {
+                    it.sent = true
+                    apiService.updateScheduledMessage(it._id, it).execute()
+                    MessageSender.sendMessage(it, context)
+                }
             } catch (e: Exception) {
                 Log.d(TAG, "Error deleting scheduled message ${it._id}")
                 Crashlytics.logException(e)
             }
         }
+    }
+
+    private fun postEncryptionError (id: String) {
+        val body = JsonObject()
+        body.addProperty("failureCode", 89)
+        apiService.reportFailed(id, body).execute()
     }
 
 }

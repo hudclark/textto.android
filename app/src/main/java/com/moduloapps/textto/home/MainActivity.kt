@@ -17,6 +17,7 @@ import com.moduloapps.textto.R
 import com.moduloapps.textto.api.ApiService
 import com.moduloapps.textto.api.SessionController
 import com.moduloapps.textto.dialog.EnableNotificationsDialog
+import com.moduloapps.textto.encryption.EncryptionHelper
 import com.moduloapps.textto.login.LoginActivity
 import com.moduloapps.textto.onboarding.OnboardingActivity
 import com.moduloapps.textto.service.ContactSyncService
@@ -37,6 +38,7 @@ class MainActivity: BaseActivity(),
     @Inject lateinit var apiService: ApiService
     @Inject lateinit var prefs: SharedPreferences
     @Inject lateinit var sessionController: SessionController
+    @Inject lateinit var encryptionHelper: EncryptionHelper
 
     private var presenter: HomePresenter? = null
     private var googleApiClient: GoogleApiClient? = null
@@ -77,7 +79,7 @@ class MainActivity: BaseActivity(),
 
         // init presenter
         if (presenter == null)
-            presenter = HomePresenter(apiService, sessionController, prefs)
+            presenter = HomePresenter(apiService, sessionController, prefs, encryptionHelper)
 
         with (presenter!!) {
             onTakeView(this@MainActivity)

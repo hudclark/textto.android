@@ -10,9 +10,11 @@ import android.support.v4.content.ContextCompat
 import android.support.v4.view.ViewCompat
 import android.text.TextUtils
 import android.util.Log
+import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.EditorInfo
 import android.widget.Button
 import android.widget.TextView
 import com.crashlytics.android.Crashlytics
@@ -42,6 +44,11 @@ class EncryptionSetupFragment: Fragment() {
     @Inject lateinit var encryptionHelper: EncryptionHelper
     @Inject lateinit var sessionController: SessionController
 
+    private var onSkippedListener: OnSkippedSettingPasswordListener? = null
+    private var onFinishedListener: OnFinishedSettingPasswordListener? = null
+
+    private var skippable = false
+
     private var currentStage = 0
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -63,10 +70,30 @@ class EncryptionSetupFragment: Fragment() {
         leftButton.setOnClickListener { leftButtonClick() }
         rightButton.setOnClickListener { rightButtonClick() }
 
+        passwordView.setOnEditorActionListener( { view, actionId, event ->
+            if (actionId == EditorInfo.IME_ACTION_DONE ||
+                    actionId == EditorInfo.IME_NULL && event.action == KeyEvent.ACTION_DOWN) {
+                setPassword(passwordView.text?.toString())
+            }
+            true
+        })
+
 
         setStage(if (encryptionHelper.enabled()) 3 else 0)
 
         return rootView
+    }
+
+    fun setSkippable (isSkippable: Boolean) {
+        skippable = isSkippable
+    }
+
+    fun setOnSkippedSettingPasswordListener(listener: OnSkippedSettingPasswordListener) {
+        onSkippedListener = listener
+    }
+
+    fun setOnFinishedSettingPasswordListener(listener: OnFinishedSettingPasswordListener) {
+        onFinishedListener = listener
     }
 
     private fun setStage(stage: Int) {
@@ -103,14 +130,14 @@ class EncryptionSetupFragment: Fragment() {
     private fun setButtonState(stage: Int) {
         when (stage) {
             0 -> {
-                leftButton.visibility = View.GONE
+                leftButton.visibility = if (skippable) View.VISIBLE else View.GONE
+                leftButton.setText(R.string.skip)
 
                 rightButton.setText(R.string.next)
             }
 
             1 -> {
                 leftButton.visibility = View.VISIBLE
-                rightButton.setText(R.string.next)
 
                 leftButton.setText(R.string.back)
                 rightButton.setText(R.string.next)
@@ -154,6 +181,7 @@ class EncryptionSetupFragment: Fragment() {
 
     private fun leftButtonClick() {
         when (currentStage) {
+            0 -> onSkippedListener?.onSkippedSettingPassword()
             1 -> setStage(0)
             2 -> setStage(1)
             3 -> {
@@ -212,7 +240,8 @@ class EncryptionSetupFragment: Fragment() {
                     setIsLoading(false)
                     setStage(3)
 
-                    // TODO need to communicate with owner that we have hit success.
+                    onFinishedListener?.onFinishedSettingPassword()
+
                 })
 
             } catch (e: Exception) {
@@ -232,6 +261,14 @@ class EncryptionSetupFragment: Fragment() {
         if (TextUtils.isEmpty(password)) return "No Password entered."
         if (password!!.length < 4) return "Password must be at least 4 characters."
         return null
+    }
+
+    interface OnSkippedSettingPasswordListener {
+        fun onSkippedSettingPassword()
+    }
+
+    interface OnFinishedSettingPasswordListener {
+        fun onFinishedSettingPassword()
     }
 
 }

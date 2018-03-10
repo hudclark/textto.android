@@ -4,7 +4,10 @@
 
 package com.moduloapps.textto;
 
+import android.util.Base64;
+
 import com.moduloapps.textto.encryption.EncryptionHelper;
+
 import org.junit.Test;
 
 import static junit.framework.Assert.assertEquals;
@@ -32,11 +35,17 @@ public class EncryptionTests {
 
     @Test
     public void testEncryptionDecryption () {
+
+        byte[] b = Base64.encode(new byte[4], Base64.DEFAULT);
+        if (b == null) System.out.println("null");
+
+
         EncryptionHelper helper = new EncryptionHelper(new TestPersistence());
         helper.setPassword("password", "textto");
 
         String plaintext = "hello world!";
         String encrypted = helper.encrypt(plaintext);
+        System.out.println(encrypted);
         assertNotSame(encrypted.substring(32), plaintext);
         String decrypted = helper.decrypt(encrypted);
         assertEquals(plaintext, decrypted);

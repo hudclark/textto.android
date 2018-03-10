@@ -34,6 +34,7 @@
         <include layout="@layout/divider"/>
 
         <fragment
+            android:layout_marginTop="16dp"
             android:layout_width="match_parent"
             android:layout_height="256dp"
             android:name="com.moduloapps.textto.encryption.EncryptionSetupFragment"

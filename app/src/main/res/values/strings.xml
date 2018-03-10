@@ -72,6 +72,7 @@
     <string name="encryption_description_3">The content of your messages will now be encrypted.</string>
 
     <string name="next">Next</string>
+    <string name="skip">Skip</string>
     <string name="back">Back</string>
     <string name="set">Set</string>
     <string name="disable">Disable</string>

@@ -4,6 +4,8 @@
 
 package com.moduloapps.textto.encryption
 
+import android.util.Base64
+import android.util.Log
 import com.moduloapps.textto.persistance.Persistence
 import java.nio.charset.Charset
 import java.security.SecureRandom
@@ -74,14 +76,21 @@ class EncryptionHelper(private val persistence: Persistence) {
      * 16-byte IV + ciphertext
      */
     fun encrypt(plaintext: String): String {
+        val cipherText = encrypt(plaintext.toByteArray(Charset.forName("UTF-8")))
+        return cipherText.toBase64()
+    }
+
+    fun encrypt(bytes: ByteArray): ByteArray {
+        if (this.keySpec == null) throw KeyNotSetException()
 
         val iv = generateIv()
         val ivSpec = IvParameterSpec(iv)
         val cipher = Cipher.getInstance(ENCRYPTION_ALG)
         cipher.init(Cipher.ENCRYPT_MODE, this.keySpec, ivSpec)
 
-        val cipherText = cipher.doFinal(plaintext.toByteArray(Charset.forName("UTF-8")))
-        return iv.toHex() + cipherText.toHex()
+        val cipherText = cipher.doFinal(bytes)
+
+        return (iv + cipherText)
     }
 
     /**
@@ -89,17 +98,24 @@ class EncryptionHelper(private val persistence: Persistence) {
      * 16-byte IV + ciphertext
      */
     fun decrypt(ciphertext: String): String {
+        val bytes = ciphertext.fromBase64()
+        val plainBytes = decrypt(bytes)
+        return plainBytes.toString(Charset.forName("UTF-8"))
+    }
+
+    fun decrypt(bytes: ByteArray): ByteArray {
+        if (this.keySpec == null) throw KeyNotSetException()
 
         // Split ivBytes from cipherBytes
-        val ivBytes = ciphertext.substring(0, IV_LENGTH * 2).fromHex()
-        val cipherBytes = ciphertext.substring(IV_LENGTH * 2).fromHex()
+        val ivBytes = bytes.copyOfRange(0, IV_LENGTH)
+        val cipherBytes = bytes.copyOfRange(IV_LENGTH, bytes.size)
 
         val ivSpec = IvParameterSpec(ivBytes)
         val cipher = Cipher.getInstance(ENCRYPTION_ALG)
         cipher.init(Cipher.DECRYPT_MODE, this.keySpec, ivSpec)
 
-        val plainBytes = cipher.doFinal(cipherBytes)
-        return plainBytes.toString(Charset.forName("UTF-8"))
+        return cipher.doFinal(cipherBytes)
+
     }
 
     /**
@@ -108,6 +124,10 @@ class EncryptionHelper(private val persistence: Persistence) {
     private fun generateIv(): ByteArray {
         return SecureRandom.getSeed(16)
     }
+
+    private fun ByteArray.toBase64() = String(Base64.encode(this, Base64.NO_WRAP), Charset.forName("UTF-8"))
+
+    private fun String.fromBase64() = Base64.decode(this, Base64.NO_WRAP)
 
     // TODO this might be too slow
     private fun ByteArray.toHex(): String {
