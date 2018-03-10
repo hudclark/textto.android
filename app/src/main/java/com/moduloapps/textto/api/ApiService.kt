@@ -56,6 +56,9 @@ interface ApiService {
     @POST("user/endInitialSync")
     fun endInitialSync(): Call<Map<String, String>>
 
+    @POST("user/resyncMessages")
+    fun resyncMessages(): Call<Map<String, String>>
+
     @GET("ping")
     fun ping(): Call<String>
 

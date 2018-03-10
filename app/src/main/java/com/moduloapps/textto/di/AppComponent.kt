@@ -11,6 +11,7 @@ import com.moduloapps.textto.login.LoginActivity
 import com.moduloapps.textto.onboarding.OnboardingActivity
 import com.moduloapps.textto.service.ContactSyncService
 import com.moduloapps.textto.service.MessagingService
+import com.moduloapps.textto.settings.SettingsActivity
 import dagger.Component
 import javax.inject.Singleton
 
@@ -24,6 +25,7 @@ interface AppComponent {
     fun inject(activity: MainActivity)
     fun inject(activity: OnboardingActivity)
     fun inject(activity: LoginActivity)
+    fun inject(activity: SettingsActivity)
 
     fun inject(fragment: EncryptionSetupFragment)
 

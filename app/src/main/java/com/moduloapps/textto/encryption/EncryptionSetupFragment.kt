@@ -78,7 +78,6 @@ class EncryptionSetupFragment: Fragment() {
             true
         })
 
-
         setStage(if (encryptionHelper.enabled()) 3 else 0)
 
         return rootView
