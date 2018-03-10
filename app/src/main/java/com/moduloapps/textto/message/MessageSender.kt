@@ -6,6 +6,7 @@ import android.content.Intent
 import android.support.v4.content.FileProvider
 import android.telephony.SmsManager
 import android.text.TextUtils
+import android.util.Base64
 import android.util.Log
 import com.crashlytics.android.Crashlytics
 import com.crashlytics.android.answers.Answers
@@ -14,6 +15,7 @@ import com.moduloapps.textto.BaseApplication
 import com.moduloapps.textto.message.MmsPdu.Companion.MAX_MMS_IMAGE_SIZE
 import com.moduloapps.textto.model.ScheduledMessage
 import com.moduloapps.textto.utils.ImageUtils
+import java.io.ByteArrayInputStream
 import java.io.File
 import java.io.FileOutputStream
 
@@ -107,19 +109,39 @@ object MessageSender {
         val response = context.appComponent.getApiService().getFile(url).execute().body()
         Log.d(TAG, "Successfully fetched file")
 
-        var imageBytes =
-                if (response.contentType().toString() === "image/gif")
-                    response.bytes()
-                else
-                    ImageUtils.compressImage(response.byteStream(), MAX_MMS_IMAGE_SIZE)
+        var contentType = response.contentType().toString()
 
-        // Decrypt the image if it was encrypted
+        /*
+        If the message was encrypted, decrypt the base64 data
+        It is formatted as such:
+        data:image/jpeg;base64,<image data>
+
+         */
+
+        var imageBytes: ByteArray
+
+
         if (encrypted) {
             val encryptionHelper = context.appComponent.getEncryptionHelper()
-            imageBytes = encryptionHelper.decrypt(imageBytes)
+            val plain = encryptionHelper.decrypt(response.string())
+            val encoded = plain.substring(plain.indexOf(",") + 1)
+            imageBytes = Base64.decode(encoded, Base64.NO_WRAP)
+            contentType = plain.substring(plain.indexOf(":") + 1, plain.indexOf(";"))
         }
 
-        return MmsPdu.MmsImage(response.contentType().toString(), imageBytes)
+        /*
+        If the message was not encrypted, simply read the binary data from the image file.
+         */
+        else {
+            imageBytes = response.bytes()
+        }
+
+        // Compress the image if it is not a gif
+        if (contentType != "image/gif") {
+            imageBytes = ImageUtils.compressImage(ByteArrayInputStream(imageBytes), MAX_MMS_IMAGE_SIZE)
+        }
+
+        return MmsPdu.MmsImage(contentType, imageBytes)
     }
 
     private fun getUniqueRequestCode(scheduledMessage: ScheduledMessage): Int {

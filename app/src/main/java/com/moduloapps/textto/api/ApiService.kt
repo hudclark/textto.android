@@ -35,7 +35,7 @@ interface ApiService {
     fun getFile(@Url url: String): Call<ResponseBody>
 
     @GET("messages/status")
-    fun getStatusUpdate(): Call<StatusUpdate>
+    fun getStatusUpdate(@Query("encrypted") encrypted: Int): Call<StatusUpdate>
 
     @PUT("scheduledMessages/{id}")
     fun updateScheduledMessage(@Path("id") id: String, @Body scheduledMessage: ScheduledMessage):

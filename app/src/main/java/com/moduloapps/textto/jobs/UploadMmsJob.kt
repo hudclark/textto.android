@@ -59,7 +59,7 @@ class UploadMmsJob(private val contentType: String, private val imageUrl: String
         if (encryptionHelper.enabled()) {
             try {
                 mediaType = MediaType.parse("text/plain; charset=utf-8")
-                val data = encryptionHelper.encrypt(bytes.toBase64())
+                val data = encryptionHelper.encrypt("data:$contentType;base64," + bytes.toBase64())
                 body = RequestBody.create(mediaType, data)
             } catch (e: Exception) {
                 Log.e(TAG, "Error encrypting image")

@@ -7,6 +7,7 @@ import com.crashlytics.android.Crashlytics
 import com.google.gson.JsonObject
 import com.moduloapps.textto.BaseApplication
 import com.moduloapps.textto.api.ApiService
+import com.moduloapps.textto.encryption.EncryptionHelper
 import com.moduloapps.textto.message.MessageController
 import com.moduloapps.textto.message.MessageSender
 import com.moduloapps.textto.message.Mms
@@ -31,9 +32,13 @@ class MessageSyncTask(val apiService: ApiService,
         Log.d(TAG, "Starting sync task")
         var isInitialSync = false
         try {
-            val status = apiService.getStatusUpdate().execute().body() ?: return
+            val encryptionHelper = context.appComponent.getEncryptionHelper()
+            val encrypted = if (encryptionHelper.enabled()) 1 else 0
 
-            syncScheduledMessages(status.scheduledMessages)
+            // Whether or not to pull encrypted messages
+            val status = apiService.getStatusUpdate(encrypted).execute().body() ?: return
+
+            syncScheduledMessages(status.scheduledMessages, encryptionHelper)
             Log.d(TAG, status.scheduledMessages.size.toString() + " texts need to be sent")
 
             val sms = status.sms
@@ -71,15 +76,13 @@ class MessageSyncTask(val apiService: ApiService,
         Log.d(TAG, "Finished sync task")
     }
 
-    private fun syncScheduledMessages(scheduledMessages: Array<ScheduledMessage>) {
+    private fun syncScheduledMessages(scheduledMessages: Array<ScheduledMessage>, encryptionHelper: EncryptionHelper) {
         if (scheduledMessages.isNotEmpty()) {
             // Mark messages for this thread as read
             val intent = Intent(context, NotificationListener::class.java)
             intent.putExtra(NotificationListener.CLEAR_TEXT_NOTIFICATIONS, true)
             context.startService(intent)
         }
-
-        val encryptionHelper = context.appComponent.getEncryptionHelper()
 
         scheduledMessages.forEach {
             try {
