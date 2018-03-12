@@ -218,11 +218,12 @@ class EncryptionSetupFragment: Fragment() {
     }
 
     private fun setPassword(password: String?) {
-        val email = sessionController.getDisplayEmail()
+        var email = sessionController.getDisplayEmail()
         if (TextUtils.isEmpty(email)) {
             setError("You do not have a valid email!")
             return
         }
+        email = email.toLowerCase()
 
         val passwordError = validatePassword(password)
         if (passwordError != null) {
