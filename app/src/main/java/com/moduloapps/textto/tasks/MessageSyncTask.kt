@@ -33,10 +33,9 @@ class MessageSyncTask(val apiService: ApiService,
         var isInitialSync = false
         try {
             val encryptionHelper = context.appComponent.getEncryptionHelper()
-            val encrypted = if (encryptionHelper.enabled()) 1 else 0
 
             // Whether or not to pull encrypted messages
-            val status = apiService.getStatusUpdate(encrypted).execute().body() ?: return
+            val status = apiService.getStatusUpdate().execute().body() ?: return
 
             syncScheduledMessages(status.scheduledMessages, encryptionHelper)
             Log.d(TAG, status.scheduledMessages.size.toString() + " texts need to be sent")

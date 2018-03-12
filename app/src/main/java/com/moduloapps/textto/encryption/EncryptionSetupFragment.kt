@@ -9,6 +9,7 @@ import android.support.v4.app.Fragment
 import android.support.v4.content.ContextCompat
 import android.support.v4.view.ViewCompat
 import android.text.TextUtils
+import android.text.method.LinkMovementMethod
 import android.util.Log
 import android.view.KeyEvent
 import android.view.LayoutInflater
@@ -65,6 +66,10 @@ class EncryptionSetupFragment: Fragment() {
         rightButton = rootView.findViewById(R.id.button_right)
         loadingView = rootView.findViewById(R.id.loading)
         errorView = rootView.findViewById(R.id.error)
+
+
+        // Init clicking on links
+        descriptionView.movementMethod = LinkMovementMethod.getInstance()
 
         // Init left, right buttons
         leftButton.setOnClickListener { leftButtonClick() }

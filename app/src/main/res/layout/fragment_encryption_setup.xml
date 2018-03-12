@@ -50,6 +50,7 @@
             android:paddingTop="8dp">
 
             <TextView
+                android:clickable="true"
                 android:id="@+id/description"
                 android:visibility="visible"
                 android:layout_width="wrap_content"

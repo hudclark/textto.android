@@ -68,7 +68,7 @@
     <string name="encryption_title_3">You\'re Set!</string>
 
     <string name="encryption_description_0">Setting a master password will enable end-to-end encryption. For more information, visit <a href="https://textto.io/e2e">https://textto.io/e2e</a>.</string>
-    <string name="encryption_description_1">You <i><strong>must</strong></i> also enter the same master password on your computer</string>
+    <string name="encryption_description_1">You <i><strong>must</strong></i> have the same master password on your computer</string>
     <string name="encryption_description_3">The content of your messages will now be encrypted.</string>
 
     <string name="next">Next</string>
