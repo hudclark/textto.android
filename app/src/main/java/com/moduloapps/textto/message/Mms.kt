@@ -74,7 +74,8 @@ object Mms {
                 body = null,
                 sender = sender,
                 addresses = addresses,
-                date = date * 1000)
+                date = date * 1000,
+                encrypted = false) // MessageController encrypts is possible
     }
 
     // https://github.com/aosp-mirror/platform_packages_apps_mms/blob/master/src/com/android/mms/ui/MessageItem.java#L225

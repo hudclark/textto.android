@@ -7,12 +7,6 @@ import android.media.ThumbnailUtils
 import android.net.Uri
 import android.util.Base64
 import android.util.Log
-import com.moduloapps.textto.api.ApiService
-import com.moduloapps.textto.api.RetryCallback
-import okhttp3.MediaType
-import okhttp3.RequestBody
-import retrofit2.Call
-import retrofit2.Response
 import java.io.ByteArrayOutputStream
 import java.io.InputStream
 

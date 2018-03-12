@@ -19,10 +19,13 @@ import com.moduloapps.textto.BaseApplication
 import com.moduloapps.textto.R
 import com.moduloapps.textto.api.PublicApiService
 import com.moduloapps.textto.api.SessionController
+import com.moduloapps.textto.encryption.EncryptionSetupFragment
 import com.moduloapps.textto.home.MainActivity
 import javax.inject.Inject
 
-class LoginActivity : BaseActivity(), View.OnClickListener, LoginPresenter.View {
+class LoginActivity : BaseActivity(), View.OnClickListener, LoginPresenter.View,
+        EncryptionSetupFragment.OnFinishedSettingPasswordListener,
+        EncryptionSetupFragment.OnSkippedSettingPasswordListener {
 
     private val TAG = "LoginActivity"
 
@@ -109,7 +112,24 @@ class LoginActivity : BaseActivity(), View.OnClickListener, LoginPresenter.View 
     override fun onLoginSuccess() {
         Log.d(TAG, "Successfully signed in")
         Answers.getInstance().logLogin(LoginEvent().putSuccess(true))
-        redirectToMainActivity()
+
+        /*
+        Now start showing the option to set master password for e2e.
+         */
+        transitionToEncryptionSetup()
+    }
+
+    private fun transitionToEncryptionSetup() {
+        val fragment = EncryptionSetupFragment()
+        fragment.setSkippable(true)
+        fragment.setOnFinishedSettingPasswordListener(this)
+        fragment.setOnSkippedSettingPasswordListener(this)
+
+        findViewById<View>(R.id.login_card).visibility = View.GONE
+
+        val transaction = supportFragmentManager.beginTransaction()
+        transaction.add(R.id.fragment_container, fragment)
+        transaction.commit()
     }
 
     override fun getBaseApplication() = applicationContext as BaseApplication
@@ -125,4 +145,13 @@ class LoginActivity : BaseActivity(), View.OnClickListener, LoginPresenter.View 
         startActivity(intent)
         finish()
     }
+
+    override fun onFinishedSettingPassword() {
+        redirectToMainActivity()
+    }
+
+    override fun onSkippedSettingPassword() {
+        redirectToMainActivity()
+    }
+
 }

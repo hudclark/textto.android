@@ -10,6 +10,7 @@ import com.google.android.gms.common.api.GoogleApiClient
 import com.moduloapps.textto.BaseApplication
 import com.moduloapps.textto.api.ApiService
 import com.moduloapps.textto.api.SessionController
+import com.moduloapps.textto.encryption.EncryptionHelper
 import com.moduloapps.textto.service.ContactSyncService
 import com.moduloapps.textto.service.SmsObserverService
 import com.moduloapps.textto.tasks.MessageSyncTask
@@ -25,7 +26,8 @@ import retrofit2.Response
  */
 class HomePresenter(val apiService: ApiService,
                     val sessionController: SessionController,
-                    val prefs: SharedPreferences) {
+                    val prefs: SharedPreferences,
+                    val encryptionHelper: EncryptionHelper) {
 
     private val TAG = "HomePresenter"
 
@@ -112,6 +114,10 @@ class HomePresenter(val apiService: ApiService,
         if (googleApiClient.isConnected) {
             Auth.GoogleSignInApi.signOut(googleApiClient)
         }
+
+        if (encryptionHelper.enabled()) encryptionHelper.disable()
+
+
         view?.let {
             val refreshToken = sessionController.getRefreshToken()
             apiService.revokeToken(refreshToken)

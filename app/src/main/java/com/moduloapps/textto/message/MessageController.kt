@@ -7,11 +7,15 @@ import android.net.Uri
 import android.provider.Telephony
 import android.support.v4.content.ContextCompat
 import android.telephony.TelephonyManager
+import android.util.Log
 import com.google.i18n.phonenumbers.PhoneNumberUtil
+import com.moduloapps.textto.BaseApplication
 import com.moduloapps.textto.api.ApiService
 import com.moduloapps.textto.api.MAX_MESSAGES_PER_REQUEST
 import com.moduloapps.textto.api.MAX_MMS_PARTS_PER_REQUEST
+import com.moduloapps.textto.encryption.EncryptionHelper
 import com.moduloapps.textto.model.Message
+import com.moduloapps.textto.model.MmsPart
 import com.moduloapps.textto.utils.forEach
 import com.moduloapps.textto.utils.whileUnder
 import java.util.*
@@ -79,6 +83,11 @@ object MessageController {
     }
 
     fun postMessages(messages: List<Message>, context: Application, apiService: ApiService) {
+        val encryptionHelper = (context as BaseApplication).appComponent.getEncryptionHelper()
+
+        if (encryptionHelper.enabled()) {
+            encryptMessages(messages, encryptionHelper)
+        }
 
         // post messages
         apiService.createMessages(messages).execute()
@@ -86,6 +95,12 @@ object MessageController {
         // post mms parts
         messages.filter { it.type == "mms" }
                 .flatMap { Mms.getPartsForMms(it.androidId, context) }
+                .let { // encrypt
+                    if (encryptionHelper.enabled()) {
+                        encryptMmsParts(it, encryptionHelper)
+                    }
+                    it
+                }
                 .chunked(MAX_MMS_PARTS_PER_REQUEST)
                 .forEach { Mms.postParts(it, apiService, context) }
     }
@@ -103,6 +118,27 @@ object MessageController {
         }
         return null
     }
+
+    fun encryptMessages (messages: List<Message>, encryptionHelper: EncryptionHelper) {
+        messages.forEach {
+            try {
+                it.encrypt(encryptionHelper)
+            } catch (e: Exception) {
+                Log.e(TAG, e.toString())
+            }
+        }
+    }
+
+    fun encryptMmsParts (parts: List<MmsPart>, encryptionHelper: EncryptionHelper) {
+        parts.forEach {
+            try {
+                it.encrypt(encryptionHelper)
+            } catch (e: Exception) {
+                Log.e(TAG, e.toString())
+            }
+        }
+    }
+
 
 
 }

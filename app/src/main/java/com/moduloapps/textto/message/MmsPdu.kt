@@ -4,8 +4,6 @@ import android.content.Context
 import android.text.TextUtils
 import android.util.Log
 import com.crashlytics.android.Crashlytics
-import com.moduloapps.textto.utils.ImageUtils
-import java.io.InputStream
 
 /**
  * Created by hudson on 12/16/17.
@@ -19,7 +17,7 @@ class MmsPdu(private val to: Array<String>) {
         /*
         Lowered to 250kb after errors using 300kb.
          */
-        private val MAX_MMS_IMAGE_SIZE = 250 * 1024
+        val MAX_MMS_IMAGE_SIZE = 250 * 1024
         private val EXPIRY_TIME: Long = 7 * 24 * 60 * 60
         private val PRIORITY = 0x81
         private val VALUE_NO = 0x81
@@ -89,22 +87,17 @@ class MmsPdu(private val to: Array<String>) {
 
         val filename = "image_${System.currentTimeMillis()}" // needs to be unique
         val filenameBytes = filename.toByteArray()
-        val imageBytes =
-                if (image.getContentType() === "image/gif")
-                    image.getBytes()
-                else
-                    ImageUtils.compressImage(image.getByteStream(), MAX_MMS_IMAGE_SIZE)
 
-        PduPart.invoke(part, "setContentType", image.getContentType().toByteArray())
+        PduPart.invoke(part, "setContentType", image.contentType.toByteArray())
         PduPart.invoke(part, "setContentLocation", filenameBytes)
         PduPart.invoke(part, "setContentId", filenameBytes)
-        PduPart.invoke(part, "setData", imageBytes)
+        PduPart.invoke(part, "setData", image.bytes)
 
         // add part to body
         PduBody.invoke(pduBody, "addPart", part)
 
         // add smil
-        addSmil(getSmilText(image.getContentType(), filename))
+        addSmil(getSmilText(image.contentType, filename))
 
         val bytes = PduPart.invoke(part, "getData") as ByteArray
         return bytes.size + filenameBytes.size
@@ -189,11 +182,7 @@ class MmsPdu(private val to: Array<String>) {
                     "<par dur=\"8000ms\">" +
                     "<text src=\"text_0.txt\" region=\"Text\"/>"
 
-    interface MmsImage {
-        fun getContentType(): String
-        fun getByteStream(): InputStream
-        fun getBytes(): ByteArray
-    }
+    data class MmsImage( val contentType: String, val bytes: ByteArray )
 
 
 }

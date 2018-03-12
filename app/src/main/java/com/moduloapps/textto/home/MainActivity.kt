@@ -17,11 +17,13 @@ import com.moduloapps.textto.R
 import com.moduloapps.textto.api.ApiService
 import com.moduloapps.textto.api.SessionController
 import com.moduloapps.textto.dialog.EnableNotificationsDialog
+import com.moduloapps.textto.encryption.EncryptionHelper
 import com.moduloapps.textto.login.LoginActivity
 import com.moduloapps.textto.onboarding.OnboardingActivity
 import com.moduloapps.textto.service.ContactSyncService
 import com.moduloapps.textto.service.NotificationListener
 import com.moduloapps.textto.service.SmsObserverService
+import com.moduloapps.textto.settings.SettingsActivity
 import com.moduloapps.textto.utils.PERMISSIONS_CODE
 import com.moduloapps.textto.utils.getNeededPermissions
 import com.moduloapps.textto.utils.requestPermissions
@@ -36,6 +38,7 @@ class MainActivity: BaseActivity(),
     @Inject lateinit var apiService: ApiService
     @Inject lateinit var prefs: SharedPreferences
     @Inject lateinit var sessionController: SessionController
+    @Inject lateinit var encryptionHelper: EncryptionHelper
 
     private var presenter: HomePresenter? = null
     private var googleApiClient: GoogleApiClient? = null
@@ -54,7 +57,7 @@ class MainActivity: BaseActivity(),
             return
         }
 
-        // no redirects
+        // no redirect
         setContentView(R.layout.activity_main)
         initSyncButtons()
 
@@ -69,9 +72,14 @@ class MainActivity: BaseActivity(),
             Answers.getInstance().logCustom(CustomEvent("Log Out"))
         }
 
+        // Init settings button
+        findViewById<View>(R.id.settings_btn)?.setOnClickListener {
+            startActivity(Intent(this, SettingsActivity::class.java))
+        }
+
         // init presenter
         if (presenter == null)
-            presenter = HomePresenter(apiService, sessionController, prefs)
+            presenter = HomePresenter(apiService, sessionController, prefs, encryptionHelper)
 
         with (presenter!!) {
             onTakeView(this@MainActivity)

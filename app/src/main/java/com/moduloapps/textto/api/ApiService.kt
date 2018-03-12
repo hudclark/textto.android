@@ -34,7 +34,7 @@ interface ApiService {
     @GET
     fun getFile(@Url url: String): Call<ResponseBody>
 
-    @GET("messages/status")
+    @GET("messages/status?encrypted=1")
     fun getStatusUpdate(): Call<StatusUpdate>
 
     @PUT("scheduledMessages/{id}")
@@ -55,6 +55,9 @@ interface ApiService {
 
     @POST("user/endInitialSync")
     fun endInitialSync(): Call<Map<String, String>>
+
+    @POST("user/resyncMessages")
+    fun resyncMessages(): Call<Map<String, String>>
 
     @GET("ping")
     fun ping(): Call<String>

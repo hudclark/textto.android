@@ -66,7 +66,8 @@ object Sms {
                 sender = sender,
                 date = cur.getLong(cur.getColumnIndex(Telephony.Sms.DATE)),
                 addresses = arrayListOf(addr),
-                type = "sms")
+                type = "sms",
+                encrypted = false) // MessageController encrypts if possible
     }
 
 }

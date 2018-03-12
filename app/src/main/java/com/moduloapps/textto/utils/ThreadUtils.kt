@@ -23,4 +23,9 @@ object ThreadUtils {
     fun runOnMainThread(runnable: Runnable, delay: Long) {
         mainThreadHandler.postDelayed(runnable, delay)
     }
+
+    // TODO could use pooling here!
+    fun runInBackground(runnable: Runnable) {
+        Thread(runnable).start()
+    }
 }
