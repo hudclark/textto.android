@@ -33,6 +33,7 @@ object Mms {
         val messageCount = Math.min(cur.count, 1000)
         val messages = ArrayList<Message>()
 
+        // TODO this should be a try for each. A single corrupted message shouldn't stop all from syncing.
         cur.whileUnder(messageCount, {
             val message = getMmsForCursor(it, context)
             messages.add(message)
