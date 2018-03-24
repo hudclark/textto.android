@@ -13,7 +13,7 @@ import com.moduloapps.textto.message.MessageSender
 import com.moduloapps.textto.message.Mms
 import com.moduloapps.textto.message.Sms
 import com.moduloapps.textto.model.ScheduledMessage
-import com.moduloapps.textto.service.NotificationListener
+import com.moduloapps.textto.notifications.NotificationListener
 
 /**
  * Created by hudson on 7/14/17.

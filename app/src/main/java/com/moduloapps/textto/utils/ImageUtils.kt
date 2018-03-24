@@ -3,6 +3,9 @@ package com.moduloapps.textto.utils
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.drawable.Drawable
 import android.media.ThumbnailUtils
 import android.net.Uri
 import android.util.Base64
@@ -20,8 +23,22 @@ class ImageUtils {
 
         val TAG = "ImageUtils"
 
-        fun compressImage(inStream: InputStream, compressedSize: Int): ByteArray {
+        fun compressPngImage (bitmap: Bitmap, compressedSize: Int): ByteArray {
+            // Replace alpha with white background
+            val jpeg = Bitmap.createBitmap(bitmap.width, bitmap.height, bitmap.config)
+            jpeg.eraseColor(Color.WHITE)
+            val canvas = Canvas(jpeg)
+            canvas.drawBitmap(bitmap, 0f, 0f, null)
+            bitmap.recycle()
+            return compressImage(jpeg, compressedSize)
+        }
+
+        fun compressImage (inStream: InputStream, compressedSize: Int): ByteArray {
             val bitmap = BitmapFactory.decodeStream(inStream)
+            return compressImage(bitmap, compressedSize)
+        }
+
+        fun compressImage(bitmap: Bitmap, compressedSize: Int): ByteArray {
             val outStream = ByteArrayOutputStream()
             var compressQuality = 100
             var streamLength = compressedSize
@@ -71,6 +88,14 @@ class ImageUtils {
             }
             inputStream.close()
             return bytes
+        }
+
+        fun drawableToBitmap (drawable: Drawable): Bitmap {
+            val bitmap = Bitmap.createBitmap(drawable.intrinsicWidth, drawable.intrinsicHeight, Bitmap.Config.ARGB_8888)
+            val canvas = Canvas(bitmap)
+            drawable.setBounds(0, 0, canvas.width, canvas.height)
+            drawable.draw(canvas)
+            return bitmap
         }
 
         fun createThumbnail(uri: Uri, context: Context): String? {

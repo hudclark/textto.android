@@ -5,6 +5,9 @@ import android.util.Log
 import com.crashlytics.android.Crashlytics
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.gson.JsonObject
+import com.moduloapps.textto.utils.fromBase64
+import org.json.JSONObject
+import java.nio.charset.Charset
 
 /**
  * Created by hudson on 7/15/17.
@@ -56,6 +59,22 @@ class SessionController(var apiService: PublicApiService, val prefs: SharedPrefe
     }
 
     fun isLoggedIn() = getRefreshToken() != null
+
+    fun isPro (): Boolean {
+        // parse token
+        var pro = false
+        getAuthToken()?.let {
+            try {
+                val encodedBody = it.split(".")
+                val jsonBody = String(encodedBody[1].fromBase64(), Charset.forName("UTF-8"))
+                val body = JSONObject(jsonBody)
+                pro = body.getJSONObject("data").getBoolean("pro")
+            } catch (e: Exception) {
+                Log.e(TAG, e.toString())
+            }
+        }
+        return pro
+    }
 
     fun saveSignInAccount(account: GoogleSignInAccount?) {
         account?.let {

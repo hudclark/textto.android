@@ -8,6 +8,7 @@ import com.moduloapps.textto.encryption.EncryptionHelper
 import com.moduloapps.textto.encryption.EncryptionSetupFragment
 import com.moduloapps.textto.home.MainActivity
 import com.moduloapps.textto.login.LoginActivity
+import com.moduloapps.textto.notifications.NotificationListener
 import com.moduloapps.textto.onboarding.OnboardingActivity
 import com.moduloapps.textto.service.ContactSyncService
 import com.moduloapps.textto.service.MessagingService
@@ -31,6 +32,7 @@ interface AppComponent {
 
     fun inject(service: MessagingService)
     fun inject(service: ContactSyncService)
+    fun inject(service: NotificationListener)
 
     fun getSessionController(): SessionController
     fun getPublicApiService(): PublicApiService
