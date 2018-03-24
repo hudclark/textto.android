@@ -12,6 +12,7 @@ import com.moduloapps.textto.BaseApplication
 import com.moduloapps.textto.R
 import com.moduloapps.textto.api.TimeoutPinger
 import com.moduloapps.textto.home.MainActivity
+import com.moduloapps.textto.notifications.NotificationListener
 import com.moduloapps.textto.tasks.MessageSyncTask
 import com.moduloapps.textto.utils.SYNC_CHANNEL_ID
 import com.moduloapps.textto.utils.ThreadUtils
@@ -27,11 +28,12 @@ class SmsObserverService: Service(), TimeoutPinger.OnFailedListener {
         val STOP_FOREGROUND = "stopForeground"
         val PING_FOREGROUND = "pingForeground"
         val PING_TIMESTAMP = "pingTimestamp"
+
+        var runningInForeground = false
     }
 
     private var observer: SmsObserver? = null
     private val TAG = "SmsObserverService"
-    private var isForeground = false
 
     private val pinger = TimeoutPinger(this)
 
@@ -47,6 +49,8 @@ class SmsObserverService: Service(), TimeoutPinger.OnFailedListener {
             observer = null
         }
         pinger.stopPinging()
+
+        runningInForeground = false
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -76,9 +80,8 @@ class SmsObserverService: Service(), TimeoutPinger.OnFailedListener {
 
     private fun ensureForegroundStarted() {
         startForeground(1, createNotification()) // Fix for oreo. NEED to call if going to start in background
-        if (!isForeground) {
+        if (!runningInForeground) {
             Log.d(TAG, "Starting foreground")
-            isForeground = true
             pinger.startPinging()
 
             val app = applicationContext as BaseApplication
@@ -86,18 +89,21 @@ class SmsObserverService: Service(), TimeoutPinger.OnFailedListener {
             ThreadUtils.runSingleThreadTask(MessageSyncTask(app.appComponent.getApiService(),
                     app, app.appComponent.getSharedPrefs()))
         }
+
+        runningInForeground = true
     }
 
     private fun ensureForegroundStopped() {
         if (!NotificationListener.isRunning) {
             applicationContext.startService(Intent(applicationContext, NotificationListener::class.java))
         }
-        if (isForeground) {
+        if (runningInForeground) {
             Log.d(TAG, "Stopping foreground")
-            isForeground = false
             stopForeground(true)
             pinger.stopPinging()
         }
+
+        runningInForeground = false
     }
 
     private fun createNotification(): Notification {

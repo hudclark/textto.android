@@ -4,9 +4,9 @@
 
 package com.moduloapps.textto.encryption
 
-import android.util.Base64
-import android.util.Log
 import com.moduloapps.textto.persistance.Persistence
+import com.moduloapps.textto.utils.fromBase64
+import com.moduloapps.textto.utils.toBase64
 import java.nio.charset.Charset
 import java.security.SecureRandom
 import java.util.*
@@ -125,9 +125,6 @@ class EncryptionHelper(private val persistence: Persistence) {
         return SecureRandom.getSeed(16)
     }
 
-    private fun ByteArray.toBase64() = String(Base64.encode(this, Base64.NO_WRAP), Charset.forName("UTF-8"))
-
-    private fun String.fromBase64() = Base64.decode(this, Base64.NO_WRAP)
 
     // TODO this might be too slow
     private fun ByteArray.toHex(): String {

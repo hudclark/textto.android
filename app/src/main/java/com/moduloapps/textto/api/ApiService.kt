@@ -64,4 +64,7 @@ interface ApiService {
 
     @POST("revokeToken")
     fun revokeToken(@Query("refreshToken") refreshToken: String): Observable<Map<String, String>>
+
+    @POST("notifications")
+    fun postNotification(@Body notification: Notification): Call<String>
 }

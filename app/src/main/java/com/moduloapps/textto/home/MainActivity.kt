@@ -21,7 +21,7 @@ import com.moduloapps.textto.encryption.EncryptionHelper
 import com.moduloapps.textto.login.LoginActivity
 import com.moduloapps.textto.onboarding.OnboardingActivity
 import com.moduloapps.textto.service.ContactSyncService
-import com.moduloapps.textto.service.NotificationListener
+import com.moduloapps.textto.notifications.NotificationListener
 import com.moduloapps.textto.service.SmsObserverService
 import com.moduloapps.textto.settings.SettingsActivity
 import com.moduloapps.textto.utils.PERMISSIONS_CODE
