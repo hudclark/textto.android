@@ -48,7 +48,7 @@ class MessageSyncTask(val apiService: ApiService,
                 Log.d(TAG, "Syncing recent threads")
                 isInitialSync = true
                 apiService.startInitialSync().execute()
-                MessageController.syncRecentThreads(context, apiService, 20)
+                MessageController.syncRecentThreads(context, apiService, 15, 20)
             } else {
                 // We need to make sure to sync anything 'recent' -- however that is defined.
                 // This should only ever be used once for sms/mms

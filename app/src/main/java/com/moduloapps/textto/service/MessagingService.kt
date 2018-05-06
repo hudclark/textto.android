@@ -10,6 +10,7 @@ import com.google.firebase.messaging.RemoteMessage
 import com.moduloapps.textto.BaseApplication
 import com.moduloapps.textto.api.ApiService
 import com.moduloapps.textto.api.SessionController
+import com.moduloapps.textto.message.MessageController
 import com.moduloapps.textto.tasks.MessageSyncTask
 import com.moduloapps.textto.utils.ThreadUtils
 import javax.inject.Inject
@@ -31,6 +32,7 @@ class MessagingService: FirebaseMessagingService() {
     private val TYPE_START_SESSION = "startSession"
     private val TYPE_STOP_SESSION = "endSession"
     private val TYPE_PING_SESSION = "pingSession"
+    private val TYPE_SYNC_OLD_THREADS = "syncOldThreads"
 
     override fun onCreate() {
         super.onCreate()
@@ -49,6 +51,23 @@ class MessagingService: FirebaseMessagingService() {
                 intent.putExtra(SmsObserverService.FOREGROUND_EXTRA, SmsObserverService.START_FOREGROUND)
                 startServiceCompat(intent)
                 ThreadUtils.runSingleThreadTask(MessageSyncTask(apiService, applicationContext as BaseApplication, prefs))
+            }
+
+            TYPE_SYNC_OLD_THREADS -> {
+                ThreadUtils.runSingleThreadTask(Runnable {
+                    try {
+                        val numberOfThreads = msg.data["numberOfThreads"]!!.toInt()
+                        val messagesPerThread = msg.data["messagesPerThread"]!!.toInt()
+                        val alreadySynced = msg.data["alreadySynced"]!!.split(",").map {it.toInt()}
+                        Log.d(TAG, alreadySynced.toString())
+                        val threads = MessageController.getRecentThreads(numberOfThreads, applicationContext)
+                                .filter { !alreadySynced.contains(it)}
+                        Log.d(TAG, threads.toString())
+                        MessageController.syncThreads(threads, application, apiService, messagesPerThread)
+                    } catch (e: Exception) {
+                        Crashlytics.logException(e)
+                    }
+                })
             }
 
             TYPE_SYNC_CONTACTS -> {

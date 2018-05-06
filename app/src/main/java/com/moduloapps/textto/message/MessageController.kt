@@ -27,10 +27,14 @@ object MessageController {
 
     private val TAG = "MessageController"
 
-    fun syncRecentThreads(context: Application, apiService: ApiService, messagesPerThread: Int) {
-        val threads = getTwentyRecentThreads(context)
-        val messages = ArrayList<Message>()
+    fun syncRecentThreads(context: Application, apiService: ApiService, numberOfThreads: Int, messagesPerThread: Int) {
+        val threads = getRecentThreads(numberOfThreads, context)
+        syncThreads(threads, context, apiService, messagesPerThread)
+    }
 
+    fun syncThreads (threads: List<Int>, context: Application, apiService: ApiService, messagesPerThread: Int) {
+
+        val messages = ArrayList<Message>()
         threads.forEach {
             messages.addAll(getMessagesForThread(context, it, messagesPerThread))
             if (messages.size > MAX_MESSAGES_PER_REQUEST) {
@@ -67,13 +71,13 @@ object MessageController {
         return messages
     }
 
-    private fun getTwentyRecentThreads(context: Context): List<Int> {
+    fun getRecentThreads(numberOfThreads: Int, context: Context): List<Int> {
         val threadIdProjection = arrayOf(Telephony.Threads._ID, Telephony.Threads.DATE)
         val uri = Uri.parse("content://mms-sms/conversations?simple=true")
         val cur = context.contentResolver.query(uri, threadIdProjection, null, null, "${Telephony.Threads.DATE} desc")
-        val threads = ArrayList<Int>(15)
+        val threads = ArrayList<Int>(numberOfThreads)
 
-        cur.whileUnder(15, {
+        cur.whileUnder(numberOfThreads, {
             val id = it.getInt(it.getColumnIndex("_id"))
             threads.add(id)
         })
