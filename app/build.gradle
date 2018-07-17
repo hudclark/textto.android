@@ -31,7 +31,7 @@ android {
         }
         release {
             minifyEnabled true
-            buildConfigField "String", "API_URL", '"https://api.textto.io"'
+            buildConfigField "String", "API_URL", '"https://api.sendleap.com"'
 
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
