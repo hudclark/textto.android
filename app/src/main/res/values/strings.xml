@@ -1,14 +1,14 @@
 <resources>
-    <string name="app_name">Textto</string>
+    <string name="app_name">SendLeap</string>
     <string name="client_id">447535604738-jp8o5if9nhl2v2b4ba5o425up9gmn7kr.apps.googleusercontent.com</string>
 
     <string name="text_anywhere">Text From Your Computer</string>
-    <string name="text_anywhere_message">Visit Textto.io to use the web app or download the desktop application for Mac, Windows, or Linux.</string>
+    <string name="text_anywhere_message">Visit SendLeap.com to use the web app or download the desktop application for Mac, Windows, or Linux.</string>
 
     <string name="dont_change">Keep Your Texting App</string>
-    <string name="dont_change_message">Textto syncs with your existing sms app. There\'s no need to change!</string>
+    <string name="dont_change_message">SendLeap syncs with your existing sms app. There\'s no need to change!</string>
 
-    <string name="permissions_title">Textto needs these permissions to work.</string>
+    <string name="permissions_title">SendLeap needs these permissions to work.</string>
     <string name="permissions_message">Let\'s Get Set Up</string>
     <string name="enable_permissions">Allow Access</string>
 
@@ -21,19 +21,19 @@
     <string name="phone_permission_title">Phone</string>
     <string name="phone_permission_message">Access your device\'s sim card.</string>
 
-    <string name="need_permissions">Textto needs all of the above permissions to work.</string>
+    <string name="need_permissions">SendLeap needs all of the above permissions to work.</string>
     <string name="missing_permissions">Required permissions are not enabled</string>
     <string name="enable">Enable</string>
     <string name="dismiss">Dismiss</string>
 
     <string name="dont_want_to_see">Don\'t want to see this? Press and hold to block.</string>
 
-    <string name="visit">Visit <a href="https://textto.io">Textto.io</a> to text from your computer</string>
+    <string name="visit">Visit <a href="https://sendleap.com">SendLeap.com</a> to text from your computer</string>
 
     <string name="welcome">Welcome</string>
     <string name="logout">Log Out</string>
 
-    <string name="terms">By signing in you agree to the <a href="https://textto.io/legal/terms">terms and conditions</a> and <a href="https://textto.io/legal/privacy">privacy policy</a>.</string>
+    <string name="terms">By signing in you agree to the <a href="https://sendleap.com/legal/terms">terms and conditions</a> and <a href="https://sendleap.com/legal/privacy">privacy policy</a>.</string>
 
     <string name="messages">Messages</string>
     <string name="sync">Sync Now</string>
@@ -42,13 +42,13 @@
     <string name="sign_in">Sign In</string>
 
     <string name="enable_notification_access">Enable Notification Access</string>
-    <string name="clear_old">Textto will clear old text notifications</string>
-    <string name="enable_notification_message">Textto will clear your texting app\'s notifications when you send a new message.</string>
+    <string name="clear_old">SendLeap will clear old text notifications</string>
+    <string name="enable_notification_message">SendLeap will clear your texting app\'s notifications when you send a new message.</string>
 
     <string name="contact_support">Contact Support</string>
 
     <string name="syncing_contacts">Syncing Contacts</string>
-    <string name="connected">Connected to Textto.io</string>
+    <string name="connected">Connected to SendLeap.com</string>
 
 
     <!-- Settings -->
@@ -67,7 +67,7 @@
     <string name="encryption_title_2">Enter Master Password.</string>
     <string name="encryption_title_3">You\'re Set!</string>
 
-    <string name="encryption_description_0">Setting a master password will enable end-to-end encryption. For more information, visit <a href="https://textto.io/e2e">https://textto.io/e2e</a>.</string>
+    <string name="encryption_description_0">Setting a master password will enable end-to-end encryption. For more information, visit <a href="https://sendleap.com/e2e">https://SendLeap.com/e2e</a>.</string>
     <string name="encryption_description_1">You <i><strong>must</strong></i> have the same master password on your computer</string>
     <string name="encryption_description_3">The content of your messages will now be encrypted.</string>
 
